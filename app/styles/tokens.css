@@ -32,6 +32,16 @@
   --color-text-faint: hsl(230, 8%, 58%);
   --color-text-on-dark: hsl(220, 24%, 97%);
 
+  /*
+   * The site's one sanctioned dark moment (Foyer Acts I–II — "cold open"
+   * per The Walkthrough, before Act III's "warm light breaks in for the
+   * first time"). Same hue family as --color-text (230), just taken
+   * much darker, rather than an unrelated hue — keeps "one palette per
+   * project" intact through the one deliberate light→dark exception
+   * taste-skill's Page Theme Lock allows (4.11).
+   */
+  --color-hero-ground: hsl(230, 24%, 7%);
+
   /* ---- the one accent: aso-oke gold ---- */
   --color-gold: hsl(42, 55%, 42%);
   --color-gold-ink: hsl(40, 58%, 34%);

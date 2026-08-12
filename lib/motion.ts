@@ -75,3 +75,67 @@ export const pageTransition: Variants = {
   animate: { opacity: 1, y: 0, transition: { duration: duration.settle, ease: ease.out } },
   exit: { opacity: 0, y: -8, transition: { duration: duration.reveal, ease: ease.standard } },
 };
+
+/**
+ * Hero headline lines — blur-in + letter-spacing collapse.
+ *
+ * `filter` and `letter-spacing` aren't in emil-design-eng's transform/
+ * opacity-only fast path (they trigger paint, not just compositing). The
+ * rule exists to protect *frequent* animations — hovers, scroll reveals,
+ * anything retriggered often. This runs exactly once, on two short text
+ * nodes, on initial page load. That's the legitimate exception, not a
+ * violation: cost is negligible, and nothing else on the page is
+ * animating at the same moment competing for paint budget.
+ */
+export const heroLine: Variants = {
+  hidden: { opacity: 0, y: 18, filter: "blur(14px)", letterSpacing: "0.12em" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    letterSpacing: "-0.01em",
+    transition: { duration: duration.cinematic + 0.1, ease: ease.out },
+  },
+};
+
+/** Wraps heroLine children with a cinematic (not micro-UI) stagger — see HeroSection's choreography comment for why 220ms, not the usual 30–80ms. */
+export const heroLineGroup: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.22, delayChildren: 0.15 } },
+};
+
+// Both delays below (2.1s) are baked into the variant itself, not passed
+// as a separate `transition` prop at the call site — Motion resolves a
+// variant's own `transition` and a component's `transition` prop through
+// a merge whose precedence isn't worth relying on. One source of truth
+// here is unambiguous; see HeroSection.tsx's choreography comment for
+// why 2.1s (a beat after the headline settles).
+
+/** Hero subhead — a quieter, more delayed fade-up than gentleReveal. */
+export const heroSubhead: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: duration.settle + 0.24, ease: ease.out, delay: 2.1 },
+  },
+};
+
+/** Hero CTA row — appears last, a light stagger between the two buttons. */
+export const heroActions: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12, delayChildren: 2.1 } },
+};
+export const heroAction: Variants = {
+  hidden: { opacity: 0, y: 8 },
+  visible: { opacity: 1, y: 0, transition: { duration: duration.settle, ease: ease.out } },
+};
+
+/**
+ * Magnetic button spring — damped, not snappy. "Luxurious" hover means
+ * the button trails the cursor a beat behind, like it has real mass.
+ * Stiffer than the cursor dot's spring (that one has to feel instant and
+ * track precisely; this one is decorative and can afford weight).
+ */
+export const magneticSpring = { stiffness: 150, damping: 18, mass: 0.6 } as const;
+
