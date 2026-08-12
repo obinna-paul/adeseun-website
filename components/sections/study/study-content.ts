@@ -102,4 +102,5 @@ export const HERO_LINE = "Everything you've read about her started at this desk.
 export const CTA_HEADLINE = "Bring her into the room.";
 export const CTA_BODY =
   "For speaking, board advisory, or a conversation that doesn't fit in an inbox — every engagement starts the same way this page did.";
-export const CTA_HREF = "/table";
+// "The Table" was renamed "The Invitation" — same destination, new name/route.
+export const CTA_HREF = "/invitation";

@@ -51,9 +51,20 @@ type MagneticButtonProps = {
   onClick?: () => void;
   variant?: "primary" | "secondary";
   className?: string;
+  /** Only meaningful without `href` — lets this submit a surrounding `<form>` (e.g. The Invitation). */
+  type?: "button" | "submit";
+  disabled?: boolean;
 };
 
-export function MagneticButton({ children, href, onClick, variant = "primary", className }: MagneticButtonProps) {
+export function MagneticButton({
+  children,
+  href,
+  onClick,
+  variant = "primary",
+  className,
+  type = "button",
+  disabled,
+}: MagneticButtonProps) {
   const eligible = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const ref = useRef<HTMLElement>(null);
 
@@ -92,7 +103,7 @@ export function MagneticButton({ children, href, onClick, variant = "primary", c
   }
 
   const base = cn(
-    "group relative inline-flex items-center justify-center overflow-hidden rounded-control px-8 py-3.5 font-mono text-sm tracking-wide transition-colors duration-150 ease-gallery-standard active:scale-[0.97]",
+    "group relative inline-flex items-center justify-center overflow-hidden rounded-control px-8 py-3.5 font-mono text-sm tracking-wide transition-colors duration-150 ease-gallery-standard active:scale-[0.97] disabled:opacity-60 disabled:pointer-events-none",
     variant === "primary"
       ? "bg-gold-fill text-text-on-dark shadow-[0_1px_2px_rgba(0,0,0,0.25)]"
       : "border border-text-on-dark/30 text-text-on-dark hover:border-gold",
@@ -133,7 +144,7 @@ export function MagneticButton({ children, href, onClick, variant = "primary", c
 
   return (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- see above
-    <motion.button ref={ref as any} type="button" onClick={onClick} className={base} {...motionProps}>
+    <motion.button ref={ref as any} type={type} disabled={disabled} onClick={onClick} className={base} {...motionProps}>
       {content}
     </motion.button>
   );

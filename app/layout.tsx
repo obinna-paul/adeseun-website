@@ -5,6 +5,7 @@ import { rootMetadata, personJsonLd } from "@/lib/seo";
 import { SmoothScroll } from "@/components/scroll/SmoothScroll";
 import { CustomCursor } from "@/components/cursor/CustomCursor";
 import { PageTransition } from "@/components/transitions/PageTransition";
+import { Footer } from "@/components/layout/Footer";
 import "./globals.css";
 
 export const metadata: Metadata = rootMetadata;
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <SmoothScroll>
           <CustomCursor />
           <PageTransition>{children}</PageTransition>
+          <Footer />
         </SmoothScroll>
       </body>
     </html>

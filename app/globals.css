@@ -39,6 +39,24 @@ body {
   outline-offset: 3px;
 }
 
+/*
+ * Underline-style fields (The Invitation's floating-label inputs) opt out
+ * of the box outline above and rely on their own border-color transition
+ * instead — a ring floating 3px outside a field whose only visible edge
+ * is a 1px bottom line reads as a stray rectangle, not a focus state.
+ * This rule and the one above are both unlayered plain CSS (outside any
+ * Tailwind `@layer`), so ordinary specificity decides between them —
+ * `.field-underline:focus-visible` (one class + one pseudo-class) beats
+ * the bare `:focus-visible` above regardless of source order. A Tailwind
+ * `outline-none` utility class on the element can't do this on its own:
+ * Tailwind's utilities live inside `@layer utilities`, and any unlayered
+ * rule — like the bare `:focus-visible` above — always wins over
+ * anything in a layer, no matter its specificity.
+ */
+.field-underline:focus-visible {
+  outline: none;
+}
+
 a {
   text-underline-offset: 0.2em;
   text-decoration-thickness: 1px;

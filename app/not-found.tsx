@@ -4,15 +4,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { authoritativeEntrance, gentleReveal, staggerChildren } from "@/lib/motion";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
-
-const ROOMS = [
-  { name: "The Foyer", href: "/", note: "Home" },
-  { name: "The Library", href: "/library", note: "Books" },
-  { name: "The Screening Room", href: "/screening-room", note: "Videos & Media" },
-  { name: "The Boardroom", href: "/boardroom", note: "Executive" },
-  { name: "The Study", href: "/study", note: "Voice & Philosophy" },
-  { name: "The Table", href: "/table", note: "Contact" },
-] as const;
+import { SITE_ROOMS } from "@/lib/navigation";
 
 export default function NotFound() {
   const reduced = usePrefersReducedMotion();
@@ -52,7 +44,7 @@ export default function NotFound() {
         className="mt-16 grid w-full max-w-frame grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-3"
         {...listStagger}
       >
-        {ROOMS.map((room) => (
+        {SITE_ROOMS.map((room) => (
           <motion.div key={room.href} {...rowReveal}>
             <Link
               href={room.href}
