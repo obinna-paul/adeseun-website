@@ -3,41 +3,40 @@
  *
  * Grounded in real, verified research (web search, checked against
  * multiple retail listings, plus direct confirmation from her team,
- * including her own published author bio), not illustrative placeholder
- * copy. Confirmed facts:
+ * including her own published author bio and real cover art for four
+ * of the five), not illustrative placeholder copy. Confirmed facts:
  * - "Think Before You Speak: Embarking on the Path to Thoughtful
- *   Communication" — published November 2023, 197 pages.
- * - "Beyond the Mundane: Essentials of a Meaningful Life."
- * - "Tranquility" — published June 2025.
+ *   Communication" — published November 2023, 197 pages. Real cover
+ *   supplied directly.
+ * - "Beyond the Mundane: Essentials of a Meaningful Life." Real cover
+ *   supplied directly.
+ * - "Tranquility" — published June 2025. Real cover supplied directly.
  * - "Black Is Beautiful" — confirmed via a direct Amazon listing
- *   (amazon.com/dp/B0DH261JSK), and both its real cover art and its
- *   real publisher description supplied directly (search never indexed
- *   this one, despite trying). Its real cover image is used as-is (see
- *   `coverImage` below); the other four still use the designed
- *   placeholder mockup (BookCover) since no cover art exists for them
- *   yet. Its `excerpt` is her actual publisher description, reproduced
- *   verbatim — the one book here where that panel isn't site-original
- *   writing, which is exactly why its heading says "From the
- *   publisher's description" rather than the generic "About the book"
- *   the other four use.
- * - "The Hope of a Nigerian Child" — named in her own author bio
- *   (the back matter of a printed book, supplied directly) alongside
- *   Think Before You Speak, Beyond the Mundane, and Black Is Beautiful.
- *   No retail listing has surfaced for it yet (same search-indexing gap
- *   as Black Is Beautiful before its direct link arrived), so it has no
- *   confirmed vendor link, cover, or description beyond its title —
- *   its `vendors` entry is a functional Amazon *search* query, not a
- *   fabricated product page, and its copy says plainly that more is on
- *   the way rather than inventing detail to fill the space.
+ *   (amazon.com/dp/B0DH261JSK), with real cover art and real publisher
+ *   description supplied directly (search never indexed this one,
+ *   despite trying). Its `excerpt` is her actual publisher description,
+ *   reproduced verbatim — the one book here where that panel isn't
+ *   site-original writing, which is exactly why its heading says "From
+ *   the publisher's description" rather than the generic "About the
+ *   book" the other four use.
+ * - "The Hope of a Nigerian Child" — named in her own author bio (the
+ *   back matter of a printed book, supplied directly) alongside the
+ *   other four. No retail listing or cover art has surfaced for it yet
+ *   (same search-indexing gap Black Is Beautiful had before its direct
+ *   link arrived), so it's the one book still on the designed
+ *   placeholder mockup (BookCover) — its `vendors` entry is a
+ *   functional Amazon *search* query, not a fabricated product page,
+ *   and its copy says plainly that more is on the way rather than
+ *   inventing detail to fill the space.
  * Amazon/Lulu vendor links elsewhere point at real listings, not
  * fabricated product pages or search-query fallbacks.
  *
- * What's still original writing, not a verified quote, for the other
- * four: every `description` and `excerpt` paragraph is written in this
- * site's own voice, summarizing their real, publicly-described subject —
- * never presented as a direct quotation from inside the book.
- * `accolades` only lists facts that are actually confirmed (publish
- * date, page count) — no invented praise or press.
+ * What's still original writing, not a verified quote, for the four
+ * with confirmed covers: every `description` and `excerpt` paragraph is
+ * written in this site's own voice, summarizing their real, publicly-
+ * described subject — never presented as a direct quotation from inside
+ * the book. `accolades` only lists facts that are actually confirmed
+ * (publish date, page count) — no invented praise or press.
  */
 
 export type Category = "Communication" | "Meaning" | "Stillness" | "Identity" | "Hope";
@@ -82,6 +81,7 @@ export const BOOKS: Book[] = [
       { label: "Amazon", url: "https://www.amazon.com/THINK-BEFORE-YOU-SPEAK-communication-ebook/dp/B0CLWWC446" },
       { label: "Lulu", url: "https://www.lulu.com/shop/adeseun-oyeneye/think-before-you-speak/paperback/product-rmm8edn.html" },
     ],
+    coverImage: "/images/think-before-you-speak-cover.jpg",
   },
   {
     id: "beyond-the-mundane",
@@ -99,6 +99,7 @@ export const BOOKS: Book[] = [
       "The answer isn't treated as a single idea. The book moves between the philosophical, the psychological, the spiritual, and the practical — meaning built from several directions at once, not handed down from one.",
     ],
     vendors: [{ label: "Amazon", url: "https://www.amazon.com/BEYOND-MUNDANE-Essentials-meaningful-life/dp/B0CV427BX6" }],
+    coverImage: "/images/beyond-the-mundane-cover.jpg",
   },
   {
     id: "tranquility",
@@ -116,6 +117,7 @@ export const BOOKS: Book[] = [
       "The tone throughout sits closer to companionship than instruction: less a manual, more a steady voice for whoever picks it up mid-storm.",
     ],
     vendors: [{ label: "Amazon", url: "https://www.amazon.es/Tranquility-Adeseun-Oyeneye/dp/9786958411" }],
+    coverImage: "/images/tranquility-cover.jpg",
   },
   {
     id: "black-is-beautiful",
