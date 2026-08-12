@@ -1,10 +1,10 @@
 /**
- * Content for The Library (/library) — her five published books.
+ * Content for The Library (/library) — her four published books.
  *
  * Grounded in real, verified research (web search, checked against
  * multiple retail listings, plus direct confirmation from her team,
- * including her own published author bio and real cover art for four
- * of the five), not illustrative placeholder copy. Confirmed facts:
+ * including her own published author bio and real cover art for all
+ * four), not illustrative placeholder copy. Confirmed facts:
  * - "Think Before You Speak: Embarking on the Path to Thoughtful
  *   Communication" — published November 2023, 197 pages. Real cover
  *   supplied directly.
@@ -18,30 +18,27 @@
  *   reproduced verbatim — the one book here where that panel isn't
  *   site-original writing, which is exactly why its heading says "From
  *   the publisher's description" rather than the generic "About the
- *   book" the other four use.
- * - "The Hope of a Nigerian Child" — named in her own author bio (the
- *   back matter of a printed book, supplied directly) alongside the
- *   other four. No retail listing or cover art has surfaced for it yet
- *   (same search-indexing gap Black Is Beautiful had before its direct
- *   link arrived), so it's the one book still on the designed
- *   placeholder mockup (BookCover) — its `vendors` entry is a
- *   functional Amazon *search* query, not a fabricated product page,
- *   and its copy says plainly that more is on the way rather than
- *   inventing detail to fill the space.
- * Amazon/Lulu vendor links elsewhere point at real listings, not
- * fabricated product pages or search-query fallbacks.
+ *   book" the other three use.
+ * Amazon/Lulu vendor links point at real listings, not fabricated
+ * product pages or search-query fallbacks.
  *
- * What's still original writing, not a verified quote, for the four
- * with confirmed covers: every `description` and `excerpt` paragraph is
- * written in this site's own voice, summarizing their real, publicly-
- * described subject — never presented as a direct quotation from inside
- * the book. `accolades` only lists facts that are actually confirmed
- * (publish date, page count) — no invented praise or press.
+ * A fifth title, "The Hope of a Nigerian Child," was named in her
+ * author bio and briefly listed here with a placeholder cover and a
+ * functional Amazon search link, but was removed per direct instruction
+ * rather than kept on the site without confirmed retail/cover details.
+ *
+ * What's still original writing, not a verified quote, for the three
+ * without a publisher description: every `description` and `excerpt`
+ * paragraph is written in this site's own voice, summarizing their
+ * real, publicly-described subject — never presented as a direct
+ * quotation from inside the book. `accolades` only lists facts that are
+ * actually confirmed (publish date, page count) — no invented praise or
+ * press.
  */
 
-export type Category = "Communication" | "Meaning" | "Stillness" | "Identity" | "Hope";
+export type Category = "Communication" | "Meaning" | "Stillness" | "Identity";
 
-export const CATEGORIES: Category[] = ["Communication", "Meaning", "Stillness", "Identity", "Hope"];
+export const CATEGORIES: Category[] = ["Communication", "Meaning", "Stillness", "Identity"];
 
 export type Vendor = { label: string; url: string };
 
@@ -137,27 +134,6 @@ export const BOOKS: Book[] = [
     vendors: [{ label: "Amazon", url: "https://www.amazon.com/Black-Beautiful-Adeseun-Oyeneye/dp/B0DH261JSK" }],
     coverImage: "/images/black-is-beautiful-cover.webp",
   },
-  {
-    id: "the-hope-of-a-nigerian-child",
-    order: "V",
-    title: "The Hope of a Nigerian Child",
-    category: "Hope",
-    tone: "gold",
-    tagline: "A title that speaks for itself.",
-    description:
-      "A book about hope, written for and about Nigeria's children — a fuller description is on its way as more detail is confirmed.",
-    accolades: [],
-    excerptHeading: "About the book",
-    excerpt: [
-      "A full description for this title is still being confirmed. In the meantime, the title carries most of what it needs to: this is a book about hope, written for and about Nigeria's children.",
-    ],
-    vendors: [
-      {
-        label: "Amazon",
-        url: "https://www.amazon.com/s?k=" + encodeURIComponent("The Hope of a Nigerian Child Adeseun Oyeneye"),
-      },
-    ],
-  },
 ];
 
-export const PAGE_INTRO = "Five books, browsed the way they were written — one at a time, with room to sit with each.";
+export const PAGE_INTRO = "Four books, browsed the way they were written — one at a time, with room to sit with each.";

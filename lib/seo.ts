@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 const SITE_NAME = "Adeseun Oyeneye";
 const SITE_URL = "https://adeseunoyeneye.com"; // placeholder — swap once the domain is confirmed
 /**
- * Author-first, per direct instruction: her five real books lead
+ * Author-first, per direct instruction: her four real books lead
  * (naming all of them would blow the ~160-character SEO description
  * budget, so two representative titles stand in), her real professional
  * standing (Founder and Vice-President, Threesixty Africa Media —
@@ -14,7 +14,7 @@ const SITE_URL = "https://adeseunoyeneye.com"; // placeholder — swap once the 
  * research this is grounded in.
  */
 const DEFAULT_DESCRIPTION =
-  "Author of five books, including Think Before You Speak and Black Is Beautiful. Founder and Vice-President, Threesixty Africa Media.";
+  "Author of Think Before You Speak, Beyond the Mundane, Tranquility, and Black Is Beautiful. Founder and Vice-President, Threesixty Africa Media.";
 
 type PageMetadataInput = {
   title: string;

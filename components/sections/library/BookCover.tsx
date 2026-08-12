@@ -3,13 +3,12 @@ import type { Book } from "./library-content";
 import { cn } from "@/lib/utils";
 
 /**
- * Renders real cover art (`book.coverImage`) when it exists — four of
- * her five books now have it. For the one that doesn't yet ("The Hope
- * of a Nigerian Child"), this falls back to a designed placeholder, not
- * a fake photo. Per taste-skill 4.8 ("use placeholders for now" is the
- * brief's own instruction here), that fallback renders as an intentional
- * jacket mockup: order numeral, category, a thin rule, the title in
- * display serif.
+ * Renders real cover art (`book.coverImage`) when it exists — all four
+ * of her current books have it. Kept as a fallback for any future title
+ * added without cover art yet, rather than a fake photo: per taste-skill
+ * 4.8 ("use placeholders for now" is the brief's own instruction here),
+ * that fallback renders as an intentional jacket mockup — order numeral,
+ * category, a thin rule, the title in display serif.
  *
  * Tone is one of the site's four sanctioned colors (gold/indigo/garnet)
  * plus hero-ground ("ink") — the same palette used everywhere else on

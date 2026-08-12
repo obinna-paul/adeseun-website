@@ -3,19 +3,18 @@
  * rather than a resume.
  *
  * Rewritten around real, verified research (see library-content.ts):
- * five real books, two of them with confirmed publish dates (Think
+ * four real books, two of them with confirmed publish dates (Think
  * Before You Speak, November 2023; Tranquility, June 2025 — used as
  * actual `era` values below, not fabricated). The timeline below only
- * walks the three earliest-confirmed titles, not all five — Black Is
- * Beautiful and The Hope of a Nigerian Child surfaced after this
- * timeline's structure was set and don't have confirmed dates or a
- * clear position in her writing order, so adding milestones for them
- * would mean guessing at sequence; The Library lists all five. Where a
- * date isn't confirmed (Beyond the Mundane's publication date, and
- * anything before her first book), `era` stays a descriptive label
- * rather than an invented year — the same fake-precision guard as
- * before, just now mostly unnecessary because real dates exist for the
- * anchor points.
+ * walks the three earliest-confirmed titles, not all four — Black Is
+ * Beautiful surfaced after this timeline's structure was set and
+ * doesn't have a confirmed date or a clear position in her writing
+ * order, so adding a milestone for it would mean guessing at sequence;
+ * The Library lists all four. Where a date isn't confirmed (Beyond the
+ * Mundane's publication date, and anything before her first book),
+ * `era` stays a descriptive label rather than an invented year — the
+ * same fake-precision guard as before, just now mostly unnecessary
+ * because real dates exist for the anchor points.
  *
  * Per direct instruction, this is author-first: her real professional
  * standing (Founder and Vice-President, Threesixty Africa Media — the
