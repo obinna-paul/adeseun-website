@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { Book } from "./library-content";
 import { cn } from "@/lib/utils";
 
@@ -31,6 +32,20 @@ export function BookCover({
   size?: "card" | "modal";
   className?: string;
 }) {
+  if (book.coverImage) {
+    return (
+      <div className={cn("relative h-full w-full overflow-hidden rounded-frame", className)}>
+        <Image
+          src={book.coverImage}
+          alt={`${book.title} cover`}
+          fill
+          sizes={size === "modal" ? "(min-width: 640px) 280px, 60vw" : "(min-width: 1024px) 25vw, 45vw"}
+          className="object-cover"
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(

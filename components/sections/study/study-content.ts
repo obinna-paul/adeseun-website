@@ -1,26 +1,26 @@
 /**
- * Content for The Study (/study) — the About page, reframed per her
- * direction as a cinematic timeline rather than a resume.
+ * Content for The Study (/study) — the About page, a cinematic timeline
+ * rather than a resume.
  *
- * A local typed data file, not JSON: same reasoning as
- * manifesto-content.ts — type-checked at compile time, still a single
- * file anyone comfortable with git can edit, no build step required to
- * see a change. Per ARCHITECTURE.md's content-layer plan, this is a
- * placeholder ahead of the eventual Sanity integration for team-managed
- * catalog content; the shape here (a flat typed array, mapped
- * generically by StudyTimeline) is deliberately close to what a CMS
- * query would return, so migrating later is a data-source swap, not a
- * rewrite of the rendering logic.
+ * Rewritten around real, verified research (see library-content.ts):
+ * three real books, two of them with confirmed publish dates (Think
+ * Before You Speak, November 2023; Tranquility, June 2025 — used as
+ * actual `era` values below, not fabricated). Where a date isn't
+ * confirmed (Beyond the Mundane's publication date, and anything before
+ * her first book), `era` stays a descriptive label rather than an
+ * invented year — the same fake-precision guard as before, just now
+ * mostly unnecessary because real dates exist for the anchor points.
  *
- * TIMELINE_MILESTONES use era labels, not fabricated calendar years —
- * her real career dates aren't known yet, and inventing specific years
- * would be exactly the "fake-precise" fabrication taste-skill flags.
- * Swap `era` for real years once she's confirmed them; nothing else
- * about the shape needs to change.
+ * Per direct instruction, this is author-first: her real professional
+ * standing (Vice-President, Threesixty Africa Group; AFRICAST 2025
+ * project coordinator) appears as ONE supporting milestone, not the
+ * spine of the timeline — the earlier version's fabricated "board seat
+ * → Managing Director" corporate-ascent arc has been removed entirely,
+ * not just relabeled.
  *
- * Every `story` line below is illustrative, written to her established
- * voice and pillars, not a verified account of real events — flagged
- * here for the same reason the Manifesto's quotes were.
+ * Every `story` line is still original writing in her voice, not a
+ * verified account of real events or a quoted statement from her —
+ * flagged for the same reason the Manifesto's quotes are.
  */
 
 export type Milestone = {
@@ -34,42 +34,43 @@ export type Milestone = {
 
 export const TIMELINE_MILESTONES: Milestone[] = [
   {
-    id: "first-seat",
-    era: "The First Room",
-    title: "A seat at the table",
+    id: "before-the-page",
+    era: "Before the First Page",
+    title: "A life spent noticing words",
     story:
-      "She took her first board seat before most of her peers had taken their first promotion — and spent the first six months mostly listening.",
+      "Long before the first book, she was the person in the room who noticed when a sentence landed wrong — and knew, usually, why.",
   },
   {
-    id: "first-book",
-    era: "The First Page",
-    title: "The book that wasn't supposed to be about leadership",
+    id: "think-before-you-speak",
+    era: "November 2023",
+    title: "Think Before You Speak",
     story:
-      "It started as something else entirely. By the time she finished it, it had become the book people in boardrooms kept quoting back to her.",
+      "Her first published book: a case for thoughtful communication as a discipline, not a talent — 197 pages, written to be read in one sitting and returned to for years.",
   },
   {
-    id: "managing-director",
-    era: "The Room Got Bigger",
-    title: "Managing Director",
+    id: "beyond-the-mundane",
+    era: "Between Books",
+    title: "Beyond the Mundane",
     story:
-      "The title her career had been arguing toward the whole time — earned in rooms that didn't always expect her to be the one leading them.",
+      "Her second book turned the same attention outward — from the words we choose to the lives we build with them, and what actually makes either one meaningful.",
   },
   {
-    id: "said-out-loud",
-    era: "Said Out Loud",
-    title: "The talk that made the two voices one",
+    id: "tranquility",
+    era: "June 2025",
+    title: "Tranquility",
+    story: "Her third book, and her quietest: a guide to cultivating calm as a practice, not a place you arrive at once.",
+  },
+  {
+    id: "threesixty",
+    era: "Alongside the Page",
+    title: "Vice-President, Threesixty Africa Group",
     story:
-      "The first time the boardroom voice and the writer's voice said the same thing out loud, in front of a room that had never heard either.",
+      "The other half of her working life — most recently as project coordinator for AFRICAST 2025, Africa's premier broadcast and media technology event. Not the story this site tells. Just also true.",
+    image: "/images/adeseun-threesixty.jpg",
   },
   {
-    id: "sixth-book",
-    era: "Six Books In",
-    title: "The questions got harder, not easier",
-    story: "Six books in, she still starts each one the same way: certain she has nothing left to say, and wrong.",
-  },
-  {
-    id: "still-building",
-    era: "Still Building",
+    id: "still-writing",
+    era: "Still Writing",
     title: "The next chapter, mid-sentence",
     story: "Ask her what's next and she'll tell you honestly: she's still living it, which means it isn't written yet.",
   },
@@ -81,26 +82,39 @@ export type CurtainItem =
   | { kind: "snippet"; id: string; label: string; text: string };
 
 /**
- * A mix of candid-photo slots (honest placeholders, no real images yet),
- * handwritten-style notes, and research snippets — all illustrative,
- * written to demonstrate the section's rhythm, not claimed as real
- * artifacts from her actual desk or drafts.
+ * A mix of candid-photo slots, handwritten-style notes, and research
+ * snippets. One photo ("desk-detail") now has a real portrait behind
+ * it — captioned honestly as "Between chapters" rather than a literal
+ * desk shot, since the photo itself is a posed portrait, not workspace
+ * ephemera. The other photo slots, and every note/snippet, are still
+ * illustrative — written to demonstrate the section's rhythm, not
+ * claimed as real artifacts from her actual desk or drafts.
  */
 export const CURTAIN_ITEMS: CurtainItem[] = [
-  { kind: "photo", id: "desk-detail", caption: "The desk, mid-chapter", tall: true },
+  { kind: "photo", id: "desk-detail", caption: "Between chapters", tall: true, image: "/images/adeseun-curtain.jpg" },
   { kind: "note", id: "margin-note-1", text: "This chapter is too polite. Redo it like you mean it." },
-  { kind: "snippet", id: "research-1", label: "Research notes, pg. 4", text: "Legacy isn't what they remember. It's what they no longer have to explain." },
-  { kind: "photo", id: "shelf", caption: "Where the last six live" },
-  { kind: "note", id: "margin-note-2", text: "Reminder: finish the sentence before you finish the meeting." },
+  {
+    kind: "snippet",
+    id: "research-1",
+    label: "Research notes, pg. 4",
+    text: "Peace isn't the absence of noise. It's what's left once you stop needing to explain yourself.",
+  },
+  { kind: "photo", id: "shelf", caption: "Where the three live" },
+  { kind: "note", id: "margin-note-2", text: "Reminder: say the true thing, not the smooth thing." },
   { kind: "photo", id: "writing-hand", caption: "Draft four, still moving", tall: true },
-  { kind: "snippet", id: "research-2", label: "Interview transcript, tape 2", text: "“Ask her what she'd do differently.” “Nothing. I'd just do it faster.”" },
-  { kind: "note", id: "margin-note-3", text: "The board doesn't need the whole story. It needs the next sentence." },
+  {
+    kind: "snippet",
+    id: "research-2",
+    label: "Interview notes, tape 2",
+    text: "“Ask her what she'd tell a younger writer.” “Say less. You'll mean more.”",
+  },
+  { kind: "note", id: "margin-note-3", text: "The reader doesn't need the whole story. They need the next honest sentence." },
 ];
 
 export const HERO_LINE = "Everything you've read about her started at this desk.";
 
 export const CTA_HEADLINE = "Bring her into the room.";
 export const CTA_BODY =
-  "For speaking, board advisory, or a conversation that doesn't fit in an inbox — every engagement starts the same way this page did.";
+  "For speaking, book clubs, or a conversation that doesn't fit in an inbox — every engagement starts the same way this page did.";
 // "The Table" was renamed "The Invitation" — same destination, new name/route.
 export const CTA_HREF = "/invitation";

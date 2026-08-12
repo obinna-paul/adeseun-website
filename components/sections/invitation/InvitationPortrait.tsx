@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion, type MotionValue } from "motion/react";
 
 /**
@@ -16,18 +17,13 @@ export function InvitationPortrait({ y }: { y: MotionValue<number> }) {
   return (
     <div className="relative h-[52vh] w-full overflow-hidden lg:sticky lg:top-0 lg:h-dvh lg:w-1/2">
       <motion.div className="absolute inset-[-10%]" style={{ y }}>
-        {/* No portrait photo exists yet — an honest placeholder, same
-            treatment as the Foyer hero's, not a stock photo standing in
-            for her. Swap the gradient for a real <Image> the moment one
-            lands; the parallax wrapper above doesn't need to change. */}
-        <div
-          role="img"
-          aria-label="Portrait of Adeseun Oyeneye speaking"
-          className="h-full w-full"
-          style={{
-            background:
-              "radial-gradient(ellipse 65% 60% at 50% 40%, hsl(42 35% 28%) 0%, hsl(230 22% 12%) 58%, hsl(230 26% 7%) 100%)",
-          }}
+        <Image
+          src="/images/adeseun-invitation.jpg"
+          alt="Adeseun Oyeneye"
+          fill
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          className="object-cover"
+          priority
         />
       </motion.div>
       <div

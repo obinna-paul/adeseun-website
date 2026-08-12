@@ -52,7 +52,11 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
  * below — nothing is hidden or broken, the choreography is just skipped.
  */
 
-const HEADLINE_LINES = ["She built the room.", "Then she wrote the book about it."];
+// Deliberately her own real book titles, not invented copy — see
+// library-content.ts for the research this is grounded in. Author-first
+// framing per direct instruction: the hero's one big statement is what
+// she actually wrote, not an invented executive-ascent narrative.
+const HEADLINE_LINES = ["Think before you speak.", "Live beyond the mundane."];
 
 export function HeroSection() {
   const reduced = usePrefersReducedMotion();
@@ -62,7 +66,7 @@ export function HeroSection() {
       id="foyer-hero"
       className="relative flex min-h-[100dvh] w-full items-end overflow-hidden bg-hero-ground"
     >
-      <HeroPortrait alt="Adeseun Oyeneye" />
+      <HeroPortrait src="/images/adeseun-threesixty.jpg" alt="Adeseun Oyeneye" />
       <HeroCanvas />
 
       <div className="relative z-10 w-full px-gutter pb-16 sm:px-10 sm:pb-20 lg:px-16 lg:pb-24">
@@ -94,8 +98,8 @@ export function HeroSection() {
               animate="visible"
               variants={reduced ? undefined : heroSubhead}
             >
-              Adeseun Oyeneye — Managing Director. Author of six. Not in
-              that order of importance.
+              Adeseun Oyeneye — author of Think Before You Speak, Beyond the
+              Mundane, and Tranquility.
             </motion.p>
 
             <motion.div

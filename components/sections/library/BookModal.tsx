@@ -149,7 +149,7 @@ function BookDetails({ book }: { book: Book }) {
           className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.12em] text-text-subdued transition-colors duration-150 ease-gallery-standard hover:text-gold-ink"
         >
           <BookOpenText size={16} weight="light" />
-          {showExcerpt ? "Hide excerpt" : "Read an excerpt"}
+          {showExcerpt ? "Hide" : "About this book"}
         </button>
       </div>
 

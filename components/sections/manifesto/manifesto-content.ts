@@ -1,17 +1,21 @@
 /**
  * Content for Act IV — The Values Manifesto (see The Walkthrough).
  *
- * The five VALUES are original copy written to her established voice
- * and pillars (The Oyeneye Doctrine): #1 ties to "Earned, Not Claimed",
- * #2 to "African Excellence, Unhedged", #3 is a keeper from the brief
- * itself (distinctly executive, fits her MD register), #4 echoes the
- * Foyer's own headline ("She built the room"), #5 echoes the established
- * "think before you speak" line from The Study.
+ * Rewritten to ground it in her three real, verified books (see
+ * library-content.ts for the research) rather than the earlier
+ * fabricated "Managing Director" / boardroom framing: #1 and #2 tie to
+ * Think Before You Speak, #3 and #4 to Tranquility, #5 to Beyond the
+ * Mundane. Icon reuse is deliberate, not arbitrary — quill (writing) now
+ * pairs with the value about words, and rings (concentric circles) with
+ * the one about stillness, closer visual-metaphor fits than their
+ * original pairings.
  *
- * The four QUOTES are illustrative placeholders in her voice, NOT real
- * excerpts — no book or speech transcript exists yet to draw from.
- * Flagged here so nobody downstream mistakes them for verified quotes.
- * Swap for real material the moment it exists.
+ * The four QUOTES are still illustrative — original lines written in her
+ * voice and grounded in her real books' real themes, not verified
+ * excerpts from anything she's actually said or published. Flagged here
+ * so nobody downstream mistakes them for direct quotations; swap for
+ * real material (an interview, a passage she confirms) the moment it
+ * exists.
  */
 
 export type IconId = "laurel" | "rings" | "infinity" | "doorway" | "quill";
@@ -21,18 +25,18 @@ export type QuoteBeat = { kind: "quote"; text: string };
 export type Beat = ValueBeat | QuoteBeat;
 
 export const MANIFESTO_BEATS: Beat[] = [
-  { kind: "value", text: "Excellence is inherited. Then it's earned again.", icon: "laurel" },
-  { kind: "quote", text: "Grace is a discipline, not a mood." }, // illustrative — not a verified quote
-  { kind: "value", text: "Culture is not a costume.", icon: "rings" },
-  { kind: "quote", text: "A closed door is just a room you haven't built yet." }, // illustrative
-  { kind: "value", text: "Think legacy, not quarters.", icon: "infinity" },
-  { kind: "quote", text: "Power that isn't shared is just noise." }, // illustrative
-  { kind: "value", text: "Build the room before you enter it.", icon: "doorway" },
-  { kind: "quote", text: "Write it down. Say it once. Mean it forever." }, // illustrative
-  { kind: "value", text: "Speak last. Mean it most.", icon: "quill" },
+  { kind: "value", text: "Words are not free. Spend them with care.", icon: "quill" },
+  { kind: "quote", text: "The right word, held a moment longer, does less damage than the wrong one said quickly." }, // illustrative — not a verified quote
+  { kind: "value", text: "Stillness is not the absence of a storm. It's what you build inside one.", icon: "rings" },
+  { kind: "quote", text: "Calm isn't arrived at once. It's chosen again, every time it's needed." }, // illustrative
+  { kind: "value", text: "A meaningful life isn't an accident. It's assembled, on purpose, past the mundane.", icon: "laurel" },
+  { kind: "quote", text: "Purpose rarely announces itself. Most people have to go looking for it." }, // illustrative
+  { kind: "value", text: "Every conversation is a door. Most people don't notice they're holding the handle.", icon: "doorway" },
+  { kind: "quote", text: "Say less. Mean more." }, // illustrative
+  { kind: "value", text: "None of this is mastered once. It's practiced again, every day.", icon: "infinity" },
 ];
 
-/** Reused verbatim from The Walkthrough's Act IV spec — already reviewed. */
+/** Still no verified real quote to reuse — kept as the general, unattributed closing line rather than replaced with an invented "signature" quote. */
 export const CLOSING_LINE = "This isn't a brand. This is just how I live.";
 
 /**

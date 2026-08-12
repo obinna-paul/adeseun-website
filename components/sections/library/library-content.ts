@@ -1,37 +1,44 @@
 /**
- * Content for The Library (/library) — her six published books, browsed
- * like a private collection rather than listed like a bibliography.
+ * Content for The Library (/library) — her four published books.
  *
- * A local typed data file for now, same reasoning as study-content.ts:
- * type-checked, git-reviewable, no build step to see a change. Per
- * ARCHITECTURE.md's content-layer plan, the Library is the catalog most
- * likely to move to Sanity once that project exists (her team adding a
- * new title shouldn't require a PR) — this flat, generically-mapped
- * shape is deliberately close to what a CMS query would return, so that
- * migration is a data-source swap, not a rewrite of BookCard/BookModal.
+ * Grounded in real, verified research (web search, checked against
+ * multiple retail listings, plus direct confirmation from her team),
+ * not illustrative placeholder copy. Confirmed facts:
+ * - "Think Before You Speak: Embarking on the Path to Thoughtful
+ *   Communication" — published November 2023, 197 pages.
+ * - "Beyond the Mundane: Essentials of a Meaningful Life."
+ * - "Tranquility" — published June 2025.
+ * - "Black Is Beautiful" — confirmed via a direct Amazon listing
+ *   (amazon.com/dp/B0DH261JSK), and both its real cover art and its
+ *   real publisher description supplied directly (search never indexed
+ *   this one, despite trying). Its real cover image is used as-is (see
+ *   `coverImage` below); the other three still use the designed
+ *   placeholder mockup (BookCover) since no cover art exists for them
+ *   yet. Its `excerpt` is her actual publisher description, reproduced
+ *   verbatim — the one book here where that panel isn't site-original
+ *   writing, which is exactly why its heading says "From the
+ *   publisher's description" rather than the generic "About the book"
+ *   the other three use.
+ * Amazon vendor links point at real listings, not fabricated product
+ * pages or search-query fallbacks.
  *
- * Titles, descriptions, accolades, and excerpts below are illustrative —
- * written to the voice and pillars established on The Study, and where
- * possible threaded through its timeline (see "The Listening Room" and
- * "Nothing Left to Say" below), but not verified real book content.
- * Accolades are deliberately generic ("assigned reading," "third
- * printing") rather than attributed to a named publication or person —
- * inventing a specific outlet or reviewer would be fabricating a claim,
- * not writing placeholder copy. Swap in her real jacket copy, accolades,
- * and excerpts whenever they're available; nothing about the shape needs
- * to change. Cover art is an intentional placeholder mockup (BookCover),
- * not a fake photo — see that component for why.
+ * What's still original writing, not a verified quote, for the other
+ * three: every `description` and `excerpt` paragraph is written in this
+ * site's own voice, summarizing their real, publicly-described subject —
+ * never presented as a direct quotation from inside the book.
+ * `accolades` only lists facts that are actually confirmed (publish
+ * date, page count) — no invented praise or press.
  */
 
-export type Category = "Leadership" | "Strategy" | "Memoir" | "Essays";
+export type Category = "Communication" | "Meaning" | "Stillness" | "Identity";
 
-export const CATEGORIES: Category[] = ["Leadership", "Strategy", "Memoir", "Essays"];
+export const CATEGORIES: Category[] = ["Communication", "Meaning", "Stillness", "Identity"];
 
 export type Vendor = { label: string; url: string };
 
 export type Book = {
   id: string;
-  order: string; // roman numeral in publish order — not a fabricated calendar year
+  order: string;
   title: string;
   category: Category;
   tone: "gold" | "indigo" | "garnet" | "ink";
@@ -41,118 +48,83 @@ export type Book = {
   excerptHeading: string;
   excerpt: string[];
   vendors: Vendor[];
+  /** Real cover art, when it exists — falls back to the BookCover mockup when absent. */
+  coverImage?: string;
 };
-
-/** Real per-book retailer links aren't confirmed yet — these are functional search queries (not fabricated product pages), an honest interim default until she supplies direct listing URLs. */
-function vendorLinks(title: string): Vendor[] {
-  const query = encodeURIComponent(`${title} Adeseun Oyeneye`);
-  return [
-    { label: "Amazon", url: `https://www.amazon.com/s?k=${query}` },
-    { label: "Independent bookstores", url: `https://bookshop.org/beta-search?keywords=${query}` },
-  ];
-}
 
 export const BOOKS: Book[] = [
   {
-    id: "the-listening-room",
+    id: "think-before-you-speak",
     order: "I",
-    title: "The Listening Room",
-    category: "Leadership",
+    title: "Think Before You Speak",
+    category: "Communication",
     tone: "gold",
-    tagline: "The book that wasn't supposed to be about leadership.",
+    tagline: "Embarking on the path to thoughtful communication.",
     description:
-      "Her first book, written in the six months after her first board seat — before she'd earned the right, she thought, to say anything at all. It became the book people in boardrooms kept quoting back to her.",
-    accolades: ["Assigned reading on more than one executive committee.", "Now in its third printing."],
-    excerptHeading: "From the opening chapter",
+      "A book about the weight of language — how the words reached for without thinking can heal a room or wound it. It makes the case for communication as a discipline worth practicing on purpose, not a reflex to leave on autopilot.",
+    accolades: ["Published November 2023.", "197 pages."],
+    excerptHeading: "About the book",
     excerpt: [
-      "I did not set out to write a book about leadership. I set out to write down what I was hearing, because I had just been given a seat at a table where, for the first time in my career, I was expected to say almost nothing.",
-      "Six months of listening will teach you more about a room than six years of talking in it. This book is what I heard.",
+      "Every word carries consequence, whether or not it was chosen with care. Think Before You Speak is built around that idea — that thoughtful communication isn't a talent some people are born with, but a discipline anyone can practice.",
+      "It's a short, direct read, aimed less at eloquence than at intention: saying what you actually mean, and meaning what you say.",
     ],
-    vendors: vendorLinks("The Listening Room"),
+    vendors: [
+      { label: "Amazon", url: "https://www.amazon.com/THINK-BEFORE-YOU-SPEAK-communication-ebook/dp/B0CLWWC446" },
+      { label: "Lulu", url: "https://www.lulu.com/shop/adeseun-oyeneye/think-before-you-speak/paperback/product-rmm8edn.html" },
+    ],
   },
   {
-    id: "room-to-manoeuvre",
+    id: "beyond-the-mundane",
     order: "II",
-    title: "Room to Manoeuvre",
-    category: "Strategy",
+    title: "Beyond the Mundane",
+    category: "Meaning",
     tone: "indigo",
-    tagline: "On keeping your options open when everyone wants a decision today.",
+    tagline: "The essentials of a meaningful life.",
     description:
-      "A field guide to strategic patience — how to hold multiple paths open under pressure to commit to just one, and why the boards that reward speed alone are usually the ones that regret it.",
-    accolades: ["Discussed on more internal strategy calls than she's been told about."],
-    excerptHeading: "From Chapter Three",
+      "An exploration of what gives a life meaning, moving across philosophical, psychological, spiritual, and practical ground rather than settling for one lens — less a formula than an invitation to look past routine toward purpose.",
+    accolades: [],
+    excerptHeading: "About the book",
     excerpt: [
-      "Every room I've sat in wants an answer faster than the question deserves. Room to manoeuvre is not indecision. It is refusing to let someone else's clock decide the shape of your commitment.",
+      "Beyond the Mundane asks a plain question that's easy to avoid: what actually makes a life feel meaningful, once the routines that fill most of it are set aside?",
+      "The answer isn't treated as a single idea. The book moves between the philosophical, the psychological, the spiritual, and the practical — meaning built from several directions at once, not handed down from one.",
     ],
-    vendors: vendorLinks("Room to Manoeuvre"),
+    vendors: [{ label: "Amazon", url: "https://www.amazon.com/BEYOND-MUNDANE-Essentials-meaningful-life/dp/B0CV427BX6" }],
   },
   {
-    id: "notes-from-the-margin",
+    id: "tranquility",
     order: "III",
-    title: "Notes from the Margin",
-    category: "Essays",
+    title: "Tranquility",
+    category: "Stillness",
     tone: "garnet",
-    tagline: "A collection, built the way it was written — in the margins.",
+    tagline: "Cultivating serenity amid the storm.",
     description:
-      "Short essays pulled from a decade of marginalia: the sentences she wrote in the white space of other people's reports, gathered into something that reads less like a business book and more like a running argument with herself.",
-    accolades: ["The one she says is closest to how she actually thinks."],
-    excerptHeading: "From the foreword",
+      "Framed as a companion for finding calm rather than a promise of a storm-free life — a guide to staying steady inside the one you're already in.",
+    accolades: ["Published June 2025."],
+    excerptHeading: "About the book",
     excerpt: [
-      "None of these were meant to be read by anyone but me. They were written in margins — literal ones, in the reports and drafts I was supposed to be reviewing instead.",
-      "I've resisted the urge to smooth them out. A margin note is honest in a way a finished paragraph rarely is.",
+      "Tranquility doesn't promise a life without storms. It's offered instead as a companion inside them — a guide to cultivating serenity as a practice, not a destination reached once and kept forever.",
+      "The tone throughout sits closer to companionship than instruction: less a manual, more a steady voice for whoever picks it up mid-storm.",
     ],
-    vendors: vendorLinks("Notes from the Margin"),
+    vendors: [{ label: "Amazon", url: "https://www.amazon.es/Tranquility-Adeseun-Oyeneye/dp/9786958411" }],
   },
   {
-    id: "the-quiet-majority",
+    id: "black-is-beautiful",
     order: "IV",
-    title: "The Quiet Majority",
-    category: "Leadership",
-    tone: "gold",
-    tagline: "For everyone in the room who has never once spoken up in it.",
-    description:
-      "On the people leadership books forget: the majority in any boardroom who sit through the whole meeting and say nothing. What their silence actually means, and what it costs an organization to keep mistaking it for agreement.",
-    accolades: ["Her most-gifted title, by her own count."],
-    excerptHeading: "From the introduction",
-    excerpt: [
-      "Silence in a boardroom is not consent. It is usually the most honest thing in the room, and almost no one asks it what it means.",
-    ],
-    vendors: vendorLinks("The Quiet Majority"),
-  },
-  {
-    id: "the-long-game-played-fast",
-    order: "V",
-    title: "The Long Game, Played Fast",
-    category: "Strategy",
-    tone: "indigo",
-    tagline: "Thinking in decades while operating at the speed a Managing Director has to.",
-    description:
-      "Written from inside the contradiction of the title: how to hold a decade-long thesis steady while every quarter demands you prove it faster than a decade allows.",
-    accolades: ["Adopted as a case study more than once, without her permission."],
-    excerptHeading: "From Chapter One",
-    excerpt: [
-      "Nobody at my level gets to think slowly and act slowly. The discipline isn't picking one speed. It's learning which parts of the decision can move fast, and refusing to let the rest be rushed with them.",
-    ],
-    vendors: vendorLinks("The Long Game, Played Fast"),
-  },
-  {
-    id: "nothing-left-to-say",
-    order: "VI",
-    title: "Nothing Left to Say",
-    category: "Memoir",
+    title: "Black Is Beautiful",
+    category: "Identity",
     tone: "ink",
-    tagline: "Six books in, she still starts each one certain she's wrong about that.",
+    tagline: "A celebration of Black culture, identity, and pride.",
     description:
-      "Her most recent book, and her most personal — an account of what six books, one boardroom, and a career of being underestimated actually taught her, written by someone who was sure, each time, that she had nothing left to add.",
-    accolades: ["The book she was most afraid to publish.", "Still the one readers write to her about most."],
-    excerptHeading: "From the closing pages",
+      "A heartfelt tribute to the beauty and strength of Black identity — its history, traditions, and creative expressions — and a celebration of the pride found in Black communities everywhere.",
+    accolades: [],
+    excerptHeading: "From the publisher's description",
     excerpt: [
-      "I have started every book the same way: certain I had nothing left to say. I was wrong five times before this one. I suspect I'll be wrong again — that's not false modesty, it's just what the work keeps teaching me.",
-      "If this is the last one, it will have been enough. I don't think it's the last one.",
+      "Black Is Beautiful shines a light on the rich and diverse world of Black culture. This book is a heartfelt tribute to the beauty and strength of Black identity, exploring its history, traditions, and creative expressions.",
+      "More than just a book, Black Is Beautiful is a celebration of the pride and beauty found in Black communities everywhere. It invites readers to appreciate and understand the true beauty of Black culture, challenging stereotypes and offering a deeper look into what makes it special.",
     ],
-    vendors: vendorLinks("Nothing Left to Say"),
+    vendors: [{ label: "Amazon", url: "https://www.amazon.com/Black-Beautiful-Adeseun-Oyeneye/dp/B0DH261JSK" }],
+    coverImage: "/images/black-is-beautiful-cover.webp",
   },
 ];
 
-export const PAGE_INTRO =
-  "Six books, browsed the way they were written — one at a time, with room to sit with each.";
+export const PAGE_INTRO = "Four books, browsed the way they were written — one at a time, with room to sit with each.";

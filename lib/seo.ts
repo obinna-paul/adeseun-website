@@ -2,8 +2,14 @@ import type { Metadata } from "next";
 
 const SITE_NAME = "Adeseun Oyeneye";
 const SITE_URL = "https://adeseunoyeneye.com"; // placeholder — swap once the domain is confirmed
+/**
+ * Author-first, per direct instruction: her three real books lead, her
+ * real professional standing (Vice-President, Threesixty Africa Group;
+ * AFRICAST 2025 project coordinator) is the credibility line, not the
+ * headline — see library-content.ts for the research this is grounded in.
+ */
 const DEFAULT_DESCRIPTION =
-  "Managing Director and author of six books. A room built so that anyone who visits leaves convinced she is a woman worth learning from.";
+  "Author of Think Before You Speak, Beyond the Mundane, and Tranquility. Vice-President, Threesixty Africa Group.";
 
 type PageMetadataInput = {
   title: string;
@@ -71,7 +77,7 @@ export function personJsonLd() {
     "@type": "Person",
     name: SITE_NAME,
     url: SITE_URL,
-    jobTitle: "Managing Director",
+    jobTitle: "Author",
     description: DEFAULT_DESCRIPTION,
     sameAs: [] as string[], // fill in confirmed social/press profile URLs
   };

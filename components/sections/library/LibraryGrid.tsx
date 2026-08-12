@@ -30,7 +30,7 @@ export function LibraryGrid() {
       <motion.div
         layout
         transition={{ layout: { duration: 0.4, ease: ease.inOut } }}
-        className="mt-10 grid grid-cols-2 gap-x-6 gap-y-12 sm:grid-cols-3 lg:grid-cols-4"
+        className="mx-auto mt-10 grid max-w-4xl grid-cols-2 gap-x-8 gap-y-12 sm:grid-cols-4"
       >
         <AnimatePresence mode="popLayout">
           {visible.map((book) => (
