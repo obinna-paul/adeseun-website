@@ -139,3 +139,12 @@ export const heroAction: Variants = {
  */
 export const magneticSpring = { stiffness: 150, damping: 18, mass: 0.6 } as const;
 
+/**
+ * The Library modal's cover tilt — mouse position drives rotation through
+ * a spring rather than 1:1, per emil-design-eng's "spring-based mouse
+ * interactions" (tying a value directly to cursor position with no
+ * damping reads as artificial). Slightly stiffer than magneticSpring: a
+ * book responding to a hand should feel lighter than a button with pull.
+ */
+export const bookTiltSpring = { stiffness: 180, damping: 20, mass: 0.4 } as const;
+
