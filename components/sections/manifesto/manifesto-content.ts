@@ -38,8 +38,7 @@ export const CLOSING_LINE = "This isn't a brand. This is just how I live.";
 /**
  * Destination for "Learn more about her journey." The brief said "the
  * About page"; the established sitemap (The Oyeneye Doctrine) has no
- * page by that name — The Boardroom is the closest fit (her career arc,
- * told as chapters) and is also literally the next Act after this one.
- * Change this if she'd rather it point at The Study instead.
+ * page by that name. Confirmed: The Study — her voice and philosophy —
+ * not The Boardroom.
  */
-export const JOURNEY_HREF = "/boardroom";
+export const JOURNEY_HREF = "/study";
