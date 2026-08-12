@@ -3,9 +3,10 @@ import type { ReactNode } from "react";
 import { fontVariables } from "@/lib/fonts";
 import { rootMetadata, personJsonLd } from "@/lib/seo";
 import { SmoothScroll } from "@/components/scroll/SmoothScroll";
-import { CustomCursor } from "@/components/cursor/CustomCursor";
+import { CursorProvider } from "@/components/cursor/CursorProvider";
 import { PageTransition } from "@/components/transitions/PageTransition";
 import { Footer } from "@/components/layout/Footer";
+import { ReadingProgress } from "@/components/layout/ReadingProgress";
 import "./globals.css";
 
 export const metadata: Metadata = rootMetadata;
@@ -22,9 +23,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <SmoothScroll>
-          <CustomCursor />
-          <PageTransition>{children}</PageTransition>
-          <Footer />
+          <CursorProvider>
+            <ReadingProgress />
+            <PageTransition>{children}</PageTransition>
+            <Footer />
+          </CursorProvider>
         </SmoothScroll>
       </body>
     </html>

@@ -36,7 +36,10 @@ export function LazyImage({ src, alt, caption, tone = "gold", className }: LazyI
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <div className={cn("relative w-full overflow-hidden rounded-frame bg-surface-sunken", className)}>
+    <div
+      data-cursor="image"
+      className={cn("relative w-full overflow-hidden rounded-frame bg-surface-sunken", className)}
+    >
       {/* Placeholder — always present under the real image, visible
           permanently when there is no src at all. */}
       <div

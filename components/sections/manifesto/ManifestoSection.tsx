@@ -200,6 +200,8 @@ function JourneyLink() {
   return (
     <Link
       href={JOURNEY_HREF}
+      data-cursor="link"
+      data-cursor-text="Explore"
       className="group inline-flex items-center gap-3 font-mono text-sm uppercase tracking-[0.15em] text-text-on-dark/80 transition-colors duration-150 ease-gallery-standard hover:text-gold"
     >
       <span className="relative">

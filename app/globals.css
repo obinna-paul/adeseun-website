@@ -62,24 +62,66 @@ a {
   text-decoration-thickness: 1px;
 }
 
-/* Webkit scrollbar — Firefox falls back to `scrollbar-color` below */
+/*
+ * Inline text-link hover: a gradient wipe from the ambient text color to
+ * gold, via `background-clip: text` — distinct from NavLink's underline
+ * (that one marks "current page" in a menu; this one is for links inside
+ * running prose).
+ *
+ * Uses a custom property (`--link-text-color`), not `currentColor`, for
+ * the resting half — `currentColor` resolves to the element's *own*
+ * `color`, which this rule also sets to `transparent` for the
+ * background-clip trick, so a naive `currentColor` here collapses to
+ * transparent too and the text vanishes entirely instead of showing a
+ * color. A custom property has no such self-reference: it inherits from
+ * an ancestor (or falls back to `--color-text`) independently of this
+ * element's own `color`. Override `--link-text-color` inline wherever a
+ * link sits on a non-default ambient tone (e.g. dark chrome).
+ */
+.link-gradient {
+  --link-text-color: var(--color-text);
+  background-image: linear-gradient(
+    90deg,
+    var(--color-gold-ink) 0%,
+    var(--color-gold-ink) 50%,
+    var(--link-text-color) 50%,
+    var(--link-text-color) 100%
+  );
+  background-size: 200% 100%;
+  background-position: 100% 0;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  transition: background-position 400ms var(--ease-gallery-out);
+}
+.link-gradient:hover,
+.link-gradient:focus-visible {
+  background-position: 0% 0;
+}
+
+/* Webkit scrollbar — Firefox falls back to `scrollbar-color` below.
+   Thumb color carries alpha (translucent, not a solid chip) so it reads
+   as glass over the track rather than a painted bar. */
 ::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-ground);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-line-strong);
+  background: hsla(220, 18%, 55%, 0.35);
   border-radius: var(--radius-control);
-  border: 3px solid var(--color-ground);
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-gold-ink);
+  background: hsla(40, 58%, 34%, 0.55);
+  background-clip: padding-box;
 }
 html {
-  scrollbar-color: var(--color-line-strong) var(--color-ground);
+  scrollbar-color: hsla(220, 18%, 55%, 0.35) transparent;
   scrollbar-width: thin;
 }
 
@@ -89,4 +131,21 @@ html {
   [data-cursor-zone] {
     cursor: none;
   }
+}
+
+/*
+ * Systematic click-bounce: every native link/button gets a subtle press
+ * scale by default, rather than adding `active:scale-[0.97]` by hand to
+ * every component that renders one. Bare-tag selectors, so anything a
+ * component already hand-tunes (MagneticButton's Tailwind utility,
+ * BookCard's group-active cover scale) wins on ordinary specificity — a
+ * class beats a tag selector — without needing an `!important` fight.
+ */
+a[href],
+button:not(:disabled) {
+  transition: transform 150ms var(--ease-gallery-standard);
+}
+a[href]:active,
+button:not(:disabled):active {
+  transform: scale(0.97);
 }

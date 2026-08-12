@@ -33,6 +33,8 @@ export default function NotFound() {
 
         <Link
           href="/"
+          data-cursor="link"
+          data-cursor-text="Home"
           className="mt-10 inline-flex items-center gap-2 rounded-control bg-gold-fill px-8 py-3.5 font-mono text-sm text-text-on-dark shadow-[0_1px_2px_rgba(0,0,0,0.25)] transition-shadow duration-150 ease-gallery-out hover:shadow-glow-gold active:scale-[0.97]"
         >
           Return to the Foyer
@@ -48,9 +50,11 @@ export default function NotFound() {
           <motion.div key={room.href} {...rowReveal}>
             <Link
               href={room.href}
+              data-cursor="link"
+              data-cursor-text="Explore"
               className="group flex flex-col border-t border-line-whisper py-3 transition-colors duration-150 ease-gallery-standard hover:border-gold"
             >
-              <span className="font-display text-lg text-text group-hover:text-gold-ink">{room.name}</span>
+              <span className="link-gradient font-display text-lg">{room.name}</span>
               <span className="font-mono text-xs uppercase tracking-wide text-text-faint">{room.note}</span>
             </Link>
           </motion.div>

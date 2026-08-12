@@ -36,6 +36,8 @@ export function NewsletterLetter() {
           <button
             type="submit"
             aria-label="Subscribe"
+            data-cursor="link"
+            data-cursor-text="Send"
             className="flex h-11 w-11 shrink-0 items-center justify-center self-start rounded-full border border-line text-text-subdued transition-colors duration-150 ease-gallery-standard hover:border-gold hover:text-gold-ink sm:self-auto"
           >
             <PaperPlaneTilt size={18} weight="light" />

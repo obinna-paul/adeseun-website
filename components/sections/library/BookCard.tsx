@@ -13,6 +13,8 @@ export function BookCard({ book, onSelect }: { book: Book; onSelect: (book: Book
     <button
       type="button"
       onClick={() => onSelect(book)}
+      data-cursor="link"
+      data-cursor-text="Read"
       className="group block w-full text-left [perspective:1000px]"
       aria-haspopup="dialog"
     >

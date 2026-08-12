@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { Monogram } from "@/components/ui/Monogram";
 import { BackToTop } from "./BackToTop";
+import { NavLink } from "./NavLink";
 import { SITE_ROOMS } from "@/lib/navigation";
 import { CLOSING_LINE } from "@/components/sections/manifesto/manifesto-content";
 
@@ -29,15 +29,15 @@ export function Footer() {
             </p>
           </div>
 
-          <nav aria-label="Site" className="grid grid-cols-2 gap-x-10 gap-y-3 sm:grid-cols-3 lg:flex lg:flex-col lg:gap-3">
+          <nav aria-label="Site" className="grid grid-cols-2 gap-x-10 gap-y-4 sm:grid-cols-3 lg:flex lg:flex-col lg:gap-4">
             {SITE_ROOMS.map((room) => (
-              <Link
+              <NavLink
                 key={room.href}
                 href={room.href}
                 className="font-mono text-xs uppercase tracking-[0.12em] text-text-on-dark/70 transition-colors duration-150 ease-gallery-standard hover:text-gold"
               >
                 {room.name}
-              </Link>
+              </NavLink>
             ))}
           </nav>
         </div>

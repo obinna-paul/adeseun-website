@@ -1,23 +1,38 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
-import { motion, useMotionValue, useSpring } from "motion/react";
+import { AnimatePresence, motion, useMotionValue, useSpring } from "motion/react";
+import { ArrowsOutSimple } from "@phosphor-icons/react/dist/ssr";
+import type { CursorVariant } from "./CursorProvider";
 
 /**
- * A subtle trailing dot, gold-ink, that follows the pointer inside any
- * element marked `data-cursor-zone` (globals.css sets `cursor: none` only
- * inside those zones — everywhere else keeps the native cursor).
+ * A trailing dot that expands into a labeled circle over links/buttons,
+ * or an "expand" icon over images — inside any `data-cursor-zone`
+ * element (globals.css sets `cursor: none` only there; native cursor
+ * stays everywhere else, and always native on touch/coarse pointers).
  *
- * - Pointer position drives a spring, never useState (emil-design-eng:
- *   useState re-renders the tree on every mousemove and collapses on
- *   mobile; useMotionValue/useSpring interpolate off the render cycle).
- * - Disabled entirely on touch/coarse pointers and under
- *   prefers-reduced-motion — this is decoration, not a functional cursor
- *   replacement, so it never gets to compromise usability.
+ * The dot→circle transition is `scale` on a single fixed-size (40px)
+ * element, not animated `width`/`height` — emil-design-eng's
+ * transform/opacity-only rule for anything that runs often, and a
+ * pointer trailing the mouse across a whole page qualifies. Background/
+ * border color and text opacity are cheap compositor-friendly
+ * properties too, so the whole transition stays off the main thread.
+ *
+ * - Pointer position drives a spring, never useState (would re-render
+ *   the tree on every mousemove — see CursorProvider's own note on why
+ *   variant/text, which change rarely, are the only part that's state).
  * - Eligibility is read via useSyncExternalStore, not state-set-in-effect:
- *   the server (and the client's first paint, before hydration) always
- *   read `false`, so there's no hydration mismatch, and no cascading
- *   render from calling setState synchronously inside an effect.
+ *   server and first client paint always read `false`, so there's no
+ *   hydration mismatch and no cascading render from an effect calling
+ *   setState synchronously.
+ *
+ * The resting dot keeps the original `mix-blend-multiply` (reads well
+ * against the site's light "Alabaster Gallery" ground, and it's small
+ * enough that the rare crossing of a dark section is a non-issue). The
+ * expanded circle drops blend mode — a semi-transparent *gold* border is
+ * an explicit requirement, and multiply would mud it toward black over
+ * the Foyer/Invitation's dark portraits, undermining the one color the
+ * brief actually asked for.
  */
 
 function subscribe(onChange: () => void) {
@@ -41,7 +56,10 @@ function getServerSnapshot() {
   return false;
 }
 
-export function CustomCursor() {
+const SIZE = 40; // px — the brief's "40px circle"; the resting dot is this, scaled down
+const DOT_SCALE = 0.2; // 40px * 0.2 = 8px resting dot, matching the original dot size
+
+export function CustomCursor({ variant, text }: { variant: CursorVariant; text: string }) {
   const enabled = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const x = useMotionValue(-100);
@@ -61,11 +79,54 @@ export function CustomCursor() {
 
   if (!enabled) return null;
 
+  const expanded = variant !== "default";
+
   return (
     <motion.div
       aria-hidden="true"
-      className="pointer-events-none fixed left-0 top-0 z-[100] h-2 w-2 rounded-full bg-gold-ink mix-blend-multiply"
-      style={{ x: springX, y: springY, translateX: "-50%", translateY: "-50%" }}
-    />
+      className="pointer-events-none fixed left-0 top-0 z-[100] flex items-center justify-center rounded-full border border-solid"
+      style={{
+        x: springX,
+        y: springY,
+        translateX: "-50%",
+        translateY: "-50%",
+        width: SIZE,
+        height: SIZE,
+        mixBlendMode: expanded ? "normal" : "multiply",
+      }}
+      animate={{
+        scale: expanded ? 1 : DOT_SCALE,
+        backgroundColor: expanded ? "hsla(42, 55%, 42%, 0)" : "hsla(40, 58%, 34%, 1)",
+        borderColor: expanded ? "hsla(42, 55%, 42%, 0.55)" : "hsla(42, 55%, 42%, 0)",
+      }}
+      transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
+    >
+      <AnimatePresence>
+        {variant === "link" && text && (
+          <motion.span
+            key={text}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="whitespace-nowrap font-mono text-[0.6rem] uppercase tracking-[0.08em] text-gold-ink"
+          >
+            {text}
+          </motion.span>
+        )}
+        {variant === "image" && (
+          <motion.span
+            key="expand-icon"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="text-gold-ink"
+          >
+            <ArrowsOutSimple size={16} weight="light" />
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 }
