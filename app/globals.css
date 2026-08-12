@@ -1,0 +1,74 @@
+@import "tailwindcss";
+@import "./styles/tokens.css";
+
+/**
+ * Browser surfaces — the parts of the page we didn't draw still carry the
+ * design (impeccable's craft-floor: "the cheapest signal a page was built
+ * rather than assembled"). Selection, scrollbar, focus ring, caret, and
+ * tabular numerals all get themed from the palette below.
+ */
+
+/*
+ * No `scroll-behavior: smooth` here on purpose. Lenis (SmoothScroll) owns
+ * smoothing when it's active; a competing CSS smooth-scroll would fight
+ * it. When Lenis is off (prefers-reduced-motion), native instant scroll
+ * is the correct, expected behavior anyway — not something to smooth.
+ *
+ * Also: Next.js 16 no longer auto-suspends `scroll-behavior: smooth`
+ * during route transitions the way 15 did, so setting it globally here
+ * would visibly slow-scroll to top on every navigation. If a future page
+ * wants smooth in-page anchor scrolling without Lenis, opt in locally
+ * with `data-scroll-behavior="smooth"` on <html>, per the v16 docs.
+ */
+
+body {
+  background: var(--color-ground);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  caret-color: var(--color-gold-ink);
+}
+
+::selection {
+  background: var(--color-gold-tint);
+  color: var(--color-gold-fill);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
+a {
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+/* Webkit scrollbar — Firefox falls back to `scrollbar-color` below */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-ground);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: var(--radius-control);
+  border: 3px solid var(--color-ground);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-ink);
+}
+html {
+  scrollbar-color: var(--color-line-strong) var(--color-ground);
+  scrollbar-width: thin;
+}
+
+/* Custom cursor is opt-in per element via [data-cursor]; base cursor stays
+   native everywhere else, and always native on touch/coarse pointers. */
+@media (hover: hover) and (pointer: fine) {
+  [data-cursor-zone] {
+    cursor: none;
+  }
+}

@@ -1,0 +1,165 @@
+/**
+ * Design tokens — Alabaster Gallery & Aso-Oke Gold
+ *
+ * Canonical source of truth for Tailwind v4 (CSS-first config via @theme).
+ * `tailwind.config.ts` stays intentionally thin — v4 reads *this* file.
+ * `lib/design-tokens.ts` mirrors the raw values for non-Tailwind contexts
+ * (Motion variants, canvas/SVG code). If a value changes, change it here
+ * first, then design-tokens.ts.
+ *
+ * Locked to a single visual world (taste-skill 4.11, Page Theme Lock):
+ * no dark mode. The gallery is a daylight room, not a toggle.
+ *
+ * Every text/background pairing was checked against WCAG contrast before
+ * being locked in — see design/style-tile.html for the worked ratios.
+ */
+
+@theme {
+  /* ---- grounds & surfaces ---- */
+  --color-ground: hsl(220, 14%, 96%);
+  --color-surface: hsl(0, 0%, 100%);
+  --color-surface-elevated: hsl(220, 20%, 99%);
+  --color-surface-sunken: hsl(220, 14%, 91%);
+
+  /* ---- lines ---- */
+  --color-line-whisper: hsl(220, 14%, 90%);
+  --color-line: hsl(220, 14%, 82%);
+  --color-line-strong: hsl(220, 18%, 55%);
+
+  /* ---- text hierarchy ---- */
+  --color-text: hsl(230, 18%, 14%);
+  --color-text-subdued: hsl(230, 10%, 38%);
+  --color-text-faint: hsl(230, 8%, 58%);
+  --color-text-on-dark: hsl(220, 24%, 97%);
+
+  /* ---- the one accent: aso-oke gold ---- */
+  --color-gold: hsl(42, 55%, 42%);
+  --color-gold-ink: hsl(40, 58%, 34%);
+  --color-gold-fill: hsl(40, 68%, 28%);
+  --color-gold-tint: hsl(42, 55%, 94%);
+
+  /* ---- structural / semantic — rare use, never a second accent ---- */
+  --color-indigo: hsl(243, 32%, 28%);
+  --color-garnet: hsl(350, 45%, 32%);
+
+  /* ---- type families ---- */
+  --font-display: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-body: "EB Garamond", ui-serif, Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* ---- type scale — custom ~1.22 ratio, not Tailwind's default steps ---- */
+  --text-xs: 0.6875rem;
+  --text-xs--line-height: 1rem;
+  --text-xs--letter-spacing: 0.04em;
+
+  --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.25rem;
+  --text-sm--letter-spacing: 0.02em;
+
+  --text-base: 1rem;
+  --text-base--line-height: 1.7rem;
+  --text-base--letter-spacing: 0em;
+
+  --text-lg: 1.1875rem;
+  --text-lg--line-height: 1.8rem;
+  --text-lg--letter-spacing: 0em;
+
+  --text-xl: 1.4375rem;
+  --text-xl--line-height: 1.9rem;
+  --text-xl--letter-spacing: -0.005em;
+
+  --text-2xl: 1.75rem;
+  --text-2xl--line-height: 2.2rem;
+  --text-2xl--letter-spacing: -0.01em;
+
+  --text-3xl: 2.125rem;
+  --text-3xl--line-height: 2.6rem;
+  --text-3xl--letter-spacing: -0.015em;
+
+  --text-4xl: 2.625rem;
+  --text-4xl--line-height: 3rem;
+  --text-4xl--letter-spacing: -0.02em;
+
+  --text-5xl: 3.25rem;
+  --text-5xl--line-height: 3.6rem;
+  --text-5xl--letter-spacing: -0.02em;
+
+  --text-6xl: 4rem;
+  --text-6xl--line-height: 4.2rem;
+  --text-6xl--letter-spacing: -0.025em;
+
+  --text-7xl: 5rem;
+  --text-7xl--line-height: 5.2rem;
+  --text-7xl--letter-spacing: -0.03em;
+
+  --text-8xl: 6.25rem;
+  --text-8xl--line-height: 6.4rem;
+  --text-8xl--letter-spacing: -0.03em;
+
+  --text-9xl: 7.75rem;
+  --text-9xl--line-height: 7.8rem;
+  --text-9xl--letter-spacing: -0.035em;
+
+  /* ---- airy, named spacing rhythm (extends the base scale) ---- */
+  --spacing-gutter: 1.5rem;
+  --spacing-margin: clamp(1.5rem, 5vw, 6rem);
+  --spacing-room: 8rem;
+  --spacing-room-lg: 11rem;
+
+  /* ---- content widths ---- */
+  --container-prose-gallery: 65ch;
+  --container-frame: 1400px;
+  --container-frame-narrow: 860px;
+
+  /* ---- shadows — tinted to the ground hue, never pure black ---- */
+  --shadow-elevation-card: 0 1px 2px hsla(220, 20%, 20%, 0.06), 0 8px 24px -8px hsla(220, 20%, 20%, 0.10);
+  --shadow-elevation-modal: 0 24px 64px -12px hsla(220, 25%, 15%, 0.18);
+  --shadow-glow-gold: 0 0 0 1px hsla(42, 55%, 42%, 0.35), 0 8px 28px -6px hsla(42, 55%, 42%, 0.25);
+  --shadow-glow-soft: 0 4px 40px hsla(220, 30%, 30%, 0.08);
+
+  /* ---- radius — two-tier documented system ---- */
+  --radius-frame: 2px;
+  --radius-control: 999px;
+
+  /* ---- motion: easing, named per emil-design-eng's decision tree ---- */
+  --ease-gallery-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-gallery-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-gallery-standard: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ---- motion: named animation presets, tied to real site moments ---- */
+  --animate-gentle-reveal: gentleReveal 600ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  --animate-authoritative-entrance: authoritativeEntrance 900ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  --animate-shelf-pull: shelfPull 220ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  --animate-nook-expand: nookExpand 360ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  --animate-manifesto-line: manifestoLine 600ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+@keyframes gentleReveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes authoritativeEntrance {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes shelfPull {
+  from { transform: rotate(0deg) translateX(0); }
+  to { transform: rotate(-4deg) translateX(-6px); }
+}
+@keyframes nookExpand {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes manifestoLine {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
