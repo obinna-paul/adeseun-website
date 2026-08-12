@@ -3,13 +3,18 @@ import type { Metadata } from "next";
 const SITE_NAME = "Adeseun Oyeneye";
 const SITE_URL = "https://adeseunoyeneye.com"; // placeholder — swap once the domain is confirmed
 /**
- * Author-first, per direct instruction: her three real books lead, her
- * real professional standing (Vice-President, Threesixty Africa Group;
- * AFRICAST 2025 project coordinator) is the credibility line, not the
- * headline — see library-content.ts for the research this is grounded in.
+ * Author-first, per direct instruction: her five real books lead
+ * (naming all of them would blow the ~160-character SEO description
+ * budget, so two representative titles stand in), her real professional
+ * standing (Founder and Vice-President, Threesixty Africa Media —
+ * corrected from an earlier "Threesixty Africa Group" guess, and from
+ * "Vice-President" alone, once her own author bio confirmed both the
+ * real name and that she founded it) is the credibility line, not the
+ * headline — see library-content.ts and study-content.ts for the
+ * research this is grounded in.
  */
 const DEFAULT_DESCRIPTION =
-  "Author of Think Before You Speak, Beyond the Mundane, and Tranquility. Vice-President, Threesixty Africa Group.";
+  "Author of five books, including Think Before You Speak and Black Is Beautiful. Founder and Vice-President, Threesixty Africa Media.";
 
 type PageMetadataInput = {
   title: string;

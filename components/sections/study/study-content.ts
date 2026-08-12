@@ -3,20 +3,27 @@
  * rather than a resume.
  *
  * Rewritten around real, verified research (see library-content.ts):
- * three real books, two of them with confirmed publish dates (Think
+ * five real books, two of them with confirmed publish dates (Think
  * Before You Speak, November 2023; Tranquility, June 2025 — used as
- * actual `era` values below, not fabricated). Where a date isn't
- * confirmed (Beyond the Mundane's publication date, and anything before
- * her first book), `era` stays a descriptive label rather than an
- * invented year — the same fake-precision guard as before, just now
- * mostly unnecessary because real dates exist for the anchor points.
+ * actual `era` values below, not fabricated). The timeline below only
+ * walks the three earliest-confirmed titles, not all five — Black Is
+ * Beautiful and The Hope of a Nigerian Child surfaced after this
+ * timeline's structure was set and don't have confirmed dates or a
+ * clear position in her writing order, so adding milestones for them
+ * would mean guessing at sequence; The Library lists all five. Where a
+ * date isn't confirmed (Beyond the Mundane's publication date, and
+ * anything before her first book), `era` stays a descriptive label
+ * rather than an invented year — the same fake-precision guard as
+ * before, just now mostly unnecessary because real dates exist for the
+ * anchor points.
  *
  * Per direct instruction, this is author-first: her real professional
- * standing (Vice-President, Threesixty Africa Group; AFRICAST 2025
- * project coordinator) appears as ONE supporting milestone, not the
- * spine of the timeline — the earlier version's fabricated "board seat
- * → Managing Director" corporate-ascent arc has been removed entirely,
- * not just relabeled.
+ * standing (Founder and Vice-President, Threesixty Africa Media — the
+ * AFRICAST 2025 / Paris 2024 Olympics / Headies credentials come from
+ * her own published author bio, supplied directly) appears as ONE
+ * supporting milestone, not the spine of the timeline — the earlier
+ * version's fabricated "board seat → Managing Director" corporate-ascent
+ * arc has been removed entirely, not just relabeled.
  *
  * Every `story` line is still original writing in her voice, not a
  * verified account of real events or a quoted statement from her —
@@ -63,9 +70,9 @@ export const TIMELINE_MILESTONES: Milestone[] = [
   {
     id: "threesixty",
     era: "Alongside the Page",
-    title: "Vice-President, Threesixty Africa Group",
+    title: "Founder and Vice-President, Threesixty Africa Media",
     story:
-      "The other half of her working life — most recently as project coordinator for AFRICAST 2025, Africa's premier broadcast and media technology event. Not the story this site tells. Just also true.",
+      "The other half of her working life — a media, marketing, and content agency she founded, most recently the official marketing engine behind AFRICAST 2025 and Nigeria House at the Paris 2024 Olympics, and a co-executive producer of The Headies for sixteen years. Not the story this site tells. Just also true.",
     image: "/images/adeseun-threesixty.jpg",
   },
   {

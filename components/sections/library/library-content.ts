@@ -1,9 +1,10 @@
 /**
- * Content for The Library (/library) — her four published books.
+ * Content for The Library (/library) — her five published books.
  *
  * Grounded in real, verified research (web search, checked against
- * multiple retail listings, plus direct confirmation from her team),
- * not illustrative placeholder copy. Confirmed facts:
+ * multiple retail listings, plus direct confirmation from her team,
+ * including her own published author bio), not illustrative placeholder
+ * copy. Confirmed facts:
  * - "Think Before You Speak: Embarking on the Path to Thoughtful
  *   Communication" — published November 2023, 197 pages.
  * - "Beyond the Mundane: Essentials of a Meaningful Life."
@@ -12,27 +13,36 @@
  *   (amazon.com/dp/B0DH261JSK), and both its real cover art and its
  *   real publisher description supplied directly (search never indexed
  *   this one, despite trying). Its real cover image is used as-is (see
- *   `coverImage` below); the other three still use the designed
+ *   `coverImage` below); the other four still use the designed
  *   placeholder mockup (BookCover) since no cover art exists for them
  *   yet. Its `excerpt` is her actual publisher description, reproduced
  *   verbatim — the one book here where that panel isn't site-original
  *   writing, which is exactly why its heading says "From the
  *   publisher's description" rather than the generic "About the book"
- *   the other three use.
- * Amazon vendor links point at real listings, not fabricated product
- * pages or search-query fallbacks.
+ *   the other four use.
+ * - "The Hope of a Nigerian Child" — named in her own author bio
+ *   (the back matter of a printed book, supplied directly) alongside
+ *   Think Before You Speak, Beyond the Mundane, and Black Is Beautiful.
+ *   No retail listing has surfaced for it yet (same search-indexing gap
+ *   as Black Is Beautiful before its direct link arrived), so it has no
+ *   confirmed vendor link, cover, or description beyond its title —
+ *   its `vendors` entry is a functional Amazon *search* query, not a
+ *   fabricated product page, and its copy says plainly that more is on
+ *   the way rather than inventing detail to fill the space.
+ * Amazon/Lulu vendor links elsewhere point at real listings, not
+ * fabricated product pages or search-query fallbacks.
  *
  * What's still original writing, not a verified quote, for the other
- * three: every `description` and `excerpt` paragraph is written in this
+ * four: every `description` and `excerpt` paragraph is written in this
  * site's own voice, summarizing their real, publicly-described subject —
  * never presented as a direct quotation from inside the book.
  * `accolades` only lists facts that are actually confirmed (publish
  * date, page count) — no invented praise or press.
  */
 
-export type Category = "Communication" | "Meaning" | "Stillness" | "Identity";
+export type Category = "Communication" | "Meaning" | "Stillness" | "Identity" | "Hope";
 
-export const CATEGORIES: Category[] = ["Communication", "Meaning", "Stillness", "Identity"];
+export const CATEGORIES: Category[] = ["Communication", "Meaning", "Stillness", "Identity", "Hope"];
 
 export type Vendor = { label: string; url: string };
 
@@ -125,6 +135,27 @@ export const BOOKS: Book[] = [
     vendors: [{ label: "Amazon", url: "https://www.amazon.com/Black-Beautiful-Adeseun-Oyeneye/dp/B0DH261JSK" }],
     coverImage: "/images/black-is-beautiful-cover.webp",
   },
+  {
+    id: "the-hope-of-a-nigerian-child",
+    order: "V",
+    title: "The Hope of a Nigerian Child",
+    category: "Hope",
+    tone: "gold",
+    tagline: "A title that speaks for itself.",
+    description:
+      "A book about hope, written for and about Nigeria's children — a fuller description is on its way as more detail is confirmed.",
+    accolades: [],
+    excerptHeading: "About the book",
+    excerpt: [
+      "A full description for this title is still being confirmed. In the meantime, the title carries most of what it needs to: this is a book about hope, written for and about Nigeria's children.",
+    ],
+    vendors: [
+      {
+        label: "Amazon",
+        url: "https://www.amazon.com/s?k=" + encodeURIComponent("The Hope of a Nigerian Child Adeseun Oyeneye"),
+      },
+    ],
+  },
 ];
 
-export const PAGE_INTRO = "Four books, browsed the way they were written — one at a time, with room to sit with each.";
+export const PAGE_INTRO = "Five books, browsed the way they were written — one at a time, with room to sit with each.";

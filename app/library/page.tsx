@@ -5,7 +5,7 @@ import { BOOKS, PAGE_INTRO } from "@/components/sections/library/library-content
 export const metadata = pageMetadata({
   title: "The Library",
   path: "/library",
-  description: "Her three books on thoughtful communication, meaningful living, and tranquility — browsed like a private collection.",
+  description: "Her five books — on thoughtful communication, meaningful living, tranquility, identity, and hope — browsed like a private collection.",
 });
 
 /**
