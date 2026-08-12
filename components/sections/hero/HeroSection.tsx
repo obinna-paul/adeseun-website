@@ -1,11 +1,12 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { HeroPortrait } from "./HeroPortrait";
 import { HeroCanvas } from "./HeroCanvas";
 import { ScrollCue } from "./ScrollCue";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import { heroLine, heroLineGroup, heroSubhead, heroActions, heroAction } from "@/lib/motion";
+import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 
 /**
  * Act I — The Arrival (see The Walkthrough). The site's cold open: dark,
@@ -47,14 +48,14 @@ import { heroLine, heroLineGroup, heroSubhead, heroActions, heroAction } from "@
  * longer" — this is that category, not a dropdown).
  *
  * Reduced motion: every animated element still renders its FINAL state
- * immediately (no motion, no delay) via `useReducedMotion()` gating
+ * immediately (no motion, no delay) via `usePrefersReducedMotion()` gating
  * below — nothing is hidden or broken, the choreography is just skipped.
  */
 
 const HEADLINE_LINES = ["She built the room.", "Then she wrote the book about it."];
 
 export function HeroSection() {
-  const reduced = useReducedMotion();
+  const reduced = usePrefersReducedMotion();
 
   return (
     <section

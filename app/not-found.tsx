@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { authoritativeEntrance, gentleReveal, staggerChildren } from "@/lib/motion";
+import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 
 const ROOMS = [
   { name: "The Foyer", href: "/", note: "Home" },
@@ -14,7 +15,7 @@ const ROOMS = [
 ] as const;
 
 export default function NotFound() {
-  const reduced = useReducedMotion();
+  const reduced = usePrefersReducedMotion();
   const entrance = reduced ? {} : { initial: "hidden", animate: "visible", variants: authoritativeEntrance };
   const listStagger = reduced ? {} : { initial: "hidden", animate: "visible", variants: staggerChildren(60) };
   const rowReveal = reduced ? {} : { variants: gentleReveal };

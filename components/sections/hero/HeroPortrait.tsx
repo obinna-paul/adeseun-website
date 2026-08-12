@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
-import { animate, motion, useMotionTemplate, useMotionValue, useReducedMotion, useTransform } from "motion/react";
+import { animate, motion, useMotionTemplate, useMotionValue, useTransform } from "motion/react";
+import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 
 const MotionImage = motion.create(Image);
 
@@ -30,10 +31,16 @@ type HeroPortraitProps = {
 const REVEAL_ORIGIN = "50% 38%"; // roughly eye-height in a head-and-shoulders crop
 
 export function HeroPortrait({ src, alt }: HeroPortraitProps) {
-  const reduced = useReducedMotion();
-  const reveal = useMotionValue(reduced ? 100 : 0);
-  const brightness = useMotionValue(reduced ? 1 : 0.28);
-  const blur = useMotionValue(reduced ? 0 : 7);
+  const reduced = usePrefersReducedMotion();
+  // Always seed at the "hidden" values, never a `reduced`-dependent
+  // ternary: usePrefersReducedMotion's first render is always `false`
+  // (server and client agree, on purpose — see its own doc comment), so
+  // a ternary here could only ever take one branch anyway. The effect
+  // below is what actually corrects to the final state for a genuinely
+  // reduced-motion browser, by jumping rather than animating.
+  const reveal = useMotionValue(0);
+  const brightness = useMotionValue(0.28);
+  const blur = useMotionValue(7);
   const started = useRef(false);
 
   // Soft-edged iris, not a hard-cut circle: the inner (opaque) stop trails
@@ -44,7 +51,18 @@ export function HeroPortrait({ src, alt }: HeroPortraitProps) {
   const filter = useMotionTemplate`brightness(${brightness}) contrast(1.12) saturate(0.95) blur(${blur}px)`;
 
   useEffect(() => {
-    if (reduced || started.current) return;
+    if (reduced) {
+      // Jump straight to the settled state — including correcting a
+      // reveal animation that may have already started in the brief
+      // window before this preference was detected (see the hook's own
+      // trade-off note). No animate(), just set(): reduced motion means
+      // arriving at the end state, not a faster trip there.
+      reveal.set(130);
+      brightness.set(1);
+      blur.set(0);
+      return;
+    }
+    if (started.current) return;
     started.current = true;
     // Slightly different durations so the mask "opens" a beat ahead of
     // the image fully sharpening — the shape arrives before the detail,

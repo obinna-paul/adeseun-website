@@ -1,7 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion } from "motion/react";
 import { useLenis } from "@/components/scroll/SmoothScroll";
+import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 
 /**
  * Not an arrow. A thin line extends downward on load (scaleY, not
@@ -14,7 +15,7 @@ import { useLenis } from "@/components/scroll/SmoothScroll";
  * decoration pretending to be one.
  */
 export function ScrollCue({ targetId }: { targetId: string }) {
-  const reduced = useReducedMotion();
+  const reduced = usePrefersReducedMotion();
   const lenis = useLenis();
 
   function handleClick() {

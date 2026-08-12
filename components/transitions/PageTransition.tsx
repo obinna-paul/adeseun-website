@@ -1,8 +1,9 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { pageTransition } from "@/lib/motion";
+import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import type { ReactNode } from "react";
 
 /**
@@ -30,7 +31,7 @@ import type { ReactNode } from "react";
  */
 export function PageTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const reduced = useReducedMotion();
+  const reduced = usePrefersReducedMotion();
 
   if (reduced) {
     // Reduced motion: no animated transition, just render the page.
