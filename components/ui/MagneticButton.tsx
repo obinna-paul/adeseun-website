@@ -54,6 +54,17 @@ type MagneticButtonProps = {
   /** Only meaningful without `href` — lets this submit a surrounding `<form>` (e.g. The Invitation). */
   type?: "button" | "submit";
   disabled?: boolean;
+  /**
+   * Smaller padding/type below `sm`, full size at `sm`+ — for spots like
+   * the Hero CTA row where two buttons need to sit side by side on a
+   * narrow phone width. A real prop with its own ternary branch, not a
+   * `className` override: layering a second `px-*`/`text-*` utility on
+   * top of the base classes' own is a known Tailwind footgun here (two
+   * same-specificity utilities of the same type don't reliably resolve
+   * by source order — see BookModal's cover-width bug), so size is a
+   * mutually-exclusive branch instead, same fix pattern as that bug.
+   */
+  dense?: boolean;
 };
 
 export function MagneticButton({
@@ -64,6 +75,7 @@ export function MagneticButton({
   className,
   type = "button",
   disabled,
+  dense = false,
 }: MagneticButtonProps) {
   const eligible = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const ref = useRef<HTMLElement>(null);
@@ -103,7 +115,8 @@ export function MagneticButton({
   }
 
   const base = cn(
-    "group relative inline-flex items-center justify-center overflow-hidden rounded-control px-8 py-3.5 font-mono text-sm tracking-wide transition-colors duration-150 ease-gallery-standard active:scale-[0.97] disabled:opacity-60 disabled:pointer-events-none",
+    "group relative inline-flex items-center justify-center overflow-hidden rounded-control font-mono tracking-wide transition-colors duration-150 ease-gallery-standard active:scale-[0.97] disabled:opacity-60 disabled:pointer-events-none",
+    dense ? "px-2.5 py-2.5 text-xs sm:px-8 sm:py-3.5 sm:text-sm" : "px-8 py-3.5 text-sm",
     variant === "primary"
       ? "bg-gold-fill text-text-on-dark shadow-[0_1px_2px_rgba(0,0,0,0.25)]"
       : "border border-text-on-dark/30 text-text-on-dark hover:border-gold",

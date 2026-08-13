@@ -37,7 +37,7 @@ export function StudyHero() {
     <section className="relative flex min-h-[100dvh] w-full items-end overflow-hidden bg-ground">
       <motion.div
         aria-hidden="true"
-        className="absolute inset-0"
+        className="absolute inset-x-0 bottom-0 top-20"
         initial={reduced ? false : { scale: 1.35 }}
         animate={{ scale: 1 }}
         transition={{ duration: reduced ? 0 : ZOOM_DURATION, ease: [0.77, 0, 0.175, 1] }}

@@ -87,7 +87,7 @@ export function HeroPortrait({ src, alt }: HeroPortraitProps) {
             fill
             priority
             sizes="100vw"
-            className="object-cover object-[50%_12%]"
+            className="object-cover object-[50%_8%] lg:object-[65%_14%]"
             style={{ filter }}
           />
         ) : (
@@ -114,6 +114,19 @@ export function HeroPortrait({ src, alt }: HeroPortraitProps) {
         style={{
           background:
             "linear-gradient(180deg, hsla(230,26%,5%,0.15) 0%, hsla(230,26%,5%,0.05) 35%, hsla(230,26%,5%,0.55) 78%, hsla(230,26%,5%,0.86) 100%)",
+        }}
+      />
+      {/* Left-edge scrim, `lg`+ only: HeroSection right-aligns and caps this
+          portrait's width past `lg` (see its own doc comment on the zoom
+          fix), so on wide screens there's a hard edge where the image ends
+          and plain bg-hero-ground begins. This blends that seam and doubles
+          as extra contrast behind the left-anchored headline. Invisible
+          below `lg`, where the portrait is full width and there's no seam
+          to hide. */}
+      <div
+        className="pointer-events-none absolute inset-0 hidden lg:block"
+        style={{
+          background: "linear-gradient(90deg, hsla(230,26%,5%,0.75) 0%, hsla(230,26%,5%,0.2) 30%, transparent 55%)",
         }}
       />
     </div>

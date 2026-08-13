@@ -3,7 +3,6 @@
 import { motion } from "motion/react";
 import { HeroPortrait } from "./HeroPortrait";
 import { HeroCanvas } from "./HeroCanvas";
-import { ScrollCue } from "./ScrollCue";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import { MobileDetect } from "@/components/ui/MobileDetect";
 import { heroLine, heroLineGroup, heroSubhead, heroActions, heroAction } from "@/lib/motion";
@@ -14,6 +13,37 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
  * commanding, wordless for its first beat. Everything after this section
  * warms up — Act III is where "light breaks in for the first time."
  *
+ * ── One layout, every breakpoint ─────────────────────────────────────
+ * Mobile and desktop used to be two different compositions (stacked
+ * non-overlapping blocks below `lg`, full-bleed overlay above it) — that
+ * split existed only because overlaying text on the photo looked bad on
+ * a narrow, tall crop. Direct feedback reversed that: the photo is dark
+ * enough that text-on-photo reads fine on mobile too, so there's now
+ * exactly one composition, and the mobile-only stacked variant is gone.
+ *
+ * ── Clearing the persistent Header (real bug, fixed via screenshot) ──
+ * The Header is `fixed` at `h-20` covering the top of every page (see
+ * Header.tsx). Both the portrait and the text content reserve `top-20`
+ * of clearance at every breakpoint — the photo starts *below* the header
+ * rather than underneath its translucent bar, and the header floats over
+ * plain `bg-hero-ground` instead of ever sitting on top of her face. This
+ * is what "her head starts after the nav" (mobile) and the headline no
+ * longer reading as clipped (desktop) both come from — one fix, not two.
+ *
+ * ── Taming the zoom on wide screens (real bug, fixed via screenshot) ──
+ * The source photo (adeseun-threesixty.jpg) is a tight headshot, close
+ * to square (720×828). Forcing that to `object-cover` edge-to-edge on an
+ * ultra-wide short viewport (2560×1080, or even a maximized 1920-wide
+ * laptop window) demands cropping almost all of it away — there's no
+ * object-position that fixes that; the geometry itself is the problem.
+ * Past `lg`, the portrait is right-aligned and width-capped
+ * (`lg:max-w-[1300px]`) instead of stretching the full section width, so
+ * the required crop stays reasonable at any viewport width — typical
+ * laptop widths (≤1300px content) render exactly as before, only truly
+ * ultra-wide screens are affected. HeroPortrait's own left-edge scrim
+ * blends the cap's edge into `bg-hero-ground` so there's no seam, and
+ * gives the left-anchored text a darker backdrop to sit on at every size.
+ *
  * ── Timing choreography ──────────────────────────────────────────────
  * All delays below are relative to mount (t=0). Durations from
  * lib/motion.ts / lib/design-tokens.ts; written out here as seconds so
@@ -23,63 +53,24 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
  *           the room is already "on" before anything else happens).
  *   t=0.00  Portrait mask starts opening (iris, ~2.0s) and its filter
  *           sweep starts (brightness/blur, ~1.7–2.2s) — see HeroPortrait.
- *   t=0.65  Headline line 1 begins its blur-in (heroLineGroup's
- *           `delayChildren`). Starts once the portrait is roughly
- *           40–50% revealed — the room is lighting up, THEN the words
- *           arrive, not both at once.
- *   t=0.87  Headline line 2 begins (220ms after line 1 — heroLineGroup's
- *           `staggerChildren`). That gap is much wider than the 30–80ms
- *           taste-skill prescribes for list-item stagger; that guidance
- *           is for micro-UI (rows, cards), not a two-line cinematic
- *           headline where each line is itself a ~1s event. A quick
- *           succession here would read as a glitch, not a reveal.
- *   ~t=1.85 Line 2's blur-in finishes (starts 0.87 + runs ~1.0s).
+ *   t=0.65  Headline begins its blur-in (heroLineGroup's `delayChildren`).
+ *           Starts once the portrait is roughly 40–50% revealed — the
+ *           room is lighting up, THEN the words arrive, not both at once.
  *   t=2.10  Subhead fades up (heroSubhead), a clear beat after the
  *           headline settles — never competing with it for attention.
  *   t=2.10  CTA row becomes visible; its own children (the two buttons)
  *           stagger 120ms apart starting here, so the primary button
  *           settles first and the secondary a beat later.
- *   t=2.30  Scroll cue's line begins extending (scaleY); the traveling
- *           dot's loop starts at t=3.2, after the line has finished
- *           extending — nothing about the cue competes with the CTAs
- *           settling in.
- *
- * Total settle time ~2.6s. Long for a UI interaction, correct for a
- * once-per-visit hero (emil-design-eng: "marketing/explanatory: can be
- * longer" — this is that category, not a dropdown).
  *
  * Reduced motion: every animated element still renders its FINAL state
  * immediately (no motion, no delay) via `usePrefersReducedMotion()` gating
  * below — nothing is hidden or broken, the choreography is just skipped.
- *
- * ── Short-viewport safety (real bug, caught via screenshot on a
- * ── non-maximized ~1920×750 browser window) ─────────────────────────
- * At `lg`+ the headline/subhead/CTA block is `absolute inset-0` +
- * `justify-end` so it overlays the bottom of the full-bleed portrait —
- * but an absolutely-positioned box doesn't contribute to its ancestor's
- * height, so on a viewport short enough that the bottom-anchored stack
- * doesn't fit, its *top* silently pushed above the section's own y=0
- * and vanished behind the fixed header, clipped by `overflow-hidden`.
- * Three-part fix, from most to least load-bearing:
- *   1. `lg:text-6xl` instead of `lg:text-7xl` — meaningfully less
- *      height needed per line at the fluid scale's top end, so the
- *      realistic range of desktop window heights clears comfortably.
- *   2. The content box reserves `lg:top-24` instead of `lg:inset-0`'s
- *      implicit `top-0` — a guaranteed clearance below the header even
- *      before considering how tall the text stack is.
- *   3. `overflow-x-hidden` only (not `overflow-hidden`) on the section —
- *      the actual safety net: if content somehow still doesn't fit in
- *      some extreme case, it now extends the section's own scrollable
- *      height instead of being invisibly deleted. A slightly-taller-
- *      than-one-screen hero on a genuinely tiny window beats content
- *      that's silently gone.
  */
 
-// Deliberately her own real book titles, not invented copy — see
-// library-content.ts for the research this is grounded in. Author-first
-// framing per direct instruction: the hero's one big statement is what
-// she actually wrote, not an invented executive-ascent narrative.
-const HEADLINE_LINES = ["Think before you speak.", "Live beyond the mundane."];
+// Her own words, not invented copy — see library-content.ts for the
+// research this is grounded in. One line, not two: keeps the headline
+// short enough to never wrap mid-sentence at the fluid display scale.
+const HEADLINE_LINE = "Live beyond the mundane.";
 
 export function HeroSection() {
   const reduced = usePrefersReducedMotion();
@@ -87,50 +78,30 @@ export function HeroSection() {
   return (
     <section
       id="foyer-hero"
-      className="relative flex min-h-[100dvh] w-full flex-col overflow-x-hidden bg-hero-ground lg:block"
+      className="relative min-h-[100dvh] w-full overflow-x-hidden bg-hero-ground"
     >
-      {/*
-       * Mobile/tablet art direction (below `lg`): the desktop composition
-       * — portrait full-bleed behind the whole section, headline overlaid
-       * at the bottom — puts the headline directly across her face on a
-       * narrow, tall viewport; there's no horizontal room to keep text
-       * beside the face the way the wide desktop crop does. Below `lg`,
-       * portrait and text become two stacked, non-overlapping blocks
-       * instead: portrait in its own contained top block (not full-bleed),
-       * headline below it in normal flow. Both blocks stay on the same
-       * dark hero-ground so the section still reads as one register top to
-       * bottom (Page Theme Lock, 4.11) rather than flipping tone mid-stack.
-       * At `lg`+, both blocks revert to absolute-positioned overlays,
-       * restoring the original full-bleed composition exactly.
-       */}
-      <div className="relative h-[42vh] min-h-[280px] w-full shrink-0 lg:absolute lg:inset-0 lg:h-full lg:min-h-0">
-        <HeroPortrait src="/images/adeseun-threesixty.jpg" alt="Adeseun Oyeneye" />
+      <div className="absolute inset-x-0 bottom-0 top-20 lg:flex lg:justify-end">
+        <div className="relative h-full w-full lg:max-w-[1300px]">
+          <HeroPortrait src="/images/adeseun-threesixty.jpg" alt="Adeseun Oyeneye" />
+        </div>
       </div>
       <MobileDetect>
         <HeroCanvas />
       </MobileDetect>
 
-      <div className="relative z-10 flex w-full flex-1 flex-col justify-center px-gutter py-10 sm:px-10 lg:absolute lg:inset-x-0 lg:bottom-0 lg:top-24 lg:flex-none lg:justify-end lg:px-16 lg:py-0 lg:pb-24">
+      <div className="absolute inset-x-0 bottom-0 top-20 z-10 flex flex-col justify-end px-gutter pb-10 sm:px-10 lg:px-16 lg:pb-24">
         <div className="mx-auto w-full max-w-frame">
-          <div className="max-w-2xl">
-            {/* h1 is the real, single, SEO-bearing heading — its two visual
-                lines are block-level (not letter-split), so assistive tech
-                and search crawlers read the full sentence in order. */}
+          <div className="max-w-3xl">
+            {/* h1 is the real, single, SEO-bearing heading. */}
             <motion.h1
               className="text-balance font-display text-4xl font-semibold text-text-on-dark sm:text-6xl"
               initial={reduced ? false : "hidden"}
               animate="visible"
               variants={reduced ? undefined : heroLineGroup}
             >
-              {HEADLINE_LINES.map((line) => (
-                <motion.span
-                  key={line}
-                  className="block"
-                  variants={reduced ? undefined : heroLine}
-                >
-                  {line}
-                </motion.span>
-              ))}
+              <motion.span className="block" variants={reduced ? undefined : heroLine}>
+                {HEADLINE_LINE}
+              </motion.span>
             </motion.h1>
 
             <motion.p
@@ -144,13 +115,13 @@ export function HeroSection() {
             </motion.p>
 
             <motion.div
-              className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center"
+              className="mt-10 flex flex-row flex-wrap items-center gap-2 sm:gap-4"
               initial={reduced ? false : "hidden"}
               animate="visible"
               variants={reduced ? undefined : heroActions}
             >
               <motion.div variants={reduced ? undefined : heroAction}>
-                <MagneticButton href="/library" variant="primary">
+                <MagneticButton href="/library" variant="primary" dense>
                   Enter the Library
                 </MagneticButton>
               </motion.div>
@@ -159,7 +130,7 @@ export function HeroSection() {
                   pointing at a route with no page, a dead link on the
                   site's most prominent button. See ScreeningRoomSection. */}
               <motion.div variants={reduced ? undefined : heroAction}>
-                <MagneticButton href="/screening-room" variant="secondary">
+                <MagneticButton href="/screening-room" variant="secondary" dense>
                   Watch Her Speak
                 </MagneticButton>
               </motion.div>
@@ -167,8 +138,6 @@ export function HeroSection() {
           </div>
         </div>
       </div>
-
-      <ScrollCue targetId="act-ii" />
     </section>
   );
 }

@@ -57,7 +57,6 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
                   href={room.href}
                   onClick={onClose}
                   data-cursor="link"
-                  data-cursor-text="Explore"
                   aria-current={pathname === room.href ? "page" : undefined}
                   className={cn(
                     "font-display text-4xl font-semibold transition-colors duration-200 ease-gallery-standard",

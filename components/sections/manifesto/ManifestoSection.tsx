@@ -2,14 +2,14 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { motion } from "motion/react";
+import { motion, useMotionTemplate, useScroll, useTransform } from "motion/react";
 import { gsap } from "@/lib/gsap";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import { useMobileDetect } from "@/lib/use-mobile-detect";
 import { gentleReveal, viewportOnce } from "@/lib/motion";
 import { ManifestoBackground } from "./ManifestoBackground";
 import { ValueIcon } from "./ValueIcon";
-import { MANIFESTO_BEATS, CLOSING_LINE, JOURNEY_HREF } from "./manifesto-content";
+import { MANIFESTO_BEATS, CLOSING_LINE, JOURNEY_HREF, type Beat } from "./manifesto-content";
 
 /**
  * Act IV — The Values Manifesto. See The Walkthrough for the original
@@ -48,17 +48,23 @@ import { MANIFESTO_BEATS, CLOSING_LINE, JOURNEY_HREF } from "./manifesto-content
  * hidden (emil-design-eng: reduced motion means fewer, gentler
  * animations, not zero, and never less content).
  *
- * Mobile art direction: `ManifestoStatic` (below) also renders on
- * narrow/touch viewports (`useMobileDetect`), not just under reduced
- * motion. A `pin: true` full-viewport takeover is architecturally
- * risky on mobile browsers specifically — dynamic address-bar chrome
- * resizes the real viewport mid-scroll, which GSAP's pin math doesn't
- * see happen, and a `MANIFESTO_BEATS.length * 100vh` scroll-jacked
- * section on a small screen reads as a heavy-handed takeover rather
- * than a considered reveal. Rather than debug pin behavior against a
- * moving viewport target, this reuses the same static fallback the
- * reduced-motion path already has — same content, same whileInView
- * reveals, no pin, no canvas, no ScrollTrigger.
+ * Mobile art direction: narrow/touch viewports (`useMobileDetect`) get
+ * their own `ManifestoMobile` (below), not the GSAP pin. A `pin: true`
+ * full-viewport takeover is architecturally risky on mobile browsers
+ * specifically — dynamic address-bar chrome resizes the real viewport
+ * mid-scroll, which GSAP's pin math doesn't see happen. But a flat,
+ * all-beats-stacked-at-once fallback (real feedback: "piling all the
+ * text") loses the thing that makes the desktop version work — one beat
+ * at a time. `ManifestoMobile` keeps that: every beat gets its own
+ * `min-h-[100dvh]` block in normal document flow (never pinned, so no
+ * moving-viewport risk), and each one's opacity/y/blur is driven by
+ * *that beat's own* scroll progress through the viewport
+ * (`useScroll({ target })`) rather than GSAP's ScrollTrigger — a
+ * continuous, per-frame recomputation from actual scroll position, not
+ * a pinned timeline, so it can't desync when the browser chrome resizes.
+ * `ManifestoStatic` (below) is reserved for `prefers-reduced-motion`
+ * only now — a real, motion-free fallback, not reused as a mobile
+ * substitute.
  */
 
 const UNIT = 1;
@@ -68,13 +74,13 @@ const EXIT_START = 0.7;
 export function ManifestoSection() {
   const reduced = usePrefersReducedMotion();
   const lowPower = useMobileDetect();
-  const useStatic = reduced || lowPower;
+  const useGsapPin = !reduced && !lowPower;
   const wrapperRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef(0);
 
   useEffect(() => {
-    if (useStatic || !wrapperRef.current || !pinRef.current) return;
+    if (!useGsapPin || !wrapperRef.current || !pinRef.current) return;
 
     const ctx = gsap.context(() => {
       const beatEls = gsap.utils.toArray<HTMLElement>(".manifesto-beat");
@@ -126,10 +132,14 @@ export function ManifestoSection() {
     }, wrapperRef);
 
     return () => ctx.revert();
-  }, [useStatic]);
+  }, [useGsapPin]);
 
-  if (useStatic) {
+  if (reduced) {
     return <ManifestoStatic />;
+  }
+
+  if (lowPower) {
+    return <ManifestoMobile />;
   }
 
   return (
@@ -227,6 +237,58 @@ function JourneyLink() {
         →
       </span>
     </Link>
+  );
+}
+
+/**
+ * Mobile's answer to the pin: one beat per full-viewport block, in
+ * normal document flow, each animated by its own scroll progress rather
+ * than a shared pinned timeline. `offset: ["start end", "end start"]`
+ * means progress 0 is "block's top just entered the viewport bottom"
+ * and 1 is "block's bottom just left the viewport top" — i.e. progress
+ * 0.5 lands roughly when the block is centered. The four-stop transform
+ * below (0 / 0.35 / 0.65 / 1 → hidden / shown / shown / hidden) mirrors
+ * the desktop timeline's own ENTER/EXIT_START shape (0.3/0.7) so the
+ * "settle, hold, release" feel carries over even without GSAP.
+ */
+function ManifestoMobile() {
+  return (
+    <>
+      <section aria-label="Her values" className="bg-hero-ground">
+        {MANIFESTO_BEATS.map((beat, i) => (
+          <ManifestoMobileBeat key={i} beat={beat} />
+        ))}
+      </section>
+      <ManifestoClose />
+    </>
+  );
+}
+
+function ManifestoMobileBeat({ beat }: { beat: Beat }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const opacity = useTransform(scrollYProgress, [0, 0.35, 0.65, 1], [0, 1, 1, 0]);
+  const y = useTransform(scrollYProgress, [0, 0.35, 0.65, 1], [22, 0, 0, -22]);
+  const blur = useTransform(scrollYProgress, [0, 0.35, 0.65, 1], [8, 0, 0, 8]);
+  const filter = useMotionTemplate`blur(${blur}px)`;
+
+  return (
+    <div ref={ref} className="flex min-h-[100dvh] w-full items-center justify-center px-6 text-center">
+      <motion.div style={{ opacity, y, filter }} className="flex flex-col items-center gap-6">
+        {beat.kind === "value" ? (
+          <>
+            <ValueIcon icon={beat.icon} staticDraw />
+            <p className="max-w-2xl text-balance font-display text-3xl font-semibold leading-tight text-text-on-dark">
+              {beat.text}
+            </p>
+          </>
+        ) : (
+          <p className="max-w-xl text-balance font-display text-xl italic leading-snug text-text-on-dark/85">
+            {beat.text}
+          </p>
+        )}
+      </motion.div>
+    </div>
   );
 }
 

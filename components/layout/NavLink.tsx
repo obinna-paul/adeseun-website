@@ -18,6 +18,11 @@ import { cn } from "@/lib/utils";
  * distinct affordance (see the plain color transition still used
  * elsewhere) and blending the two would make "here" and "hovering"
  * visually ambiguous.
+ *
+ * No `data-cursor-text` (real feedback: the "Explore" label on every nav
+ * item read as distracting, not helpful, on a link whose destination is
+ * already spelled out in the link text itself). Still `data-cursor="link"`
+ * for the pointer-shape treatment — only the text label is gone.
  */
 export function NavLink({ href, children, className }: { href: string; children: ReactNode; className?: string }) {
   const pathname = usePathname();
@@ -27,7 +32,6 @@ export function NavLink({ href, children, className }: { href: string; children:
     <Link
       href={href}
       data-cursor="link"
-      data-cursor-text="Explore"
       aria-current={isActive ? "page" : undefined}
       className={cn("group relative inline-block w-fit", className)}
     >
