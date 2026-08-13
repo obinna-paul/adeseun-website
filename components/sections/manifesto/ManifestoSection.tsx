@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Link from "next/link";
 import { motion, useMotionTemplate, useScroll, useTransform, type MotionValue } from "motion/react";
 import { gsap } from "@/lib/gsap";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
@@ -9,7 +8,7 @@ import { useMobileDetect } from "@/lib/use-mobile-detect";
 import { gentleReveal, viewportOnce } from "@/lib/motion";
 import { ManifestoBackground } from "./ManifestoBackground";
 import { ValueIcon } from "./ValueIcon";
-import { MANIFESTO_BEATS, CLOSING_LINE, JOURNEY_HREF, type Beat } from "./manifesto-content";
+import { MANIFESTO_BEATS, type Beat } from "./manifesto-content";
 
 /**
  * Act IV — The Values Manifesto. See The Walkthrough for the original
@@ -74,6 +73,17 @@ import { MANIFESTO_BEATS, CLOSING_LINE, JOURNEY_HREF, type Beat } from "./manife
  * mechanism. `ManifestoStatic` (below) is reserved for
  * `prefers-reduced-motion` only — a real, motion-free fallback, not
  * reused as a mobile substitute.
+ *
+ * This section used to end in its own dedicated closing block (a quote
+ * plus a link into The Study) rendered as a sibling right after the
+ * pinned wrapper specifically so the pin had scrollable room *after*
+ * its release point to hand off into — without that, GSAP's pin was
+ * still `position: fixed` at the true end of the page, permanently
+ * covering whatever was underneath it. Removed per direct request, with
+ * nothing added in its place: the site's global `<Footer />` (mounted
+ * once in the root layout, always the next real sibling after this
+ * section on every page) already supplies that same scrollable room, so
+ * the pin still releases cleanly — verified via Playwright, not assumed.
  */
 
 const UNIT = 1;
@@ -152,100 +162,43 @@ export function ManifestoSection() {
   }
 
   return (
-    <>
-      {/*
-       * ManifestoClose is a genuine sibling AFTER this section, not an
-       * absolutely-positioned child living inside it. It was originally
-       * built as a child, anchored to the wrapper's own bottom edge, on
-       * the assumption that "the pin's release point" and "the page's
-       * last scrollable pixel" were the same place. They're not: at the
-       * true end of the page, GSAP's pin was still `position: fixed`
-       * with computed opacity 1, permanently covering the close block
-       * underneath it — verified via computed-style inspection, not
-       * assumption. The pin needs scrollable room *after* its release
-       * point to hand off into; when the pinned section is the last
-       * thing on the page, there is none unless the next section is a
-       * real sibling that adds its own page height.
-       */}
-      <section
-        ref={wrapperRef}
-        aria-label="Her values"
-        className="relative"
-        style={{ height: `${MANIFESTO_BEATS.length * 100}vh` }}
-      >
-        <div ref={pinRef} className="relative h-[100dvh] w-full overflow-hidden bg-hero-ground">
-          <ManifestoBackground progressRef={progressRef} />
-          <div className="relative z-10 flex h-full w-full items-center justify-center px-gutter">
-            {MANIFESTO_BEATS.map((beat, i) => (
-              <div
-                key={i}
-                className="manifesto-beat pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center invisible"
-              >
-                {beat.kind === "value" ? (
-                  <>
-                    <ValueIcon icon={beat.icon} />
-                    <p
-                      data-beat-text
-                      className="mt-8 max-w-3xl text-balance font-display text-3xl font-semibold leading-tight text-text-on-dark sm:text-5xl"
-                    >
-                      {beat.text}
-                    </p>
-                  </>
-                ) : (
+    <section
+      ref={wrapperRef}
+      aria-label="Her values"
+      className="relative"
+      style={{ height: `${MANIFESTO_BEATS.length * 100}vh` }}
+    >
+      <div ref={pinRef} className="relative h-[100dvh] w-full overflow-hidden bg-hero-ground">
+        <ManifestoBackground progressRef={progressRef} />
+        <div className="relative z-10 flex h-full w-full items-center justify-center px-gutter">
+          {MANIFESTO_BEATS.map((beat, i) => (
+            <div
+              key={i}
+              className="manifesto-beat pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center invisible"
+            >
+              {beat.kind === "value" ? (
+                <>
+                  <ValueIcon icon={beat.icon} />
                   <p
                     data-beat-text
-                    className="max-w-xl text-balance font-display text-xl italic leading-snug text-text-on-dark/85 sm:text-2xl"
+                    className="mt-8 max-w-3xl text-balance font-display text-3xl font-semibold leading-tight text-text-on-dark sm:text-5xl"
                   >
                     {beat.text}
                   </p>
-                )}
-              </div>
-            ))}
-          </div>
+                </>
+              ) : (
+                <p
+                  data-beat-text
+                  className="max-w-xl text-balance font-display text-xl italic leading-snug text-text-on-dark/85 sm:text-2xl"
+                >
+                  {beat.text}
+                </p>
+              )}
+            </div>
+          ))}
         </div>
-      </section>
-
-      <ManifestoClose />
-    </>
-  );
-}
-
-/** The unpinned close — not part of the scrubbed timeline, a real section in normal flow right after the pin releases. */
-function ManifestoClose() {
-  return (
-    <div className="flex min-h-[100dvh] w-full flex-col items-center justify-center gap-10 bg-hero-ground px-gutter text-center">
-      <motion.p
-        className="max-w-3xl text-balance font-display text-4xl font-semibold leading-tight text-text-on-dark sm:text-6xl"
-        variants={gentleReveal}
-        initial="hidden"
-        whileInView="visible"
-        viewport={viewportOnce}
-      >
-        {CLOSING_LINE}
-      </motion.p>
-      <motion.div variants={gentleReveal} initial="hidden" whileInView="visible" viewport={viewportOnce}>
-        <JourneyLink />
-      </motion.div>
-    </div>
-  );
-}
-
-function JourneyLink() {
-  return (
-    <Link
-      href={JOURNEY_HREF}
-      data-cursor="link"
-      data-cursor-text="Explore"
-      className="group inline-flex items-center gap-3 font-mono text-sm uppercase tracking-[0.15em] text-text-on-dark/80 transition-colors duration-150 ease-gallery-standard hover:text-gold"
-    >
-      <span className="relative">
-        Learn more about her journey
-        <span className="absolute -bottom-1 left-0 h-px w-full origin-left scale-x-0 bg-gold transition-transform duration-300 ease-gallery-out group-hover:scale-x-100" />
-      </span>
-      <span aria-hidden="true" className="transition-transform duration-300 ease-gallery-out group-hover:translate-x-1">
-        →
-      </span>
-    </Link>
+      </div>
+    </section>
   );
 }
 
@@ -261,27 +214,24 @@ function ManifestoMobile() {
   const { scrollYProgress } = useScroll({ target: wrapperRef, offset: ["start start", "end end"] });
 
   return (
-    <>
-      <section
-        ref={wrapperRef}
-        aria-label="Her values"
-        className="relative"
-        style={{ height: `${MANIFESTO_BEATS.length * 100}vh` }}
-      >
-        <div className="sticky top-0 flex h-[100dvh] w-full items-center justify-center overflow-hidden bg-hero-ground px-6 text-center">
-          {MANIFESTO_BEATS.map((beat, i) => (
-            <ManifestoMobileBeat
-              key={i}
-              beat={beat}
-              index={i}
-              total={MANIFESTO_BEATS.length}
-              scrollYProgress={scrollYProgress}
-            />
-          ))}
-        </div>
-      </section>
-      <ManifestoClose />
-    </>
+    <section
+      ref={wrapperRef}
+      aria-label="Her values"
+      className="relative"
+      style={{ height: `${MANIFESTO_BEATS.length * 100}vh` }}
+    >
+      <div className="sticky top-0 flex h-[100dvh] w-full items-center justify-center overflow-hidden bg-hero-ground px-6 text-center">
+        {MANIFESTO_BEATS.map((beat, i) => (
+          <ManifestoMobileBeat
+            key={i}
+            beat={beat}
+            index={i}
+            total={MANIFESTO_BEATS.length}
+            scrollYProgress={scrollYProgress}
+          />
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -361,17 +311,6 @@ function ManifestoStatic() {
             )}
           </motion.div>
         ))}
-
-        <motion.p
-          className="mt-8 text-balance font-display text-4xl font-semibold leading-tight text-text-on-dark sm:text-5xl"
-          variants={gentleReveal}
-          initial="hidden"
-          whileInView="visible"
-          viewport={viewportOnce}
-        >
-          {CLOSING_LINE}
-        </motion.p>
-        <JourneyLink />
       </div>
     </section>
   );

@@ -36,13 +36,3 @@ export const MANIFESTO_BEATS: Beat[] = [
   { kind: "value", text: "None of this is mastered once. It's practiced again, every day.", icon: "infinity" },
 ];
 
-/** Still no verified real quote to reuse — kept as the general, unattributed closing line rather than replaced with an invented "signature" quote. */
-export const CLOSING_LINE = "This isn't a brand. This is just how I live.";
-
-/**
- * Destination for "Learn more about her journey." The brief said "the
- * About page"; the established sitemap (The Oyeneye Doctrine) has no
- * page by that name. Confirmed: The Study — her voice and philosophy —
- * not The Boardroom.
- */
-export const JOURNEY_HREF = "/study";
