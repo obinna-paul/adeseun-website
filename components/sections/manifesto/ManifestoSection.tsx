@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { gsap } from "@/lib/gsap";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
+import { useMobileDetect } from "@/lib/use-mobile-detect";
 import { gentleReveal, viewportOnce } from "@/lib/motion";
 import { ManifestoBackground } from "./ManifestoBackground";
 import { ValueIcon } from "./ValueIcon";
@@ -46,6 +47,18 @@ import { MANIFESTO_BEATS, CLOSING_LINE, JOURNEY_HREF } from "./manifesto-content
  * opacity-only reveal on scroll into view — motion removed, nothing
  * hidden (emil-design-eng: reduced motion means fewer, gentler
  * animations, not zero, and never less content).
+ *
+ * Mobile art direction: `ManifestoStatic` (below) also renders on
+ * narrow/touch viewports (`useMobileDetect`), not just under reduced
+ * motion. A `pin: true` full-viewport takeover is architecturally
+ * risky on mobile browsers specifically — dynamic address-bar chrome
+ * resizes the real viewport mid-scroll, which GSAP's pin math doesn't
+ * see happen, and a `MANIFESTO_BEATS.length * 100vh` scroll-jacked
+ * section on a small screen reads as a heavy-handed takeover rather
+ * than a considered reveal. Rather than debug pin behavior against a
+ * moving viewport target, this reuses the same static fallback the
+ * reduced-motion path already has — same content, same whileInView
+ * reveals, no pin, no canvas, no ScrollTrigger.
  */
 
 const UNIT = 1;
@@ -54,12 +67,14 @@ const EXIT_START = 0.7;
 
 export function ManifestoSection() {
   const reduced = usePrefersReducedMotion();
+  const lowPower = useMobileDetect();
+  const useStatic = reduced || lowPower;
   const wrapperRef = useRef<HTMLElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
   const progressRef = useRef(0);
 
   useEffect(() => {
-    if (reduced || !wrapperRef.current || !pinRef.current) return;
+    if (useStatic || !wrapperRef.current || !pinRef.current) return;
 
     const ctx = gsap.context(() => {
       const beatEls = gsap.utils.toArray<HTMLElement>(".manifesto-beat");
@@ -111,9 +126,9 @@ export function ManifestoSection() {
     }, wrapperRef);
 
     return () => ctx.revert();
-  }, [reduced]);
+  }, [useStatic]);
 
-  if (reduced) {
+  if (useStatic) {
     return <ManifestoStatic />;
   }
 

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
-const SITE_NAME = "Adeseun Oyeneye";
-const SITE_URL = "https://adeseunoyeneye.com"; // placeholder — swap once the domain is confirmed
+export const SITE_NAME = "Adeseun Oyeneye";
+export const SITE_URL = "https://adeseunoyeneye.com"; // placeholder — swap once the domain is confirmed
 /**
  * Author-first, per direct instruction: her four real books lead
  * (naming all of them would blow the ~160-character SEO description
@@ -20,20 +20,26 @@ type PageMetadataInput = {
   title: string;
   description?: string;
   path?: string; // e.g. "/library"
-  image?: string; // absolute or root-relative OG image path
   noIndex?: boolean;
 };
 
 /**
- * Builds a Next.js Metadata object with sane, consistent OG/Twitter
- * defaults so every page doesn't hand-roll its own social card config.
+ * Builds a Next.js Metadata object with consistent OG/Twitter defaults so
+ * every page doesn't hand-roll its own social card config.
  * Usage: `export const metadata = pageMetadata({ title: "The Library", path: "/library" })`
+ *
+ * The OG/Twitter *image* is intentionally not set here — it's supplied by
+ * the file-convention generators `app/opengraph-image.tsx` /
+ * `app/twitter-image.tsx`, which Next merges into every route's metadata
+ * automatically. That's one dynamically-rendered, always-present card
+ * instead of a hard-coded path to a PNG that has to be kept in sync (the
+ * old `/og-default.png` this replaced never existed on disk, so every
+ * share fell back to no image).
  */
 export function pageMetadata({
   title,
   description = DEFAULT_DESCRIPTION,
   path = "/",
-  image = "/og-default.png",
   noIndex = false,
 }: PageMetadataInput): Metadata {
   const url = new URL(path, SITE_URL).toString();
@@ -49,7 +55,6 @@ export function pageMetadata({
       description,
       url,
       siteName: SITE_NAME,
-      images: [{ url: image, width: 1200, height: 630 }],
       locale: "en_US",
       type: "website",
     },
@@ -57,7 +62,6 @@ export function pageMetadata({
       card: "summary_large_image",
       title: fullTitle,
       description,
-      images: [image],
     },
   };
 }

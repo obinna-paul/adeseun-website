@@ -13,7 +13,7 @@ export const metadata = pageMetadata({ title: "The Foyer", path: "/" });
  */
 export default function Home() {
   return (
-    <main>
+    <main id="main-content" tabIndex={-1}>
       <HeroSection />
       <ManifestoSection />
     </main>

@@ -9,7 +9,7 @@ export const metadata = pageMetadata({
 
 export default function StudyPage() {
   return (
-    <main>
+    <main id="main-content" tabIndex={-1}>
       <StudyHero />
       <StudyTimeline />
       <BehindTheCurtain />

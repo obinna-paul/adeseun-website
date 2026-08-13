@@ -27,9 +27,19 @@
   --color-line-strong: hsl(220, 18%, 55%);
 
   /* ---- text hierarchy ---- */
+  /*
+   * Every tier was checked against WCAG on its real backgrounds (script
+   * in design/, numbers in the commit that set them). `--color-text` and
+   * `--color-text-subdued` clear AA for normal text everywhere; `--color-
+   * text-faint` was darkened from L58 → L46 so the small mono captions it
+   * carries (image labels, the footer copyright) clear AA-normal on the
+   * light grounds instead of sitting at ~2.9:1 — still visibly the
+   * faintest tier (subdued is 6.2:1, faint now ~4.6:1), just no longer
+   * failing.
+   */
   --color-text: hsl(230, 18%, 14%);
   --color-text-subdued: hsl(230, 10%, 38%);
-  --color-text-faint: hsl(230, 8%, 58%);
+  --color-text-faint: hsl(230, 12%, 46%);
   --color-text-on-dark: hsl(220, 24%, 97%);
 
   /*
@@ -42,9 +52,19 @@
    */
   --color-hero-ground: hsl(230, 24%, 7%);
 
-  /* ---- the one accent: aso-oke gold ---- */
+  /* ---- the one accent: aso-oke gold ----
+   * `--color-gold` (L42) stays exactly as tuned: it's used only for large
+   * display accents, 1px borders/rules, and text on the dark hero-ground
+   * (5.4:1 there — AA), never for small body text on light. Its 3.2–3.6:1
+   * on light grounds is the *correct* bar for large text (AA-large is
+   * 3:1); pushing it to 7:1 AAA would drag the one brand accent toward
+   * brown and break palette discipline (taste-skill 4.x). `--color-gold-
+   * ink` (the darker cut actually used for small eyebrow labels on light)
+   * was nudged L34 → L32 so it clears AA-normal on the darkest light
+   * ground it lands on — the Library's `surface-sunken` — where L34 sat
+   * at 4.19:1, just under 4.5. */
   --color-gold: hsl(42, 55%, 42%);
-  --color-gold-ink: hsl(40, 58%, 34%);
+  --color-gold-ink: hsl(40, 58%, 32%);
   --color-gold-fill: hsl(40, 68%, 28%);
   --color-gold-tint: hsl(42, 55%, 94%);
 
@@ -57,64 +77,90 @@
   --font-body: "EB Garamond", ui-serif, Georgia, serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
 
-  /* ---- type scale — custom ~1.22 ratio, not Tailwind's default steps ---- */
-  --text-xs: 0.6875rem;
-  --text-xs--line-height: 1rem;
+  /*
+   * Type scale — custom ~1.22 ratio, not Tailwind's default steps.
+   * Every step is `clamp()`-driven, interpolating between a 320px and a
+   * 2560px viewport (the fluid-scaling range asked for) — the low end
+   * of each clamp is the exact px value this scale always used, so
+   * nothing shrinks below what was already tuned for mobile; only the
+   * top end is new. Growth is deliberately gentle for body-scale text
+   * (base grows 16px→18px) and more generous for display sizes (9xl
+   * grows 124px→180px) — headlines should feel more cinematic on a
+   * 2560px monitor, body copy shouldn't visibly change size as you
+   * resize a window.
+   *
+   * Line-heights are unitless ratios, not fixed rem, specifically
+   * *because* font-size is now fluid — a fixed-rem line-height that was
+   * safely larger than a fixed font-size (e.g. 9xl: 7.8rem line-height
+   * vs 7.75rem font-size) becomes SMALLER than the font-size once that
+   * font-size clamps up toward 11.25rem at 2560px, which would make
+   * lines overlap. A unitless ratio scales with font-size automatically
+   * and can't invert. Letter-spacing was already in `em`, which is
+   * relative to font-size by definition — it needed no change.
+   */
+  --text-xs: clamp(0.6875rem, 0.6786rem + 0.0446vw, 0.75rem);
+  --text-xs--line-height: 1.455;
   --text-xs--letter-spacing: 0.04em;
 
-  --text-sm: 0.8125rem;
-  --text-sm--line-height: 1.25rem;
+  --text-sm: clamp(0.8125rem, 0.8036rem + 0.0446vw, 0.875rem);
+  --text-sm--line-height: 1.538;
   --text-sm--letter-spacing: 0.02em;
 
-  --text-base: 1rem;
-  --text-base--line-height: 1.7rem;
+  --text-base: clamp(1rem, 0.9821rem + 0.0893vw, 1.125rem);
+  --text-base--line-height: 1.7;
   --text-base--letter-spacing: 0em;
 
-  --text-lg: 1.1875rem;
-  --text-lg--line-height: 1.8rem;
+  --text-lg: clamp(1.1875rem, 1.1696rem + 0.0893vw, 1.3125rem);
+  --text-lg--line-height: 1.516;
   --text-lg--letter-spacing: 0em;
 
-  --text-xl: 1.4375rem;
-  --text-xl--line-height: 1.9rem;
+  --text-xl: clamp(1.4375rem, 1.4107rem + 0.1339vw, 1.625rem);
+  --text-xl--line-height: 1.322;
   --text-xl--letter-spacing: -0.005em;
 
-  --text-2xl: 1.75rem;
-  --text-2xl--line-height: 2.2rem;
+  --text-2xl: clamp(1.75rem, 1.7143rem + 0.1786vw, 2rem);
+  --text-2xl--line-height: 1.257;
   --text-2xl--letter-spacing: -0.01em;
 
-  --text-3xl: 2.125rem;
-  --text-3xl--line-height: 2.6rem;
+  --text-3xl: clamp(2.125rem, 2.0714rem + 0.2679vw, 2.5rem);
+  --text-3xl--line-height: 1.224;
   --text-3xl--letter-spacing: -0.015em;
 
-  --text-4xl: 2.625rem;
-  --text-4xl--line-height: 3rem;
+  --text-4xl: clamp(2.625rem, 2.5357rem + 0.4464vw, 3.25rem);
+  --text-4xl--line-height: 1.143;
   --text-4xl--letter-spacing: -0.02em;
 
-  --text-5xl: 3.25rem;
-  --text-5xl--line-height: 3.6rem;
+  --text-5xl: clamp(3.25rem, 3.1071rem + 0.7143vw, 4.25rem);
+  --text-5xl--line-height: 1.108;
   --text-5xl--letter-spacing: -0.02em;
 
-  --text-6xl: 4rem;
-  --text-6xl--line-height: 4.2rem;
+  --text-6xl: clamp(4rem, 3.7857rem + 1.0714vw, 5.5rem);
+  --text-6xl--line-height: 1.05;
   --text-6xl--letter-spacing: -0.025em;
 
-  --text-7xl: 5rem;
-  --text-7xl--line-height: 5.2rem;
+  --text-7xl: clamp(5rem, 4.7143rem + 1.4286vw, 7rem);
+  --text-7xl--line-height: 1.04;
   --text-7xl--letter-spacing: -0.03em;
 
-  --text-8xl: 6.25rem;
-  --text-8xl--line-height: 6.4rem;
+  --text-8xl: clamp(6.25rem, 5.8571rem + 1.9643vw, 9rem);
+  --text-8xl--line-height: 1.024;
   --text-8xl--letter-spacing: -0.03em;
 
-  --text-9xl: 7.75rem;
-  --text-9xl--line-height: 7.8rem;
+  --text-9xl: clamp(7.75rem, 7.25rem + 2.5vw, 11.25rem);
+  --text-9xl--line-height: 1.006;
   --text-9xl--letter-spacing: -0.035em;
 
-  /* ---- airy, named spacing rhythm (extends the base scale) ---- */
-  --spacing-gutter: 1.5rem;
+  /*
+   * Airy, named spacing rhythm (extends the base scale) — fluid for the
+   * same reason the type scale is: `--spacing-margin` was already
+   * clamp()-driven from earlier work, the other three are now too,
+   * interpolating 320px→2560px like the type scale above. Low end
+   * matches the fixed values this scale always used.
+   */
+  --spacing-gutter: clamp(1.5rem, 1.3571rem + 0.7143vw, 2.5rem);
   --spacing-margin: clamp(1.5rem, 5vw, 6rem);
-  --spacing-room: 8rem;
-  --spacing-room-lg: 11rem;
+  --spacing-room: clamp(8rem, 7.1786rem + 4.1071vw, 13.75rem);
+  --spacing-room-lg: clamp(11rem, 9.8929rem + 5.5357vw, 18.75rem);
 
   /* ---- content widths ---- */
   --container-prose-gallery: 65ch;
@@ -171,6 +217,14 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/*
+ * OS-level reduce, and the manual footer toggle mirrored onto <html> as
+ * `data-motion-reduced` (see lib/motion-preference.ts) — both collapse
+ * every CSS animation/transition to near-instant. The attribute selector
+ * lets a visitor whose OS *doesn't* prefer reduced motion still turn the
+ * site's motion off from the footer and have CSS honor it, not just the
+ * JS/Motion animations.
+ */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -178,4 +232,12 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+:root[data-motion-reduced="true"] *,
+:root[data-motion-reduced="true"] *::before,
+:root[data-motion-reduced="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }

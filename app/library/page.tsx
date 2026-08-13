@@ -24,7 +24,7 @@ const PAPER_TEXTURE =
 
 export default function LibraryPage() {
   return (
-    <main>
+    <main id="main-content" tabIndex={-1}>
       <section
         aria-label="The Library"
         className="relative overflow-hidden bg-surface-sunken px-gutter py-room"

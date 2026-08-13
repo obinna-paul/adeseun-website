@@ -25,6 +25,7 @@ type LazyImageProps = {
   caption?: string;
   tone?: "gold" | "indigo";
   className?: string;
+  sizes?: string;
 };
 
 const PLACEHOLDER_GRADIENTS: Record<"gold" | "indigo", string> = {
@@ -32,7 +33,14 @@ const PLACEHOLDER_GRADIENTS: Record<"gold" | "indigo", string> = {
   indigo: "radial-gradient(ellipse 80% 80% at 70% 25%, hsl(243 22% 90%) 0%, hsl(230 18% 93%) 55%, hsl(220 14% 91%) 100%)",
 };
 
-export function LazyImage({ src, alt, caption, tone = "gold", className }: LazyImageProps) {
+export function LazyImage({
+  src,
+  alt,
+  caption,
+  tone = "gold",
+  className,
+  sizes = "(min-width: 1024px) 33vw, 100vw",
+}: LazyImageProps) {
   const [loaded, setLoaded] = useState(false);
 
   return (
@@ -63,7 +71,7 @@ export function LazyImage({ src, alt, caption, tone = "gold", className }: LazyI
             src={src}
             alt={alt}
             fill
-            sizes="(min-width: 1024px) 33vw, 100vw"
+            sizes={sizes}
             className="object-cover"
             onLoad={() => setLoaded(true)}
           />

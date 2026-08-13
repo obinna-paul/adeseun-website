@@ -7,6 +7,7 @@ import { CursorProvider } from "@/components/cursor/CursorProvider";
 import { PageTransition } from "@/components/transitions/PageTransition";
 import { Footer } from "@/components/layout/Footer";
 import { ReadingProgress } from "@/components/layout/ReadingProgress";
+import { SkipLink } from "@/components/layout/SkipLink";
 import "./globals.css";
 
 export const metadata: Metadata = rootMetadata;
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={fontVariables}>
       <body className="font-body antialiased" data-cursor-zone>
+        <SkipLink />
         {/* Person structured data on every page — see lib/seo.ts */}
         <script
           type="application/ld+json"

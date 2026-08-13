@@ -34,9 +34,53 @@ body {
   color: var(--color-gold-fill);
 }
 
+/*
+ * Focus ring — a crisp gold outline plus a soft gold halo behind it, so
+ * keyboard focus reads as a deliberate brand moment, not a browser
+ * default. The outline (not the box-shadow) is the load-bearing part:
+ * it's never clipped by an ancestor's `overflow: hidden` the way a
+ * box-shadow ring is, and it survives Windows High-Contrast / forced-
+ * colors mode. The halo is pure enhancement layered on top. `outline-
+ * offset` is kept small so the halo sits just outside the outline rather
+ * than detached from it.
+ */
 :focus-visible {
   outline: 2px solid var(--color-gold);
-  outline-offset: 3px;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px hsla(42, 55%, 42%, 0.18);
+}
+/* Forced-colors mode paints its own system focus color; drop the custom
+   halo there so the two don't fight, and let the outline take a system
+   hue instead of our gold (which forced-colors would flatten anyway). */
+@media (forced-colors: active) {
+  :focus-visible {
+    outline-color: Highlight;
+    box-shadow: none;
+  }
+}
+/* Skip-to-content: visually hidden until focused, then it slides into the
+   top-left as a real, gold-bordered control — the first Tab stop on every
+   page (see components/layout/SkipLink.tsx). */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 200;
+  transform: translateY(-150%);
+  transition: transform 200ms var(--ease-gallery-out);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-gold);
+  border-radius: var(--radius-frame);
+  padding: 0.625rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: var(--shadow-elevation-card);
+}
+.skip-link:focus {
+  transform: translateY(0);
 }
 
 /*
@@ -55,6 +99,7 @@ body {
  */
 .field-underline:focus-visible {
   outline: none;
+  box-shadow: none;
 }
 
 a {

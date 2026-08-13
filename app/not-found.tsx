@@ -13,7 +13,7 @@ export default function NotFound() {
   const rowReveal = reduced ? {} : { variants: gentleReveal };
 
   return (
-    <main className="relative isolate flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden bg-ground px-gutter py-room text-text">
+    <main id="main-content" tabIndex={-1} className="relative isolate flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden bg-ground px-gutter py-room text-text">
       {/* Decorative ghost numeral — backdrop, not a functional label. */}
       <span
         aria-hidden="true"

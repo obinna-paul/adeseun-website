@@ -4,12 +4,12 @@ import { InvitationSection } from "@/components/sections/invitation";
 export const metadata = pageMetadata({
   title: "The Invitation",
   path: "/invitation",
-  description: "For speaking, consulting, media, or literary rights — a direct line to her, not a contact form into a queue.",
+  description: "For speaking, a workshop, media, or literary rights — a direct line to her, not a contact form into a queue.",
 });
 
 export default function InvitationPage() {
   return (
-    <main>
+    <main id="main-content" tabIndex={-1}>
       <InvitationSection />
     </main>
   );

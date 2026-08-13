@@ -5,6 +5,7 @@ import { HeroPortrait } from "./HeroPortrait";
 import { HeroCanvas } from "./HeroCanvas";
 import { ScrollCue } from "./ScrollCue";
 import { MagneticButton } from "@/components/ui/MagneticButton";
+import { MobileDetect } from "@/components/ui/MobileDetect";
 import { heroLine, heroLineGroup, heroSubhead, heroActions, heroAction } from "@/lib/motion";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 
@@ -64,13 +65,31 @@ export function HeroSection() {
   return (
     <section
       id="foyer-hero"
-      className="relative flex min-h-[100dvh] w-full items-end overflow-hidden bg-hero-ground"
+      className="relative flex min-h-[100dvh] w-full flex-col overflow-hidden bg-hero-ground lg:block"
     >
-      <HeroPortrait src="/images/adeseun-threesixty.jpg" alt="Adeseun Oyeneye" />
-      <HeroCanvas />
+      {/*
+       * Mobile/tablet art direction (below `lg`): the desktop composition
+       * — portrait full-bleed behind the whole section, headline overlaid
+       * at the bottom — puts the headline directly across her face on a
+       * narrow, tall viewport; there's no horizontal room to keep text
+       * beside the face the way the wide desktop crop does. Below `lg`,
+       * portrait and text become two stacked, non-overlapping blocks
+       * instead: portrait in its own contained top block (not full-bleed),
+       * headline below it in normal flow. Both blocks stay on the same
+       * dark hero-ground so the section still reads as one register top to
+       * bottom (Page Theme Lock, 4.11) rather than flipping tone mid-stack.
+       * At `lg`+, both blocks revert to absolute-positioned overlays,
+       * restoring the original full-bleed composition exactly.
+       */}
+      <div className="relative h-[42vh] min-h-[280px] w-full shrink-0 lg:absolute lg:inset-0 lg:h-full lg:min-h-0">
+        <HeroPortrait src="/images/adeseun-threesixty.jpg" alt="Adeseun Oyeneye" />
+      </div>
+      <MobileDetect>
+        <HeroCanvas />
+      </MobileDetect>
 
-      <div className="relative z-10 w-full px-gutter pb-16 sm:px-10 sm:pb-20 lg:px-16 lg:pb-24">
-        <div className="mx-auto max-w-frame">
+      <div className="relative z-10 flex w-full flex-1 flex-col justify-center px-gutter py-10 sm:px-10 lg:absolute lg:inset-0 lg:flex-none lg:justify-end lg:px-16 lg:py-0 lg:pb-24">
+        <div className="mx-auto w-full max-w-frame">
           <div className="max-w-2xl">
             {/* h1 is the real, single, SEO-bearing heading — its two visual
                 lines are block-level (not letter-split), so assistive tech
