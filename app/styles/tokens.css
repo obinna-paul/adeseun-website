@@ -182,19 +182,21 @@
    * mockups — the gallery's "framed and flat" default) and
    * `--radius-control` (pills: buttons, the motion toggle). A third
    * shape, `.frame-arch` (globals.css), is the one deliberate exception:
-   * a doorway-arch top on portrait-oriented REAL PHOTOS OF HER only —
-   * Study's timeline thumbnails, Behind the Curtain's portrait photo
-   * slots. Not a third radius *value*, a composed shape (round top
-   * corners, `--radius-frame` bottom corners) — reserved specifically
-   * for that one category because it double-motivates: it echoes the
-   * Monogram's own circular mark (the site's one identity shape), and
-   * reads as an actual doorway/archway, which fits a site whose nav is
-   * literally named rooms in a house (Foyer, Study, Library...).
-   * Landscape photos and product shots (book covers, the four-books
-   * shelf photo) stay on the flat `--radius-frame` — an arch reads as
-   * architecture on a tall portrait crop and as an odd stretched dome on
-   * a wide one, so the shape is scoped to the aspect it actually suits,
-   * not applied blindly everywhere a real photo appears.
+   * a doorway-arch top, used ONLY on Study's timeline photo thumbnails
+   * (TimelineCard). Not a third radius *value*, a composed shape (round
+   * top corners, `--radius-frame` bottom corners) — it double-motivates
+   * there: it echoes the Monogram's own circular mark (the site's one
+   * identity shape), and reads as an actual doorway/archway, which fits
+   * a site whose nav is literally named rooms in a house (Foyer, Study,
+   * Library...). Explicitly NOT used in Behind the Curtain (CurtainItem)
+   * even though its "tall" photos are the same kind of portrait real
+   * photo — tried it there too and it read wrong sitting in a masonry
+   * grid next to flat-frame note/snippet cards; per direct feedback,
+   * that grid stays one consistent flat shape language throughout.
+   * Book covers and landscape/product shots (the four-books photo) also
+   * stay flat regardless of where they appear — an arch reads as
+   * architecture on a tall portrait crop, not a wide one, so the shape
+   * was never meant to apply there either.
    */
   --radius-frame: 2px;
   --radius-control: 999px;

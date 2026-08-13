@@ -11,12 +11,14 @@ import type { CurtainItem as CurtainItemType } from "./study-content";
  * its own look. Notes get a faint rotation, like something pinned to a
  * board rather than laid flat; snippets read as index cards.
  *
- * `tall` photos ("desk-detail", "headies-desk") are portrait real
- * photos of her and get the doorway-arch shape at a matching portrait
- * aspect; the one non-tall photo ("shelf," the four-books product shot)
- * is landscape and keeps the ordinary flat frame at a wider aspect
- * matching its actual source — see tokens.css's radius comment for why
- * the arch is scoped to portraits of her specifically, not every photo.
+ * Photos stay on the ordinary flat frame here, arch or not — tried the
+ * doorway-arch (Study's timeline shape, tokens.css's radius comment) on
+ * this grid's `tall` photos too and it didn't read right against the
+ * note/snippet cards sitting right next to them in the same masonry;
+ * flat keeps the whole grid one consistent shape language. `tall`
+ * still controls the aspect ratio (portrait 3:4 for real photos of her
+ * vs. landscape 3:2 for "shelf," the four-books product shot) — only
+ * the corner shape reverted.
  */
 export function CurtainItem({ item, rotate }: { item: CurtainItemType; rotate: number }) {
   return (
@@ -34,7 +36,6 @@ export function CurtainItem({ item, rotate }: { item: CurtainItemType; rotate: n
           caption={item.caption}
           tone={rotate > 0 ? "gold" : "indigo"}
           className={item.tall ? "aspect-[3/4]" : "aspect-[3/2]"}
-          shape={item.tall ? "arch" : "frame"}
         />
       )}
 
