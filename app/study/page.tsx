@@ -1,5 +1,5 @@
 import { pageMetadata } from "@/lib/seo";
-import { StudyHero, StudyTimeline, BehindTheCurtain, StudyCTA } from "@/components/sections/study";
+import { StudyHero, StudyTimeline, BehindTheCurtain, BeyondThePage, StudyCTA } from "@/components/sections/study";
 
 export const metadata = pageMetadata({
   title: "The Study",
@@ -13,6 +13,7 @@ export default function StudyPage() {
       <StudyHero />
       <StudyTimeline />
       <BehindTheCurtain />
+      <BeyondThePage />
       <StudyCTA />
     </main>
   );

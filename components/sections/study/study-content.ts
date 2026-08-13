@@ -119,6 +119,84 @@ export const CURTAIN_ITEMS: CurtainItem[] = [
 
 export const HERO_LINE = "Everything you've read about her started at this desk.";
 
+/**
+ * "Beyond the Page" — a deliberately secondary, text-only section
+ * (Study page, between Behind the Curtain and the closing CTA) drawn
+ * from her real publisher-supplied "About the Author" back matter
+ * (Tranquility's print edition, transcribed directly from photos of
+ * the physical pages — same primary-source standard as the rest of
+ * this site's facts).
+ *
+ * The Study's timeline already carries ONE fact from this same source
+ * (Threesixty Africa Media / AFRICAST / Paris 2024 / The Headies, on
+ * the "threesixty" milestone above) as a deliberately singular
+ * supporting beat, per direct instruction that this is an author site
+ * first, not an executive bio. Everything below is real and verified
+ * from the same document but was unused until now; it lives in its own
+ * clearly-secondary section — smaller type scale, no photography, a
+ * plain paper-toned background — rather than being blended into the
+ * books' narrative timeline or inflating that one milestone into
+ * something it was deliberately kept small.
+ *
+ * "The Hope of a Nigerian Child" is named again in this same source as
+ * one of her books — consistent with what was already known, not new
+ * information — but stays off The Library: the reason it was removed
+ * there was never doubt that it's real, it was the lack of a confirmed
+ * cover or retail link, and neither exists yet.
+ */
+export const BEYOND_EYEBROW = "Beyond the Page";
+export const BEYOND_HEADLINE = "The rest of the working life.";
+export const BEYOND_INTRO =
+  "Entrepreneur, marketing and media executive, life coach — twenty-four years of it. The books are why this page exists; they're not the whole of her. A partial accounting of the rest, real and verified, kept to the margins on purpose.";
+
+export type CredentialGroup = { label: string; items: string[] };
+
+export const CREDENTIAL_GROUPS: CredentialGroup[] = [
+  {
+    label: "Also Leads",
+    items: [
+      "Founder, Universal Worship Network — a faith-based TV channel",
+      "CEO, Bounty5 Empire — home architecture and interior design",
+      "Founder, PluvSeptember 30 Publishing",
+      "Founder, Dream M12 — fitness and lifestyle",
+      "Creative Director, Girlbye Pro — a styling agency",
+      "Executive Producer, The Red Chair Talk — a talk show on relationships and community",
+    ],
+  },
+  {
+    label: "Notable Work",
+    items: [
+      "Paris 2024 Olympics — official NOC marketing agency; producer, Nigeria House",
+      "AFRICAST — Project Coordinator and Marketing Director",
+      "The Headies — Co-Executive Producer, 16 years (Africa and the USA)",
+      "Former Office Manager, The State House, Abuja",
+      "Mic-Check talent hunt, Atlanta Caribbean Carnival USA, Lagos City Marathon, Lagos Shopping Festival",
+    ],
+  },
+  {
+    label: "Recognition",
+    items: [
+      "Proclamation Award, Atlanta City Council — 2019",
+      "National Award, Georgia House of Representatives — 2024",
+      "Certificate of Achievement, Interior Design, Oxford HS (UK) — 2023",
+      "Special Recognition, Nigerian Film & TV Industry, Eko Star Films & TV Awards — 2021",
+      "Youth National Award for Transformation & Development, Nigeria — 2022",
+      "National Matron Award, Football Nigeria Organization — 2024",
+    ],
+  },
+  {
+    label: "Education",
+    items: [
+      "Obafemi Awolowo University",
+      "International Business Management Institute, Berlin",
+      "Oxford Home Study, United Kingdom",
+    ],
+  },
+];
+
+export const BEYOND_CLIENTS_LINE =
+  "Client work has included MTN, Coca-Cola, Airtel, Google, Sony, Samsung, Toleram Group, YouTube, Guinness, FreeTV, and the National Broadcasting Commission.";
+
 export const CTA_HEADLINE = "Bring her into the room.";
 export const CTA_BODY =
   "For speaking, book clubs, or a conversation that doesn't fit in an inbox — every engagement starts the same way this page did.";
