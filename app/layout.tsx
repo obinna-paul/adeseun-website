@@ -5,6 +5,7 @@ import { rootMetadata, personJsonLd } from "@/lib/seo";
 import { SmoothScroll } from "@/components/scroll/SmoothScroll";
 import { CursorProvider } from "@/components/cursor/CursorProvider";
 import { PageTransition } from "@/components/transitions/PageTransition";
+import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ReadingProgress } from "@/components/layout/ReadingProgress";
 import { SkipLink } from "@/components/layout/SkipLink";
@@ -26,6 +27,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
         <SmoothScroll>
           <CursorProvider>
+            <Header />
             <ReadingProgress />
             <PageTransition>{children}</PageTransition>
             <Footer />
