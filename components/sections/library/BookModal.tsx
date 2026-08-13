@@ -57,6 +57,15 @@ const MotionDialogPopup = motion.create(Dialog.Popup);
  * the same CSS property across its base/conditional classes — always
  * make the conditional branches independently complete instead.
  *
+ * The compact cover is capped much smaller (`max-w-[150px]`, down from
+ * the same 280px cap the desktop split column uses) — real feedback:
+ * on a short phone viewport, the fixed-height cover block was eating so
+ * much of the sheet's `max-h-[92dvh]` budget that BookDetails' own
+ * `overflow-y-auto` region below it was left too short to comfortably
+ * read or scroll. `shrink-0` on the cover container keeps it from
+ * collapsing further as flex content, so the height budget it gives up
+ * goes entirely to `flex-1` BookDetails instead.
+ *
  * `data-lenis-prevent` on the backdrop and popup — without it, Lenis's
  * global wheel listener (SmoothScroll) keeps driving the *background*
  * page's scroll position while the modal is open and the pointer is
@@ -177,15 +186,15 @@ export function BookModal({ book, onClose }: { book: Book | null; onClose: () =>
               <div
                 data-testid="book-cover-tilt-zone"
                 className={cn(
-                  "flex touch-none items-center justify-center bg-surface-sunken [perspective:1200px]",
-                  isCompact ? "w-full p-6 sm:p-8" : "w-2/5 p-10",
+                  "flex shrink-0 touch-none items-center justify-center bg-surface-sunken [perspective:1200px]",
+                  isCompact ? "w-full p-4" : "w-2/5 p-10",
                 )}
                 onPointerDown={startSheetDrag}
                 onPointerMove={handleCoverPointerMove}
                 onPointerLeave={handleCoverPointerLeave}
               >
                 <motion.div
-                  className="aspect-[2/3] w-full max-w-[280px]"
+                  className={cn("aspect-[2/3] w-full", isCompact ? "max-w-[150px]" : "max-w-[280px]")}
                   style={{
                     rotateX: reducedMotion ? 0 : springRotateX,
                     rotateY: reducedMotion ? 0 : springRotateY,
