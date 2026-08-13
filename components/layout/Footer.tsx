@@ -31,15 +31,28 @@ export function Footer() {
           </div>
 
           <nav aria-label="Site" className="grid grid-cols-2 gap-x-10 gap-y-4 sm:grid-cols-3 lg:flex lg:flex-col lg:gap-4">
-            {SITE_ROOMS.map((room) => (
-              <NavLink
-                key={room.href}
-                href={room.href}
-                className="font-mono text-xs uppercase tracking-[0.12em] text-text-on-dark/70 transition-colors duration-150 ease-gallery-standard hover:text-gold"
-              >
-                {room.name}
-              </NavLink>
-            ))}
+            {SITE_ROOMS.map((room) =>
+              room.built ? (
+                <NavLink
+                  key={room.href}
+                  href={room.href}
+                  className="font-mono text-xs uppercase tracking-[0.12em] text-text-on-dark/70 transition-colors duration-150 ease-gallery-standard hover:text-gold"
+                >
+                  {room.name}
+                </NavLink>
+              ) : (
+                // Named, not hidden — visitors can see what's coming — but
+                // not a link: the page behind this route doesn't exist yet.
+                <span
+                  key={room.href}
+                  aria-disabled="true"
+                  className="inline-flex w-fit items-baseline gap-1.5 font-mono text-xs uppercase tracking-[0.12em] text-text-on-dark/35"
+                >
+                  {room.name}
+                  <span className="text-[0.6rem] tracking-[0.1em] text-text-on-dark/25">Soon</span>
+                </span>
+              ),
+            )}
           </nav>
         </div>
 
