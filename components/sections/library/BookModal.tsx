@@ -45,6 +45,26 @@ const MotionDialogPopup = motion.create(Dialog.Popup);
  * Cover and details stack in a plain column (the shared `flex-col`
  * base) instead of the desktop `flex-row` split.
  *
+ * The cover container's `w-full`/`w-2/5` split is written as fully
+ * mutually-exclusive branches, not a shared `w-full` base with `w-2/5`
+ * layered on top for the desktop case — that was a real bug: two width
+ * utilities of equal specificity in one class string don't reliably
+ * resolve by "whichever appears later in the string," only by whichever
+ * rule Tailwind happened to emit later in the generated stylesheet, so
+ * the shared `w-full` was silently winning on desktop too, blowing the
+ * cover out to nearly the full modal width and squeezing BookDetails
+ * into a sliver. Never give a `cn()` call two conflicting values for
+ * the same CSS property across its base/conditional classes — always
+ * make the conditional branches independently complete instead.
+ *
+ * `data-lenis-prevent` on the backdrop and popup — without it, Lenis's
+ * global wheel listener (SmoothScroll) keeps driving the *background*
+ * page's scroll position while the modal is open and the pointer is
+ * over it, ignoring BookDetails' own `overflow-y-auto`. The attribute
+ * tells Lenis to skip hijacking wheel events anywhere inside these two
+ * elements, so native scroll behavior — including BookDetails' own
+ * internal scrolling — takes over normally instead.
+ *
  * Swipe-to-close only arms from the drag handle and the cover image —
  * deliberately NOT the whole sheet surface. `BookDetails` below has its
  * own `overflow-y-auto` scroll region for the description/excerpt; if
@@ -115,8 +135,12 @@ export function BookModal({ book, onClose }: { book: Book | null; onClose: () =>
   return (
     <Dialog.Root open={book !== null} onOpenChange={(open) => !open && onClose()}>
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 z-40 bg-hero-ground/70 backdrop-blur-sm transition-opacity duration-300 ease-gallery-out data-[ending-style]:opacity-0 data-[starting-style]:opacity-0" />
+        <Dialog.Backdrop
+          data-lenis-prevent
+          className="fixed inset-0 z-40 bg-hero-ground/70 backdrop-blur-sm transition-opacity duration-300 ease-gallery-out data-[ending-style]:opacity-0 data-[starting-style]:opacity-0"
+        />
         <MotionDialogPopup
+          data-lenis-prevent
           drag={isCompact ? "y" : false}
           dragListener={false}
           dragControls={dragControls}
@@ -153,8 +177,8 @@ export function BookModal({ book, onClose }: { book: Book | null; onClose: () =>
               <div
                 data-testid="book-cover-tilt-zone"
                 className={cn(
-                  "flex w-full touch-none items-center justify-center bg-surface-sunken [perspective:1200px]",
-                  isCompact ? "p-6 sm:p-8" : "w-2/5 p-10",
+                  "flex touch-none items-center justify-center bg-surface-sunken [perspective:1200px]",
+                  isCompact ? "w-full p-6 sm:p-8" : "w-2/5 p-10",
                 )}
                 onPointerDown={startSheetDrag}
                 onPointerMove={handleCoverPointerMove}

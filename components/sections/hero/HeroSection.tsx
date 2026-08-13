@@ -51,6 +51,28 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
  * Reduced motion: every animated element still renders its FINAL state
  * immediately (no motion, no delay) via `usePrefersReducedMotion()` gating
  * below — nothing is hidden or broken, the choreography is just skipped.
+ *
+ * ── Short-viewport safety (real bug, caught via screenshot on a
+ * ── non-maximized ~1920×750 browser window) ─────────────────────────
+ * At `lg`+ the headline/subhead/CTA block is `absolute inset-0` +
+ * `justify-end` so it overlays the bottom of the full-bleed portrait —
+ * but an absolutely-positioned box doesn't contribute to its ancestor's
+ * height, so on a viewport short enough that the bottom-anchored stack
+ * doesn't fit, its *top* silently pushed above the section's own y=0
+ * and vanished behind the fixed header, clipped by `overflow-hidden`.
+ * Three-part fix, from most to least load-bearing:
+ *   1. `lg:text-6xl` instead of `lg:text-7xl` — meaningfully less
+ *      height needed per line at the fluid scale's top end, so the
+ *      realistic range of desktop window heights clears comfortably.
+ *   2. The content box reserves `lg:top-24` instead of `lg:inset-0`'s
+ *      implicit `top-0` — a guaranteed clearance below the header even
+ *      before considering how tall the text stack is.
+ *   3. `overflow-x-hidden` only (not `overflow-hidden`) on the section —
+ *      the actual safety net: if content somehow still doesn't fit in
+ *      some extreme case, it now extends the section's own scrollable
+ *      height instead of being invisibly deleted. A slightly-taller-
+ *      than-one-screen hero on a genuinely tiny window beats content
+ *      that's silently gone.
  */
 
 // Deliberately her own real book titles, not invented copy — see
@@ -65,7 +87,7 @@ export function HeroSection() {
   return (
     <section
       id="foyer-hero"
-      className="relative flex min-h-[100dvh] w-full flex-col overflow-hidden bg-hero-ground lg:block"
+      className="relative flex min-h-[100dvh] w-full flex-col overflow-x-hidden bg-hero-ground lg:block"
     >
       {/*
        * Mobile/tablet art direction (below `lg`): the desktop composition
@@ -88,14 +110,14 @@ export function HeroSection() {
         <HeroCanvas />
       </MobileDetect>
 
-      <div className="relative z-10 flex w-full flex-1 flex-col justify-center px-gutter py-10 sm:px-10 lg:absolute lg:inset-0 lg:flex-none lg:justify-end lg:px-16 lg:py-0 lg:pb-24">
+      <div className="relative z-10 flex w-full flex-1 flex-col justify-center px-gutter py-10 sm:px-10 lg:absolute lg:inset-x-0 lg:bottom-0 lg:top-24 lg:flex-none lg:justify-end lg:px-16 lg:py-0 lg:pb-24">
         <div className="mx-auto w-full max-w-frame">
           <div className="max-w-2xl">
             {/* h1 is the real, single, SEO-bearing heading — its two visual
                 lines are block-level (not letter-split), so assistive tech
                 and search crawlers read the full sentence in order. */}
             <motion.h1
-              className="text-balance font-display text-4xl font-semibold text-text-on-dark sm:text-6xl lg:text-7xl"
+              className="text-balance font-display text-4xl font-semibold text-text-on-dark sm:text-6xl"
               initial={reduced ? false : "hidden"}
               animate="visible"
               variants={reduced ? undefined : heroLineGroup}

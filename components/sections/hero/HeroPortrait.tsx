@@ -87,7 +87,7 @@ export function HeroPortrait({ src, alt }: HeroPortraitProps) {
             fill
             priority
             sizes="100vw"
-            className="object-cover object-[50%_30%]"
+            className="object-cover object-[50%_12%]"
             style={{ filter }}
           />
         ) : (
