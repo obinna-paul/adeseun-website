@@ -84,8 +84,7 @@ export const TIMELINE_MILESTONES: Milestone[] = [
     era: "June 2025",
     title: "Tranquility",
     story: "Her third book, and her quietest: a guide to cultivating calm as a practice, not a place you arrive at once.",
-    image: "/images/tranquility-cover.jpg",
-    imageFit: "contain",
+    image: "/images/adeseun-tranquility.jpg",
   },
   {
     id: "black-is-beautiful",
@@ -93,8 +92,7 @@ export const TIMELINE_MILESTONES: Milestone[] = [
     title: "Black Is Beautiful",
     story:
       "A fourth book, arriving outside this timeline's neat sequence: a tribute to Black identity, history, and culture — real, published, and just as much hers as the three that came before it.",
-    image: "/images/black-is-beautiful-cover.webp",
-    imageFit: "contain",
+    image: "/images/adeseun-black-is-beautiful.jpg",
   },
   {
     id: "threesixty",
