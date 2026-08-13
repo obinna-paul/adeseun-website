@@ -102,12 +102,6 @@ export const TIMELINE_MILESTONES: Milestone[] = [
       "The other half of her working life — a media, marketing, and content agency she founded, most recently the official marketing engine behind AFRICAST 2025 and Nigeria House at the Paris 2024 Olympics, and a co-executive producer of The Headies for sixteen years. Not the story this site tells. Just also true.",
     image: "/images/adeseun-threesixty.jpg",
   },
-  {
-    id: "still-writing",
-    era: "Still Writing",
-    title: "The next chapter, mid-sentence",
-    story: "Ask her what's next and she'll tell you honestly: she's still living it, which means it isn't written yet.",
-  },
 ];
 
 export type CurtainItem =
