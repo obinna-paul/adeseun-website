@@ -114,11 +114,11 @@ export type CurtainItem =
  * snippets. Three photos now have real images behind them, each
  * honestly captioned to match what the photo actually shows: "desk-
  * detail" is a posed portrait, captioned "Between chapters," not a
- * literal desk shot; "headies-desk" is a real working moment —
- * paperwork and a Headies-branded microphone, her production life
- * rather than a manuscript in progress — captioned "Between takes"
- * instead of the original placeholder's "Draft four, still moving,"
- * which would have overclaimed what the photo is; "shelf" is a real
+ * literal desk shot; "headies-desk" was originally a working moment
+ * (paperwork and a Headies-branded microphone) captioned "Between
+ * takes," then swapped for a plain studio portrait per direct request —
+ * "Composed" replaces it, since "Between takes" would now claim a
+ * working/candid moment the new photo doesn't show; "shelf" is a real
  * product shot of all four books together, supplied directly — the
  * caption was "Where the three live" back when only three were
  * confirmed, updated to "Where they live" rather than hardcode a count
@@ -140,9 +140,9 @@ export const CURTAIN_ITEMS: CurtainItem[] = [
   {
     kind: "photo",
     id: "headies-desk",
-    caption: "Between takes",
+    caption: "Composed",
     tall: true,
-    image: "/images/adeseun-curtain-drafting.jpg",
+    image: "/images/adeseun-curtain-portrait.jpg",
   },
   {
     kind: "snippet",
