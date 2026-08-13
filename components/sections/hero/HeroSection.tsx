@@ -36,9 +36,9 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
  *   ~t=1.85 Line 2's blur-in finishes (starts 0.87 + runs ~1.0s).
  *   t=2.10  Subhead fades up (heroSubhead), a clear beat after the
  *           headline settles — never competing with it for attention.
- *   t=2.10  CTA row becomes visible; its own children (the two buttons)
- *           stagger 120ms apart starting here, so the primary button
- *           settles first and the secondary a beat later.
+ *   t=2.10  CTA row becomes visible (currently one button — see the note
+ *           on the removed second CTA below; the 120ms child stagger in
+ *           heroActions still applies whenever a second action returns).
  *   t=2.30  Scroll cue's line begins extending (scaleY); the traveling
  *           dot's loop starts at t=3.2, after the line has finished
  *           extending — nothing about the cue competes with the CTAs
@@ -127,14 +127,19 @@ export function HeroSection() {
               animate="visible"
               variants={reduced ? undefined : heroActions}
             >
+              {/* A second CTA ("Watch the Introduction" → /screening-room)
+                  lived here until the pre-deploy audit — it pointed at a
+                  route with no page behind it, a real dead link on the
+                  site's most prominent button. Removed rather than greyed
+                  out: a two-button hero row with one button visibly inert
+                  reads worse than a clean single CTA, and the honest-
+                  placeholder pattern used everywhere else on this site
+                  (see library-content.ts) is to not ship something not
+                  real, not disguise it. Restore it once The Screening Room
+                  has an actual page and a real video to introduce. */}
               <motion.div variants={reduced ? undefined : heroAction}>
                 <MagneticButton href="/library" variant="primary">
                   Enter the Library
-                </MagneticButton>
-              </motion.div>
-              <motion.div variants={reduced ? undefined : heroAction}>
-                <MagneticButton href="/screening-room" variant="secondary">
-                  Watch the Introduction
                 </MagneticButton>
               </motion.div>
             </motion.div>
