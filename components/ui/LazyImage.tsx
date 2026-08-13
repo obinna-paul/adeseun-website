@@ -17,6 +17,19 @@ import { cn } from "@/lib/utils";
  *
  * No `src` yet? Renders the placeholder permanently, with an honest
  * caption rather than pretending to be a real photo — see study-content.ts.
+ *
+ * `fit="cover"` (default) is right for a photo of her — cropping the
+ * edges to fill the frame reads fine when the subject is a face/figure.
+ * A book cover is different: it's a fixed composition with real text
+ * baked in at the top and bottom (title, her name), and `cover`-cropping
+ * a portrait-aspect jacket into a square or 4:3 frame slices that text
+ * off. `fit="contain"` letterboxes it instead — the whole cover stays
+ * legible, padded by the wrapper's own `bg-surface-sunken` rather than
+ * cropped.
+ *
+ * `shape="frame"` (default) is the site's ordinary flat-corner treatment.
+ * `shape="arch"` swaps in the doorway-arch top (`.frame-arch`, globals.css)
+ * — see tokens.css's radius comment for when that's the right call.
  */
 
 type LazyImageProps = {
@@ -26,6 +39,8 @@ type LazyImageProps = {
   tone?: "gold" | "indigo";
   className?: string;
   sizes?: string;
+  fit?: "cover" | "contain";
+  shape?: "frame" | "arch";
 };
 
 const PLACEHOLDER_GRADIENTS: Record<"gold" | "indigo", string> = {
@@ -40,25 +55,38 @@ export function LazyImage({
   tone = "gold",
   className,
   sizes = "(min-width: 1024px) 33vw, 100vw",
+  fit = "cover",
+  shape = "frame",
 }: LazyImageProps) {
   const [loaded, setLoaded] = useState(false);
 
   return (
     <div
       data-cursor="image"
-      className={cn("relative w-full overflow-hidden rounded-frame bg-surface-sunken", className)}
+      className={cn(
+        "relative w-full overflow-hidden bg-surface-sunken",
+        shape === "arch" ? "frame-arch" : "rounded-frame",
+        className,
+      )}
     >
       {/* Placeholder — always present under the real image, visible
-          permanently when there is no src at all. */}
-      <div
-        aria-hidden={!!src}
-        className="absolute inset-0 flex items-end p-4"
-        style={{ background: PLACEHOLDER_GRADIENTS[tone] }}
-      >
-        {!src && caption && (
-          <span className="font-mono text-[0.65rem] uppercase tracking-wide text-text-faint">{caption}</span>
-        )}
-      </div>
+          permanently when there is no src at all. Skipped entirely in
+          "contain" mode: that mode always ships with a real src (a book
+          cover, not a photo awaiting one), and `object-contain` leaves
+          transparent letterbox gaps around it — this gradient sitting
+          underneath would bleed through those gaps instead of the
+          wrapper's own neutral bg-surface-sunken. */}
+      {fit !== "contain" && (
+        <div
+          aria-hidden={!!src}
+          className="absolute inset-0 flex items-end p-4"
+          style={{ background: PLACEHOLDER_GRADIENTS[tone] }}
+        >
+          {!src && caption && (
+            <span className="font-mono text-[0.65rem] uppercase tracking-wide text-text-faint">{caption}</span>
+          )}
+        </div>
+      )}
 
       {src && (
         <motion.div
@@ -72,7 +100,7 @@ export function LazyImage({
             alt={alt}
             fill
             sizes={sizes}
-            className="object-cover"
+            className={fit === "contain" ? "object-contain" : "object-cover"}
             onLoad={() => setLoaded(true)}
           />
         </motion.div>

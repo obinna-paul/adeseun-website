@@ -102,6 +102,20 @@ body {
   box-shadow: none;
 }
 
+/*
+ * The doorway-arch frame — see tokens.css's radius comment for the full
+ * rationale (scoped to portrait real photos of her; not a general
+ * image-shape default). A very large radius on the top two corners only
+ * clamps to exactly half the box's rendered width per the CSS corner-
+ * overlap algorithm, producing a true semicircle on any portrait-aspect
+ * box regardless of its actual pixel size — no JS, no per-breakpoint
+ * value needed. Bottom corners keep the site's ordinary flat frame, so
+ * the shape reads as an arch meeting a floor, not a full rounded pill.
+ */
+.frame-arch {
+  border-radius: 999px 999px var(--radius-frame) var(--radius-frame);
+}
+
 a {
   text-underline-offset: 0.2em;
   text-decoration-thickness: 1px;

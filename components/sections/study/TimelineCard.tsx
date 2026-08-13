@@ -19,20 +19,32 @@ import type { Milestone } from "./study-content";
  *
  * ── Mobile art direction ─────────────────────────────────────────────
  * Below `lg` the card switches from "image full-width on top, text
- * below" to a compact row: a small square thumbnail pinned beside the
- * timeline dot, story text filling the rest of the line's width. A
- * full-bleed 4:3 photo repeated six times down a single narrow column
- * is a lot of scroll for not much new information per screen —
- * shrinking the image to a thumbnail and letting text run alongside it
- * is what "smaller images" in a single-column timeline should mean,
- * not just a proportionally-scaled-down version of the same stacked
- * layout. At `lg`+ the alternating stacked composition (image above
- * text, sides swapping) returns unchanged. The dot's offset (`pl-16`,
- * `left-6`) stays a fixed Tailwind step rather than a fluid clamp() —
- * it's a functional clearance sized to the fixed 12px dot marker, not
+ * below" to a compact row: a small thumbnail pinned beside the timeline
+ * dot, story text filling the rest of the line's width. A full-bleed
+ * photo repeated six times down a single narrow column is a lot of
+ * scroll for not much new information per screen — shrinking the image
+ * to a thumbnail and letting text run alongside it is what "smaller
+ * images" in a single-column timeline should mean, not just a
+ * proportionally-scaled-down version of the same stacked layout. At
+ * `lg`+ the alternating stacked composition (image above text, sides
+ * swapping) returns unchanged. The dot's offset (`pl-16`, `left-6`)
+ * stays a fixed Tailwind step rather than a fluid clamp() — it's a
+ * functional clearance sized to the fixed 12px dot marker, not
  * type-adjacent spacing rhythm, the same judgment tokens.css already
  * makes for radius/shadow tokens staying fixed while type/macro-spacing
  * goes fluid.
+ *
+ * ── Frame shape ───────────────────────────────────────────────────────
+ * `aspect-[4/5]` at every breakpoint (not the old square/4:3 landscape
+ * crop) — these source photos are all portrait headshots (~0.75–0.92
+ * aspect, checked against the actual files), and a landscape-ish frame
+ * was forcing a much more aggressive `object-cover` crop than the
+ * photos needed, cutting into faces. 4:5 sits close to their real
+ * aspect, so the default center crop stays gentle. Real portrait photos
+ * get the doorway-arch shape (`shape="arch"`, tokens.css's radius
+ * comment); book-cover milestones (`imageFit === "contain"`) keep the
+ * ordinary flat frame — a jacket is a product shot, not a portrait of
+ * her, and doesn't get the same treatment.
  */
 export function TimelineCard({ milestone, side }: { milestone: Milestone; side: "left" | "right" }) {
   const fromX = side === "left" ? -32 : 32;
@@ -69,8 +81,10 @@ export function TimelineCard({ milestone, side }: { milestone: Milestone; side: 
             alt={milestone.title}
             caption={milestone.title}
             tone={side === "left" ? "gold" : "indigo"}
-            className="aspect-square lg:aspect-[4/3]"
+            className="aspect-[4/5]"
             sizes="(min-width: 1024px) 33vw, 8rem"
+            fit={milestone.imageFit}
+            shape={milestone.imageFit === "contain" ? "frame" : "arch"}
           />
         </motion.div>
 

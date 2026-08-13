@@ -5,16 +5,18 @@
  * Rewritten around real, verified research (see library-content.ts):
  * four real books, two of them with confirmed publish dates (Think
  * Before You Speak, November 2023; Tranquility, June 2025 — used as
- * actual `era` values below, not fabricated). The timeline below only
- * walks the three earliest-confirmed titles, not all four — Black Is
- * Beautiful surfaced after this timeline's structure was set and
- * doesn't have a confirmed date or a clear position in her writing
- * order, so adding a milestone for it would mean guessing at sequence;
- * The Library lists all four. Where a date isn't confirmed (Beyond the
- * Mundane's publication date, and anything before her first book),
- * `era` stays a descriptive label rather than an invented year — the
- * same fake-precision guard as before, just now mostly unnecessary
- * because real dates exist for the anchor points.
+ * actual `era` values below, not fabricated). All four now appear on
+ * the timeline — Black Is Beautiful was held back at first because it
+ * surfaced after this timeline's structure was set and has no confirmed
+ * date or sequence position relative to the other three, but per direct
+ * confirmation all four stand as equally real, published books; it's
+ * placed last among the books rather than guessed into a specific slot,
+ * with an era label that doesn't claim a position it hasn't earned.
+ * Where a date isn't confirmed (Beyond the Mundane's publication date,
+ * and anything before her first book), `era` stays a descriptive label
+ * rather than an invented year — the same fake-precision guard as
+ * before, just now mostly unnecessary because real dates exist for the
+ * anchor points.
  *
  * Per direct instruction, this is author-first: her real professional
  * standing (Founder and Vice-President, Threesixty Africa Media — the
@@ -45,6 +47,11 @@ export type Milestone = {
    * TimelineCard's placeholder handles anything still unset.
    */
   image?: string;
+  /** "cover" (default, right for a photo of her) or "contain" — use
+   *  "contain" when `image` is a book cover, not a portrait: a cover has
+   *  real title/name text baked in top and bottom that a face-framing
+   *  crop would slice off. See LazyImage's own doc comment. */
+  imageFit?: "cover" | "contain";
 };
 
 export const TIMELINE_MILESTONES: Milestone[] = [
@@ -77,6 +84,17 @@ export const TIMELINE_MILESTONES: Milestone[] = [
     era: "June 2025",
     title: "Tranquility",
     story: "Her third book, and her quietest: a guide to cultivating calm as a practice, not a place you arrive at once.",
+    image: "/images/tranquility-cover.jpg",
+    imageFit: "contain",
+  },
+  {
+    id: "black-is-beautiful",
+    era: "Also Published",
+    title: "Black Is Beautiful",
+    story:
+      "A fourth book, arriving outside this timeline's neat sequence: a tribute to Black identity, history, and culture — real, published, and just as much hers as the three that came before it.",
+    image: "/images/black-is-beautiful-cover.webp",
+    imageFit: "contain",
   },
   {
     id: "threesixty",
@@ -101,17 +119,20 @@ export type CurtainItem =
 
 /**
  * A mix of candid-photo slots, handwritten-style notes, and research
- * snippets. Two photos now have real images behind them, each honestly
- * recaptioned to match what the photo actually shows rather than the
- * literal "desk/draft ephemera" the slot's original placeholder caption
- * implied: "desk-detail" is a posed portrait, captioned "Between
- * chapters," not a literal desk shot; "headies-desk" is a real working
- * moment — paperwork and a Headies-branded microphone, her production
- * life rather than a manuscript in progress — captioned "Between takes"
- * instead of the old placeholder's "Draft four, still moving," which
- * would have overclaimed what the photo is. The remaining photo slot
- * ("shelf"), and every note/snippet, are still illustrative — written
- * to demonstrate the section's rhythm, not claimed as real artifacts.
+ * snippets. Three photos now have real images behind them, each
+ * honestly captioned to match what the photo actually shows: "desk-
+ * detail" is a posed portrait, captioned "Between chapters," not a
+ * literal desk shot; "headies-desk" is a real working moment —
+ * paperwork and a Headies-branded microphone, her production life
+ * rather than a manuscript in progress — captioned "Between takes"
+ * instead of the original placeholder's "Draft four, still moving,"
+ * which would have overclaimed what the photo is; "shelf" is a real
+ * product shot of all four books together, supplied directly — the
+ * caption was "Where the three live" back when only three were
+ * confirmed, updated to "Where they live" rather than hardcode a count
+ * that will go stale again the next time her catalog grows. Every
+ * note/snippet is still illustrative — written to demonstrate the
+ * section's rhythm, not claimed as a real artifact.
  */
 export const CURTAIN_ITEMS: CurtainItem[] = [
   { kind: "photo", id: "desk-detail", caption: "Between chapters", tall: true, image: "/images/adeseun-curtain.jpg" },
@@ -122,7 +143,7 @@ export const CURTAIN_ITEMS: CurtainItem[] = [
     label: "Research notes, pg. 4",
     text: "Peace isn't the absence of noise. It's what's left once you stop needing to explain yourself.",
   },
-  { kind: "photo", id: "shelf", caption: "Where the three live" },
+  { kind: "photo", id: "shelf", caption: "Where they live", image: "/images/adeseun-four-books.png" },
   { kind: "note", id: "margin-note-2", text: "Reminder: say the true thing, not the smooth thing." },
   {
     kind: "photo",

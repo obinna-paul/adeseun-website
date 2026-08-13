@@ -173,7 +173,29 @@
   --shadow-glow-gold: 0 0 0 1px hsla(42, 55%, 42%, 0.35), 0 8px 28px -6px hsla(42, 55%, 42%, 0.25);
   --shadow-glow-soft: 0 4px 40px hsla(220, 30%, 30%, 0.08);
 
-  /* ---- radius — two-tier documented system ---- */
+  /*
+   * ---- radius — documented shape system (taste-skill 4.4, Shape
+   * Consistency Lock: one system, applied consistently, exceptions only
+   * when documented and followed everywhere they apply) ----
+   *
+   * Two base tokens, `--radius-frame` (flat images, cards, book-jacket
+   * mockups — the gallery's "framed and flat" default) and
+   * `--radius-control` (pills: buttons, the motion toggle). A third
+   * shape, `.frame-arch` (globals.css), is the one deliberate exception:
+   * a doorway-arch top on portrait-oriented REAL PHOTOS OF HER only —
+   * Study's timeline thumbnails, Behind the Curtain's portrait photo
+   * slots. Not a third radius *value*, a composed shape (round top
+   * corners, `--radius-frame` bottom corners) — reserved specifically
+   * for that one category because it double-motivates: it echoes the
+   * Monogram's own circular mark (the site's one identity shape), and
+   * reads as an actual doorway/archway, which fits a site whose nav is
+   * literally named rooms in a house (Foyer, Study, Library...).
+   * Landscape photos and product shots (book covers, the four-books
+   * shelf photo) stay on the flat `--radius-frame` — an arch reads as
+   * architecture on a tall portrait crop and as an odd stretched dome on
+   * a wide one, so the shape is scoped to the aspect it actually suits,
+   * not applied blindly everywhere a real photo appears.
+   */
   --radius-frame: 2px;
   --radius-control: 999px;
 

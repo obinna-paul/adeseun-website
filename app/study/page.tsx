@@ -4,7 +4,7 @@ import { StudyHero, StudyTimeline, BehindTheCurtain, BeyondThePage, StudyCTA } f
 export const metadata = pageMetadata({
   title: "The Study",
   path: "/study",
-  description: "A cinematic timeline through her three books and the thinking behind them — not a resume.",
+  description: "A cinematic timeline through her four books and the thinking behind them — not a resume.",
 });
 
 export default function StudyPage() {
