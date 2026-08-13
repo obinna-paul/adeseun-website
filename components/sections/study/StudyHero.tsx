@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "motion/react";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import { HERO_LINE } from "./study-content";
@@ -17,9 +18,11 @@ import { HERO_LINE } from "./study-content";
  * The zoom is a scale transform, not a width/height change — and it's
  * ease-in-out, not ease-out: this is on-screen movement (a camera
  * pulling back), emil-design-eng's second category, not an element
- * entering from nothing.
+ * entering from nothing. It's applied to the wrapping div, not the
+ * <Image> itself — unlike HeroPortrait's mask/filter treatment, nothing
+ * here needs its own Motion-driven style on the image, so a plain
+ * next/image inside an animated wrapper is enough.
  *
- * No real photograph exists yet — see the placeholder note below.
  * Sentence arrives only once the pull-back has mostly resolved:
  * documentary pacing is image first, caption second, never both at once.
  */
@@ -38,15 +41,16 @@ export function StudyHero() {
         initial={reduced ? false : { scale: 1.35 }}
         animate={{ scale: 1 }}
         transition={{ duration: reduced ? 0 : ZOOM_DURATION, ease: [0.77, 0, 0.175, 1] }}
-        style={{
-          // Placeholder: no photograph of her desk exists yet. This
-          // gradient stands in so the pull-back choreography is still
-          // reviewable — swap for a real background-image the moment
-          // one lands, the scale animation applies unchanged.
-          background:
-            "radial-gradient(ellipse 70% 60% at 42% 38%, hsl(42 42% 90%) 0%, hsl(42 25% 93%) 45%, hsl(220 14% 94%) 100%)",
-        }}
-      />
+      >
+        <Image
+          src="/images/adeseun-study-desk.jpg"
+          alt="Adeseun Oyeneye"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[50%_10%]"
+        />
+      </motion.div>
 
       {/* Bottom-weighted scrim in the page's own light tones, for text legibility — not a dark vignette. */}
       <div

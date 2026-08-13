@@ -34,7 +34,16 @@ export type Milestone = {
   era: string;
   title: string;
   story: string;
-  /** Swap in a real photo once one exists — see TimelineCard's placeholder handling. */
+  /**
+   * A real photo of her — representative, not documentary. None of
+   * these were confirmed as taken during the milestone's actual era;
+   * they're chosen for mood/fit the same way the "threesixty" milestone's
+   * photo always was (a good likeness for that beat in her story, not a
+   * dated snapshot from that exact month). `era` states the timeframe
+   * the milestone covers; the photo doesn't claim to have been taken
+   * within it. Swap in a real, era-matched photo if one ever surfaces —
+   * TimelineCard's placeholder handles anything still unset.
+   */
   image?: string;
 };
 
@@ -45,6 +54,7 @@ export const TIMELINE_MILESTONES: Milestone[] = [
     title: "A life spent noticing words",
     story:
       "Long before the first book, she was the person in the room who noticed when a sentence landed wrong — and knew, usually, why.",
+    image: "/images/adeseun-before-the-page.jpg",
   },
   {
     id: "think-before-you-speak",
@@ -52,6 +62,7 @@ export const TIMELINE_MILESTONES: Milestone[] = [
     title: "Think Before You Speak",
     story:
       "Her first published book: a case for thoughtful communication as a discipline, not a talent — 197 pages, written to be read in one sitting and returned to for years.",
+    image: "/images/adeseun-think-before-you-speak.jpg",
   },
   {
     id: "beyond-the-mundane",
@@ -59,6 +70,7 @@ export const TIMELINE_MILESTONES: Milestone[] = [
     title: "Beyond the Mundane",
     story:
       "Her second book turned the same attention outward — from the words we choose to the lives we build with them, and what actually makes either one meaningful.",
+    image: "/images/adeseun-beyond-the-mundane.jpg",
   },
   {
     id: "tranquility",
@@ -89,12 +101,17 @@ export type CurtainItem =
 
 /**
  * A mix of candid-photo slots, handwritten-style notes, and research
- * snippets. One photo ("desk-detail") now has a real portrait behind
- * it — captioned honestly as "Between chapters" rather than a literal
- * desk shot, since the photo itself is a posed portrait, not workspace
- * ephemera. The other photo slots, and every note/snippet, are still
- * illustrative — written to demonstrate the section's rhythm, not
- * claimed as real artifacts from her actual desk or drafts.
+ * snippets. Two photos now have real images behind them, each honestly
+ * recaptioned to match what the photo actually shows rather than the
+ * literal "desk/draft ephemera" the slot's original placeholder caption
+ * implied: "desk-detail" is a posed portrait, captioned "Between
+ * chapters," not a literal desk shot; "headies-desk" is a real working
+ * moment — paperwork and a Headies-branded microphone, her production
+ * life rather than a manuscript in progress — captioned "Between takes"
+ * instead of the old placeholder's "Draft four, still moving," which
+ * would have overclaimed what the photo is. The remaining photo slot
+ * ("shelf"), and every note/snippet, are still illustrative — written
+ * to demonstrate the section's rhythm, not claimed as real artifacts.
  */
 export const CURTAIN_ITEMS: CurtainItem[] = [
   { kind: "photo", id: "desk-detail", caption: "Between chapters", tall: true, image: "/images/adeseun-curtain.jpg" },
@@ -107,7 +124,13 @@ export const CURTAIN_ITEMS: CurtainItem[] = [
   },
   { kind: "photo", id: "shelf", caption: "Where the three live" },
   { kind: "note", id: "margin-note-2", text: "Reminder: say the true thing, not the smooth thing." },
-  { kind: "photo", id: "writing-hand", caption: "Draft four, still moving", tall: true },
+  {
+    kind: "photo",
+    id: "headies-desk",
+    caption: "Between takes",
+    tall: true,
+    image: "/images/adeseun-curtain-drafting.jpg",
+  },
   {
     kind: "snippet",
     id: "research-2",
