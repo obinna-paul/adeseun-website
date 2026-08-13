@@ -42,6 +42,12 @@ export const SCREENING_ROOM_VIDEOS: ScreeningRoomVideo[] = [
   { id: "sr-08", youtubeId: "8jUQf8SkKxo", format: "short", label: "Appearance 08" },
   { id: "sr-09", youtubeId: "HxDkJjZoA9M", format: "short", label: "Appearance 09" },
   { id: "sr-10", youtubeId: "wN0GlAqPbXE", format: "short", label: "Appearance 10" },
+  { id: "sr-11", youtubeId: "nXJzYobeXMY", format: "short", label: "Appearance 11" },
+  { id: "sr-12", youtubeId: "T_IQRlT8O9w", format: "short", label: "Appearance 12" },
+  { id: "sr-13", youtubeId: "B5jZ2jGi1Cg", format: "short", label: "Appearance 13" },
+  { id: "sr-14", youtubeId: "WDRSU6oy2o8", format: "short", label: "Appearance 14" },
+  { id: "sr-15", youtubeId: "vn10M_YV1Nc", format: "short", label: "Appearance 15" },
+  { id: "sr-16", youtubeId: "wFzdmDuPwXk", format: "short", label: "Appearance 16" },
 ];
 
 export const PAGE_EYEBROW = "The Screening Room";
