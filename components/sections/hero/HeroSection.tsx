@@ -68,9 +68,16 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
  */
 
 // Her own words, not invented copy — see library-content.ts for the
-// research this is grounded in. One line, not two: keeps the headline
-// short enough to never wrap mid-sentence at the fluid display scale.
-const HEADLINE_LINE = "Live beyond the mundane.";
+// research this is grounded in. A hardcoded two-line break, not a single
+// string left to `text-balance` to wrap on its own (real bug: relying on
+// the browser to balance-wrap "Live beyond the mundane." made the break
+// point depend on the exact container width and font metrics at render
+// time — it wrapped to two lines in every viewport this was verified at,
+// but rendered as one unbroken line for at least one real visitor, so
+// dev and production visibly disagreed on something that should never
+// have been ambiguous in the first place. Two explicit lines removes the
+// ambiguity entirely — it's identical everywhere, always.
+const HEADLINE_LINES = ["Live beyond", "the mundane."];
 
 export function HeroSection() {
   const reduced = usePrefersReducedMotion();
@@ -92,16 +99,20 @@ export function HeroSection() {
       <div className="absolute inset-x-0 bottom-0 top-20 z-10 flex flex-col justify-end px-gutter pb-10 sm:px-10 lg:px-16 lg:pb-24">
         <div className="mx-auto w-full max-w-frame">
           <div className="max-w-3xl">
-            {/* h1 is the real, single, SEO-bearing heading. */}
+            {/* h1 is the real, single, SEO-bearing heading — its two visual
+                lines are block-level (not letter-split), so assistive tech
+                and search crawlers read the full sentence in order. */}
             <motion.h1
-              className="text-balance font-display text-4xl font-semibold text-text-on-dark sm:text-6xl"
+              className="font-display text-4xl font-semibold text-text-on-dark sm:text-6xl"
               initial={reduced ? false : "hidden"}
               animate="visible"
               variants={reduced ? undefined : heroLineGroup}
             >
-              <motion.span className="block" variants={reduced ? undefined : heroLine}>
-                {HEADLINE_LINE}
-              </motion.span>
+              {HEADLINE_LINES.map((line) => (
+                <motion.span key={line} className="block" variants={reduced ? undefined : heroLine}>
+                  {line}
+                </motion.span>
+              ))}
             </motion.h1>
 
             <motion.p
