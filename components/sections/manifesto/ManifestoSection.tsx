@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { motion, useMotionTemplate, useScroll, useTransform } from "motion/react";
+import { motion, useMotionTemplate, useScroll, useTransform, type MotionValue } from "motion/react";
 import { gsap } from "@/lib/gsap";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import { useMobileDetect } from "@/lib/use-mobile-detect";
@@ -52,19 +52,28 @@ import { MANIFESTO_BEATS, CLOSING_LINE, JOURNEY_HREF, type Beat } from "./manife
  * their own `ManifestoMobile` (below), not the GSAP pin. A `pin: true`
  * full-viewport takeover is architecturally risky on mobile browsers
  * specifically — dynamic address-bar chrome resizes the real viewport
- * mid-scroll, which GSAP's pin math doesn't see happen. But a flat,
- * all-beats-stacked-at-once fallback (real feedback: "piling all the
- * text") loses the thing that makes the desktop version work — one beat
- * at a time. `ManifestoMobile` keeps that: every beat gets its own
- * `min-h-[100dvh]` block in normal document flow (never pinned, so no
- * moving-viewport risk), and each one's opacity/y/blur is driven by
- * *that beat's own* scroll progress through the viewport
- * (`useScroll({ target })`) rather than GSAP's ScrollTrigger — a
- * continuous, per-frame recomputation from actual scroll position, not
- * a pinned timeline, so it can't desync when the browser chrome resizes.
- * `ManifestoStatic` (below) is reserved for `prefers-reduced-motion`
- * only now — a real, motion-free fallback, not reused as a mobile
- * substitute.
+ * mid-scroll, which GSAP's pin math doesn't see happen.
+ *
+ * `ManifestoMobile` uses CSS `position: sticky` instead of a pin to get
+ * the same visual result GSAP's `pin` gives desktop — the beat stack
+ * holds still on screen while its own scroll distance passes, only
+ * opacity/y/blur cross-fading between beats — without pin's fragility:
+ * `sticky` is computed by the browser from the *current* viewport every
+ * frame, so it can't desync the way a cached pin offset can when chrome
+ * resizes. (An earlier version gave each beat its own independent
+ * `useScroll({ target })`, outside a sticky container — that made every
+ * beat visibly scroll past with the page instead of holding in place,
+ * which is a different, weaker effect than what this replaces: real
+ * feedback wanted mobile to match desktop's "fixed at the center,
+ * statements fade in and out" feel exactly, not just avoid the earlier
+ * "piling all the text" flaw.) One `useScroll` over the whole tall
+ * wrapper drives every beat's opacity/y/blur from a shared progress
+ * value, with each beat's enter/hold/exit window mapped to the same
+ * ENTER/EXIT_START fractions as the desktop timeline below — the two
+ * should read as the same choreography, just driven by a different
+ * mechanism. `ManifestoStatic` (below) is reserved for
+ * `prefers-reduced-motion` only — a real, motion-free fallback, not
+ * reused as a mobile substitute.
  */
 
 const UNIT = 1;
@@ -241,40 +250,72 @@ function JourneyLink() {
 }
 
 /**
- * Mobile's answer to the pin: one beat per full-viewport block, in
- * normal document flow, each animated by its own scroll progress rather
- * than a shared pinned timeline. `offset: ["start end", "end start"]`
- * means progress 0 is "block's top just entered the viewport bottom"
- * and 1 is "block's bottom just left the viewport top" — i.e. progress
- * 0.5 lands roughly when the block is centered. The four-stop transform
- * below (0 / 0.35 / 0.65 / 1 → hidden / shown / shown / hidden) mirrors
- * the desktop timeline's own ENTER/EXIT_START shape (0.3/0.7) so the
- * "settle, hold, release" feel carries over even without GSAP.
+ * Mobile's answer to the pin: a `sticky` container the same tall wrapper
+ * (`BEATS.length * 100vh`) drives, so it holds on screen for exactly the
+ * scroll distance one GSAP-pinned unit would consume — the sticky
+ * element itself never moves once stuck, matching desktop's held-still
+ * frame exactly, just without an actual `position: fixed` pin.
  */
 function ManifestoMobile() {
+  const wrapperRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: wrapperRef, offset: ["start start", "end end"] });
+
   return (
     <>
-      <section aria-label="Her values" className="bg-hero-ground">
-        {MANIFESTO_BEATS.map((beat, i) => (
-          <ManifestoMobileBeat key={i} beat={beat} />
-        ))}
+      <section
+        ref={wrapperRef}
+        aria-label="Her values"
+        className="relative"
+        style={{ height: `${MANIFESTO_BEATS.length * 100}vh` }}
+      >
+        <div className="sticky top-0 flex h-[100dvh] w-full items-center justify-center overflow-hidden bg-hero-ground px-6 text-center">
+          {MANIFESTO_BEATS.map((beat, i) => (
+            <ManifestoMobileBeat
+              key={i}
+              beat={beat}
+              index={i}
+              total={MANIFESTO_BEATS.length}
+              scrollYProgress={scrollYProgress}
+            />
+          ))}
+        </div>
       </section>
       <ManifestoClose />
     </>
   );
 }
 
-function ManifestoMobileBeat({ beat }: { beat: Beat }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const opacity = useTransform(scrollYProgress, [0, 0.35, 0.65, 1], [0, 1, 1, 0]);
-  const y = useTransform(scrollYProgress, [0, 0.35, 0.65, 1], [22, 0, 0, -22]);
-  const blur = useTransform(scrollYProgress, [0, 0.35, 0.65, 1], [8, 0, 0, 8]);
+function ManifestoMobileBeat({
+  beat,
+  index,
+  total,
+  scrollYProgress,
+}: {
+  beat: Beat;
+  index: number;
+  total: number;
+  scrollYProgress: MotionValue<number>;
+}) {
+  // This beat's slice of the wrapper's overall 0–1 scroll progress —
+  // [index, index+1] out of [0, total] — mapped through the same
+  // ENTER/EXIT_START fractions the desktop GSAP timeline uses, so both
+  // versions spend the same proportion of scroll on enter/hold/exit.
+  const enterStart = index / total;
+  const enterEnd = (index + ENTER) / total;
+  const exitStart = (index + EXIT_START) / total;
+  const exitEnd = (index + 1) / total;
+
+  const opacity = useTransform(scrollYProgress, [enterStart, enterEnd, exitStart, exitEnd], [0, 1, 1, 0]);
+  const y = useTransform(scrollYProgress, [enterStart, enterEnd, exitStart, exitEnd], [18, 0, 0, -18]);
+  const blur = useTransform(scrollYProgress, [enterStart, enterEnd, exitStart, exitEnd], [10, 0, 0, 10]);
   const filter = useMotionTemplate`blur(${blur}px)`;
 
   return (
-    <div ref={ref} className="flex min-h-[100dvh] w-full items-center justify-center px-6 text-center">
-      <motion.div style={{ opacity, y, filter }} className="flex flex-col items-center gap-6">
+    <motion.div
+      className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center"
+      style={{ opacity }}
+    >
+      <motion.div style={{ y, filter }} className="flex flex-col items-center gap-6">
         {beat.kind === "value" ? (
           <>
             <ValueIcon icon={beat.icon} staticDraw />
@@ -288,7 +329,7 @@ function ManifestoMobileBeat({ beat }: { beat: Beat }) {
           </p>
         )}
       </motion.div>
-    </div>
+    </motion.div>
   );
 }
 
