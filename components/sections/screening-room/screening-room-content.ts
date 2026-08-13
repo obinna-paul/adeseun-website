@@ -19,9 +19,12 @@
  * for the accessible name before playback — not a description of what
  * the clip actually contains.
  *
- * 19 clips total per direct instruction; more IDs land here as they're
- * supplied. Nothing else needs to change when the list grows — VideoGrid
- * and the page both just map over this array.
+ * 16 clips, final per direct instruction (started at a stated 19; three
+ * of the supplied links turned out to duplicate ones already here —
+ * see sr-08/09/10 — and the remaining count was closed out at 16
+ * rather than chased further). If more ever get supplied, they just
+ * append to this array — nothing else needs to change, VideoGrid and
+ * the page both already just map over it.
  */
 
 export type ScreeningRoomVideo = {
