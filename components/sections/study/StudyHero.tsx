@@ -6,14 +6,24 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import { HERO_LINE } from "./study-content";
 
 /**
- * The Study opens on her desk, then pulls back to reveal her in
- * thought — a slow dolly-out, not a cut. Deliberately the light
- * Alabaster Gallery palette, not the Foyer's dark hero-ground: the
- * Foyer's cold open is this site's one sanctioned dark moment (see
- * ManifestoSection's own notes on Page Theme Lock); The Study is the
- * intimate, warm-lit register The Walkthrough originally gave it, and
- * reusing the stark dark treatment here would dilute what makes the
- * Foyer's opening land.
+ * The Blueprint opens on a portrait, then pulls back — a slow dolly-out,
+ * not a cut. Two separate crops, one per breakpoint (adeseun-about-hero.jpg
+ * desktop, adeseun-about-hero-mobile.jpg mobile — both AI-generated per
+ * direct instruction, same flag as HeroPortrait's own doc comment), for
+ * the same reason Home's hero uses two: a landscape crop composed for a
+ * wide frame and a tall portrait composed for a narrow one aren't the
+ * same photo cropped differently, they're different source images. Both
+ * are dark and moody throughout, not the lighter desk photo this section
+ * used before, so the bottom scrim now fades to a dark tone
+ * (--color-hero-ground) instead of the page's light ground, and the
+ * caption is set in light text-on-dark — real feedback: black text over
+ * this image read as illegible, since the old light-fading scrim assumed
+ * a photo that was mostly light to begin with. The section's own
+ * background (`bg-ground`) is unchanged as a fallback for whatever the
+ * image and scrim don't cover; this is a photographic dark moment
+ * layered on the page, not a second page-level dark theme (Page Theme
+ * Lock, taste-skill 4.11, still reserves that for the home hero and
+ * persistent chrome).
  *
  * The zoom is a scale transform, not a width/height change — and it's
  * ease-in-out, not ease-out: this is on-screen movement (a camera
@@ -43,28 +53,39 @@ export function StudyHero() {
         transition={{ duration: reduced ? 0 : ZOOM_DURATION, ease: [0.77, 0, 0.175, 1] }}
       >
         <Image
-          src="/images/adeseun-study-desk.jpg"
+          src="/images/adeseun-about-hero-mobile.jpg"
           alt="Adeseun Oyeneye"
           fill
           priority
           sizes="100vw"
-          className="object-cover object-[50%_10%]"
+          className="object-cover object-[50%_10%] lg:hidden"
+        />
+        <Image
+          src="/images/adeseun-about-hero.jpg"
+          alt="Adeseun Oyeneye"
+          fill
+          priority
+          sizes="100vw"
+          className="hidden object-cover object-[62%_15%] lg:block"
         />
       </motion.div>
 
-      {/* Bottom-weighted scrim in the page's own light tones, for text legibility — not a dark vignette. */}
+      {/* Bottom-weighted scrim fading to the dark hero-ground tone, for
+          white-text legibility against a photo that's dark throughout —
+          see this file's own doc comment for why this changed from a
+          light-fading scrim. */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, hsla(38,30%,96%,0) 0%, hsla(38,30%,96%,0.15) 45%, hsla(38,30%,96%,0.92) 88%, hsl(38,30%,96%) 100%)",
+            "linear-gradient(180deg, hsla(160,28%,6%,0) 0%, hsla(160,28%,6%,0.25) 45%, hsla(160,28%,6%,0.88) 88%, hsl(160,28%,6%) 100%)",
         }}
       />
 
       <div className="relative z-10 w-full px-gutter pb-20 sm:px-10 lg:px-16">
         <motion.p
-          className="mx-auto max-w-3xl text-balance text-center font-display text-3xl font-semibold leading-tight text-text sm:text-5xl"
+          className="mx-auto max-w-3xl text-balance text-center font-display text-3xl font-semibold leading-tight text-text-on-dark sm:text-5xl"
           initial={reduced ? false : { opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: reduced ? 0 : LINE_DELAY, ease: [0.23, 1, 0.32, 1] }}
