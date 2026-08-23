@@ -26,7 +26,7 @@ export function BusinessesSection() {
           />
         </div>
 
-        <div className="mx-auto mt-16 grid max-w-5xl grid-cols-1 gap-x-10 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mx-auto mt-16 grid max-w-3xl grid-cols-1 gap-x-10 gap-y-14 sm:grid-cols-2">
           {VENTURES.map((venture) => (
             <VentureCard key={venture.id} venture={venture} />
           ))}

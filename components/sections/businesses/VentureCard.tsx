@@ -20,12 +20,17 @@ export function VentureCard({ venture }: { venture: Venture }) {
       variants={gentleReveal}
       className="flex flex-col gap-4"
     >
+      {/* `contain`, not `cover` — several of these are real slides/photos
+          with real content baked in edge-to-edge (a description, a
+          collage, real logos); cropping them to fill a fixed box cut off
+          exactly that content (real feedback, reported live). A portrait
+          box fits most of what's here without letterboxing badly. */}
       <LazyImage
         src={venture.image}
         alt={venture.name}
         caption={venture.name}
-        fit={venture.imageFit ?? "cover"}
-        className="aspect-[4/3]"
+        fit={venture.imageFit ?? "contain"}
+        className="aspect-[3/4]"
         sizes="(min-width: 1024px) 30vw, 90vw"
       />
       <div>

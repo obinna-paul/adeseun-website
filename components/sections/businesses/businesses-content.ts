@@ -21,6 +21,10 @@ export type Venture = {
   imageFit?: "cover" | "contain";
 };
 
+// Dream M12, PluvSeptember 30 Publishing, The Red Chair Talk, and
+// 360AfricaTv were removed from this list per direct instruction — no
+// real image exists for any of them yet. Re-add each once a real photo
+// is supplied, rather than showing a placeholder in the meantime.
 export const VENTURES: Venture[] = [
   {
     id: "360africa-media",
@@ -28,12 +32,6 @@ export const VENTURES: Venture[] = [
     role: "Vice President",
     blurb: "Media, communications, content, and business development — the platform behind AFRICAST 2025 and Nigeria House at the Paris 2024 Olympics.",
     image: "/images/adeseun-portrait-media-bw.jpg",
-  },
-  {
-    id: "360africa-tv",
-    name: "360AfricaTv",
-    role: "Vice President, 360Africa Media Group",
-    blurb: "Television, African culture, entertainment, and storytelling.",
   },
   {
     id: "bounty5-home",
@@ -55,24 +53,6 @@ export const VENTURES: Venture[] = [
     role: "Creative Director",
     blurb: "A styling agency — consumer and lifestyle brand work.",
     image: "/images/adeseun-portrait-approachable.jpg",
-  },
-  {
-    id: "dream-m12",
-    name: "Dream M12",
-    role: "Founder",
-    blurb: "Fitness and lifestyle.",
-  },
-  {
-    id: "pluv-publishing",
-    name: "PluvSeptember 30 Publishing",
-    role: "Founder",
-    blurb: "Publishing — the imprint behind her own books, and open to more.",
-  },
-  {
-    id: "red-chair-talk",
-    name: "The Red Chair Talk",
-    role: "Executive Producer",
-    blurb: "A talk show on relationships and community.",
   },
 ];
 
