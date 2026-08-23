@@ -46,7 +46,7 @@ export default function NotFound() {
         className="mt-16 grid w-full max-w-frame grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-3"
         {...listStagger}
       >
-        {SITE_PAGES.filter((page) => page.built).map((page) => (
+        {SITE_PAGES.map((page) => (
           <motion.div key={page.href} {...rowReveal}>
             <Link
               href={page.href}

@@ -1,27 +1,45 @@
 import { pageMetadata } from "@/lib/seo";
 import { HeroSection } from "@/components/sections/hero";
-import { ManifestoSection } from "@/components/sections/manifesto/ManifestoSection";
+import {
+  HomePositioningSection,
+  HomeBusinessesSection,
+  HomeFeaturedBookSection,
+  HomeMediaSection,
+  HomeRecognitionSection,
+  HomeCTASection,
+} from "@/components/sections/home";
 
 export const metadata = pageMetadata({ title: "Home", path: "/" });
 
 /**
- * The home hero is rewritten executive-first (see HeroSection's own doc
- * comment). ManifestoSection stays here for now, unchanged — its values
- * copy is slated to be folded into /about's "Woman Behind the Work"
- * thread once that page exists, but moving it out before its destination
- * is built would just delete real, already-written voice content from
- * the live site for no reason. The rest of the new executive-first
- * homepage content (businesses strip, featured book, media highlight,
- * recognition strip, closing CTA) is deliberately not added yet either —
- * every one of those would link to a page (/businesses, /books, /media,
- * /awards, /contact) that doesn't exist as a real route yet. Add each
- * strip once its destination page ships, not before.
+ * Rebuilt per direct instruction: the Values Manifesto (a 900vh
+ * GSAP scroll-pinned section) is removed entirely, along with its
+ * scroll-pin/scrub interaction and all of its supporting code — see
+ * ARCHITECTURE.md. In its place, real content sections built from
+ * data that already exists and is already verified elsewhere on the
+ * site (businesses, books, media, recognition), rather than more
+ * placeholder narrative.
+ *
+ * Content order, and the layout family each section uses, deliberately
+ * varied per taste-skill's section-layout-repetition rule:
+ *   1. Hero — full-bleed cinematic (components/sections/hero)
+ *   2. Positioning — plain centered text, no image
+ *   3. Businesses — divided text list, not a card grid
+ *   4. Featured book — image/text split
+ *   5. Media — image/text split, reversed (zigzag cap: 2 in a row, no more)
+ *   6. Recognition — stacked list, breaks the zigzag
+ *   7. Final CTA — centered banner, same "Work With Me" intent as the hero
  */
 export default function Home() {
   return (
     <main id="main-content" tabIndex={-1}>
       <HeroSection />
-      <ManifestoSection />
+      <HomePositioningSection />
+      <HomeBusinessesSection />
+      <HomeFeaturedBookSection />
+      <HomeMediaSection />
+      <HomeRecognitionSection />
+      <HomeCTASection />
     </main>
   );
 }

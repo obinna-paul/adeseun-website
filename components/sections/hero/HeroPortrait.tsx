@@ -23,14 +23,30 @@ const MotionImage = motion.create(Image);
  */
 
 type HeroPortraitProps = {
-  /** Swap in the real photo once it exists — see the placeholder note below. */
-  src?: string;
+  /**
+   * Separate crops for each breakpoint, not one image stretched across
+   * both — the container's own aspect ratio swings from very tall/narrow
+   * (mobile, full viewport width) to capped-landscape (`lg`+, max 1300px
+   * wide) as HeroSection's own doc comment explains, and a single source
+   * image composed for one of those two shapes crops badly in the other.
+   * `mobileSrc` falls back to `desktopSrc` if it isn't supplied yet.
+   *
+   * `desktopSrc` (adeseun-hero-desktop.jpg) is an AI-generated image, not
+   * a photograph of her — used as her likeness here per direct
+   * instruction, unlike every other portrait on this site, which is real.
+   * Flagged here for the same reason this codebase flags every other
+   * illustrative-vs-real distinction (see library-content.ts,
+   * study-content.ts, manifesto-content.ts).
+   */
+  desktopSrc?: string;
+  mobileSrc?: string;
   alt: string;
 };
 
 const REVEAL_ORIGIN = "50% 38%"; // roughly eye-height in a head-and-shoulders crop
 
-export function HeroPortrait({ src, alt }: HeroPortraitProps) {
+export function HeroPortrait({ desktopSrc, mobileSrc, alt }: HeroPortraitProps) {
+  const resolvedMobileSrc = mobileSrc ?? desktopSrc;
   const reduced = usePrefersReducedMotion();
   // Always seed at the "hidden" values, never a `reduced`-dependent
   // ternary: usePrefersReducedMotion's first render is always `false`
@@ -80,17 +96,29 @@ export function HeroPortrait({ src, alt }: HeroPortraitProps) {
           `motion.*` elements — that's why this and the image below are
           MotionImage/motion.div rather than <Image>/<div>. */}
       <motion.div className="absolute inset-0" style={{ maskImage, WebkitMaskImage: maskImage }}>
-        {src ? (
+        {resolvedMobileSrc && (
           <MotionImage
-            src={src}
+            src={resolvedMobileSrc}
             alt={alt}
             fill
             priority
             sizes="100vw"
-            className="object-cover object-[50%_8%] lg:object-[65%_14%]"
+            className="object-cover object-[50%_8%] lg:hidden"
             style={{ filter }}
           />
-        ) : (
+        )}
+        {desktopSrc && (
+          <MotionImage
+            src={desktopSrc}
+            alt={alt}
+            fill
+            priority
+            sizes="1300px"
+            className="hidden object-cover object-[62%_15%] lg:block"
+            style={{ filter }}
+          />
+        )}
+        {!resolvedMobileSrc && !desktopSrc && (
           // Placeholder: no photo asset exists yet. This still lets the
           // reveal/filter choreography be seen and reviewed, honestly
           // labeled rather than faked as a stock photo standing in for

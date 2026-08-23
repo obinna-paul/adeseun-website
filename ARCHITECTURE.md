@@ -9,7 +9,7 @@ session. Update it if a decision changes — don't let it drift silently.
 | --- | --- | --- |
 | Framework | **Next.js 15, App Router, React Server Components by default** | RSC keeps the static parts of each "room" (copy, layout) off the client bundle entirely; only the leaves that need interactivity (cursor, scroll, motion) ship JS. That split is what makes an animation-rich site still fast — per taste-skill's default and Next's own SEO/perf story (streaming, built-in `<Image>`, file-based metadata). |
 | Styling | **Tailwind v4**, CSS-first config via `@theme` in `app/styles/tokens.css` | v4 moved token definition into CSS custom properties — which is exactly the shape our design tokens (`design/tailwind.tokens.config.js`, the Alabaster Gallery system) already take. `tailwind.config.ts` stays thin by design; it is not the source of truth. |
-| Animation | **[Motion](https://motion.dev)** (`motion/react`, formerly Framer Motion) for component-level animation; **Lenis** for scroll normalization | Motion handles springs, layout animations, exit animations, and gesture-driven values — needed for the Shelf-Pull, the reading-nook expand, and page transitions. Lenis is the one native `scroll-behavior` can't replace: the Foyer's Values Manifesto (Act IV) is a scroll-scrubbed reveal, which needs an interpolated, per-frame scroll value to hook into — native smooth-scroll only smooths scroll-*to* jumps, it exposes no such value. See `components/scroll/SmoothScroll.tsx` for the full reasoning. |
+| Animation | **[Motion](https://motion.dev)** (`motion/react`, formerly Framer Motion) for component-level animation; **Lenis** for scroll normalization | Motion handles springs, layout animations, exit animations, and gesture-driven values — needed for the Shelf-Pull, the reading-nook expand, and page transitions. Lenis smooths ordinary scroll everywhere it's active; native `scroll-behavior` only smooths scroll-*to* jumps. See `components/scroll/SmoothScroll.tsx` for the full reasoning. GSAP was removed along with the Values Manifesto (see below) — it was the only scroll-pin/scrub consumer on the site; re-add it only if a future section needs that specific pattern again. |
 | Content layer | **Hybrid: MDX/Velite (file-based) + Sanity (headless CMS)** | Split by who edits and how often — see `content/README.md`. Long-form voice content (The Study) is git-versioned MDX; the frequently-updated catalog (Library, Screening Room) needs a real editor UI for her team, which points to Sanity once that project exists. Not choosing one CMS for everything avoids forcing her team through git for a book update, or forcing long-form prose through a CMS rich-text box. |
 | Components | **base-ui** (accessible unstyled primitives) + **cva/clsx** (typed variant styling) + **zustand** (only if/when real shared state appears) | Per the vendored `pick-ui-library` skill: don't hand-roll dialogs/popovers/focus-trapping, don't reach for global state before a component tree actually needs it. |
 | Icons | **Phosphor** (`@phosphor-icons/react`) when icons are needed | Not yet installed — no icon has been needed in the scaffold itself. |
@@ -18,10 +18,12 @@ session. Update it if a decision changes — don't let it drift silently.
 
 - **CSS-in-JS / styled-components**: fights RSC (client-only), and Tailwind
   v4's `@theme` already gives us typed, themeable tokens without a runtime.
-- **GSAP as the default animation library**: reserved for the specific
-  scroll-pin/scrub patterns (the Manifesto, any future horizontal pan) —
-  see `taste-skill`'s canonical skeletons. Motion covers everything else
-  with a smaller mental model and RSC-friendly leaf components.
+- **GSAP as the default animation library**: was reserved for scroll-pin/
+  scrub patterns (the now-removed Values Manifesto); not a current
+  dependency. Reintroduce it (per `taste-skill`'s canonical skeletons)
+  only if a future section genuinely needs a scroll-pin/scrub, not by
+  default. Motion covers everything else with a smaller mental model and
+  RSC-friendly leaf components.
 - **A single all-purpose CMS for everything**: see Content layer above.
 - **`next-themes` / dark mode toggle**: deliberately absent. The Alabaster
   Gallery direction is a locked single visual world (taste-skill's Page
@@ -82,13 +84,21 @@ Reception (`/contact`). Old routes (`/library`, `/screening-room`,
 `/study`, `/invitation`) 301-redirect to their new homes
 (`next.config.ts`).
 
-Not yet built (real routes exist in `SITE_PAGES` with `built: false`,
-gated on real assets/content, not fabricated to fill the page): The
-Archive (`/work` — case studies), The Study (`/ideas` — journal/thought
-leadership, blocked on actual essays and the MDX/Velite pipeline), The
-Drafting Room (`/architecture-design` — blocked on real project
-photography), The Press Room (`/press` — blocked on an approved press
-kit/photos), The Gallery (`/gallery` — blocked on curated photography).
+Not yet built, and deliberately absent from `SITE_PAGES` rather than
+listed as "Soon" placeholders, per direct instruction: The Archive
+(case studies), The Study (journal/thought leadership, blocked on
+actual essays and the MDX/Velite pipeline), The Drafting Room
+(architecture portfolio, blocked on real project photography), The
+Press Room (blocked on an approved press kit/photos), The Gallery
+(blocked on curated photography). Add each back to `SITE_PAGES` the
+same commit its real page ships.
+
+The home page's Values Manifesto section (the site's one scroll-pinned,
+GSAP-driven interaction) was removed along with all of its supporting
+code (`components/sections/manifesto/`, `lib/gsap.ts`, the `gsap`
+dependency) per direct instruction, in favor of real content sections
+built from already-established pages — see HomeSection's own doc
+comment for the current content order.
 
 The design tokens were also repainted from the original "Alabaster
 Gallery & Aso-Oke Gold" (cool grey, single gold accent) to "Ivory Atrium

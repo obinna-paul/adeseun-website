@@ -57,26 +57,15 @@ export function Header() {
           </Link>
 
           <nav aria-label="Primary" className="hidden items-center gap-8 lg:flex">
-            {primaryPages.map((page) =>
-              page.built ? (
-                <NavLink
-                  key={page.href}
-                  href={page.href}
-                  className="font-mono text-xs uppercase tracking-[0.12em] text-text-on-dark/80 transition-colors duration-150 ease-gallery-standard hover:text-gold"
-                >
-                  {page.name}
-                </NavLink>
-              ) : (
-                <span
-                  key={page.href}
-                  aria-disabled="true"
-                  className="inline-flex items-baseline gap-1.5 font-mono text-xs uppercase tracking-[0.12em] text-text-on-dark/35"
-                >
-                  {page.name}
-                  <span className="text-[0.6rem] tracking-[0.1em] text-text-on-dark/25">Soon</span>
-                </span>
-              ),
-            )}
+            {primaryPages.map((page) => (
+              <NavLink
+                key={page.href}
+                href={page.href}
+                className="font-mono text-xs uppercase tracking-[0.12em] text-text-on-dark/80 transition-colors duration-150 ease-gallery-standard hover:text-gold"
+              >
+                {page.name}
+              </NavLink>
+            ))}
           </nav>
 
           <button

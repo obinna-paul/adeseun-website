@@ -16,7 +16,6 @@ export {
   gentleReveal,
   authoritativeEntrance,
   nookExpand,
-  manifestoLine,
   pressFeedback,
   viewportOnce,
   staggerChildren,

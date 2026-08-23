@@ -26,14 +26,13 @@ import { SITE_PAGES } from "@/lib/navigation";
  * Every page is listed here — unlike the desktop header, which only
  * shows `primary`-flagged pages and relies on the Monogram as the
  * implicit "home" link. A full-screen drawer doesn't have the header's
- * space constraint, so it lists the complete site map — but with 13 real
- * pages (up from the old 6-room list), showing all of them at the same
- * giant `text-4xl` would read as a wall of identical links. Primary pages
- * keep that large display treatment; secondary pages (Executive Profile,
- * Speaking, Awards, Impact, Press, Gallery) render smaller below a
- * divider, and the popup scrolls if the list runs past the viewport —
- * same two-tier idea Header already applies, just both tiers visible here
- * instead of one being header-only.
+ * space constraint, so it lists the complete site map — but with 9 real
+ * pages, showing all of them at the same giant `text-4xl` would read as
+ * a wall of identical links. Primary pages keep that large display
+ * treatment; secondary pages (Executive Profile, Speaking, Awards,
+ * Impact) render smaller below a divider — same two-tier idea Header
+ * already applies, just both tiers visible here instead of one being
+ * header-only.
  */
 export function MobileNav({ open, onClose }: { open: boolean; onClose: () => void }) {
   const pathname = usePathname();
@@ -69,63 +68,41 @@ export function MobileNav({ open, onClose }: { open: boolean; onClose: () => voi
             >
               Home
             </Link>
-            {primaryPages.map((page) =>
-              page.built ? (
-                <Link
-                  key={page.href}
-                  href={page.href}
-                  onClick={onClose}
-                  data-cursor="link"
-                  aria-current={pathname === page.href ? "page" : undefined}
-                  className={cn(
-                    "font-display text-4xl font-semibold transition-colors duration-200 ease-gallery-standard",
-                    pathname === page.href ? "text-gold" : "text-text-on-dark hover:text-gold",
-                  )}
-                >
-                  {page.name}
-                </Link>
-              ) : (
-                <span
-                  key={page.href}
-                  aria-disabled="true"
-                  className="flex items-baseline gap-2 font-display text-4xl font-semibold text-text-on-dark/30"
-                >
-                  {page.name}
-                  <span className="font-mono text-xs uppercase tracking-[0.1em] text-text-on-dark/20">Soon</span>
-                </span>
-              ),
-            )}
+            {primaryPages.map((page) => (
+              <Link
+                key={page.href}
+                href={page.href}
+                onClick={onClose}
+                data-cursor="link"
+                aria-current={pathname === page.href ? "page" : undefined}
+                className={cn(
+                  "font-display text-4xl font-semibold transition-colors duration-200 ease-gallery-standard",
+                  pathname === page.href ? "text-gold" : "text-text-on-dark hover:text-gold",
+                )}
+              >
+                {page.name}
+              </Link>
+            ))}
           </nav>
 
           <div className="my-4 h-px w-16 bg-text-on-dark/15" aria-hidden="true" />
 
           <nav aria-label="More" className="flex flex-col items-center gap-4">
-            {secondaryPages.map((page) =>
-              page.built ? (
-                <Link
-                  key={page.href}
-                  href={page.href}
-                  onClick={onClose}
-                  data-cursor="link"
-                  aria-current={pathname === page.href ? "page" : undefined}
-                  className={cn(
-                    "font-mono text-xs uppercase tracking-[0.12em] transition-colors duration-200 ease-gallery-standard",
-                    pathname === page.href ? "text-gold" : "text-text-on-dark/70 hover:text-gold",
-                  )}
-                >
-                  {page.name}
-                </Link>
-              ) : (
-                <span
-                  key={page.href}
-                  aria-disabled="true"
-                  className="flex items-baseline gap-1.5 font-mono text-xs uppercase tracking-[0.12em] text-text-on-dark/30"
-                >
-                  {page.name}
-                  <span className="text-[0.6rem] tracking-[0.1em] text-text-on-dark/20">Soon</span>
-                </span>
-              ),
-            )}
+            {secondaryPages.map((page) => (
+              <Link
+                key={page.href}
+                href={page.href}
+                onClick={onClose}
+                data-cursor="link"
+                aria-current={pathname === page.href ? "page" : undefined}
+                className={cn(
+                  "font-mono text-xs uppercase tracking-[0.12em] transition-colors duration-200 ease-gallery-standard",
+                  pathname === page.href ? "text-gold" : "text-text-on-dark/70 hover:text-gold",
+                )}
+              >
+                {page.name}
+              </Link>
+            ))}
           </nav>
         </Dialog.Popup>
       </Dialog.Portal>

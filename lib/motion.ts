@@ -17,7 +17,6 @@ export const transitions = {
   authoritativeEntrance: { duration: duration.cinematic, ease: ease.out } satisfies Transition,
   shelfPull: { duration: duration.reveal, ease: ease.out } satisfies Transition,
   nookExpand: { duration: duration.settle, ease: ease.out } satisfies Transition,
-  manifestoLine: { duration: duration.reveal + 0.38, ease: ease.out } satisfies Transition,
   press: { duration: duration.press, ease: ease.out } satisfies Transition,
 };
 
@@ -37,12 +36,6 @@ export const authoritativeEntrance: Variants = {
 export const nookExpand: Variants = {
   hidden: { opacity: 0, scale: 0.96 },
   visible: { opacity: 1, scale: 1, transition: transitions.nookExpand },
-};
-
-/** The Foyer's Values Manifesto, one line at a time. */
-export const manifestoLine: Variants = {
-  hidden: { opacity: 0, y: 14 },
-  visible: { opacity: 1, y: 0, transition: transitions.manifestoLine },
 };
 
 /** Button/control press feedback — pair with whileTap. */
@@ -67,7 +60,7 @@ export function staggerChildren(staggerMs = 60): Variants {
 /**
  * Page transition — a subtle fade, not a heavy wipe. A wipe reads as a
  * loading curtain on repeat visits; restraint here matches "spend your
- * boldness in one place" — the Values Manifesto owns the site's one big
+ * boldness in one place" — the home hero owns the site's one big
  * motion moment, not route changes.
  */
 export const pageTransition: Variants = {
