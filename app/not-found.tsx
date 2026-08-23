@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { authoritativeEntrance, gentleReveal, staggerChildren } from "@/lib/motion";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
-import { SITE_ROOMS } from "@/lib/navigation";
+import { SITE_PAGES } from "@/lib/navigation";
 
 export default function NotFound() {
   const reduced = usePrefersReducedMotion();
@@ -24,38 +24,38 @@ export default function NotFound() {
 
       <motion.div className="mx-auto flex max-w-frame-narrow flex-col items-center text-center" {...entrance}>
         <h1 className="text-balance font-display text-6xl font-semibold tracking-tight text-text sm:text-7xl">
-          This room doesn&rsquo;t exist.
+          This room isn&rsquo;t in the blueprint.
         </h1>
         <p className="mt-6 max-w-prose-gallery text-lg text-text-subdued">
-          Every room in this house is listed below. The one you were looking
-          for isn&rsquo;t one of them &mdash; yet.
+          Every room that&rsquo;s been built is listed below. The one you
+          were looking for isn&rsquo;t one of them &mdash; yet.
         </p>
 
         <Link
           href="/"
           data-cursor="link"
           data-cursor-text="Home"
-          className="mt-10 inline-flex items-center gap-2 rounded-control bg-gold-fill px-8 py-3.5 font-mono text-sm text-text-on-dark shadow-[0_1px_2px_rgba(0,0,0,0.25)] transition-shadow duration-150 ease-gallery-out hover:shadow-glow-gold active:scale-[0.97]"
+          className="mt-10 inline-flex items-center gap-2 rounded-control bg-emerald-fill px-8 py-3.5 font-mono text-sm text-text-on-dark shadow-[0_1px_2px_rgba(0,0,0,0.25)] transition-shadow duration-150 ease-gallery-out hover:shadow-glow-emerald active:scale-[0.97]"
         >
-          Return to the Foyer
+          Back to the entrance
         </Link>
       </motion.div>
 
       <motion.nav
-        aria-label="All rooms"
+        aria-label="Every built room"
         className="mt-16 grid w-full max-w-frame grid-cols-2 gap-x-8 gap-y-3 sm:grid-cols-3"
         {...listStagger}
       >
-        {SITE_ROOMS.filter((room) => room.built).map((room) => (
-          <motion.div key={room.href} {...rowReveal}>
+        {SITE_PAGES.filter((page) => page.built).map((page) => (
+          <motion.div key={page.href} {...rowReveal}>
             <Link
-              href={room.href}
+              href={page.href}
               data-cursor="link"
               data-cursor-text="Explore"
               className="group flex flex-col border-t border-line-whisper py-3 transition-colors duration-150 ease-gallery-standard hover:border-gold"
             >
-              <span className="link-gradient font-display text-lg">{room.name}</span>
-              <span className="font-mono text-xs uppercase tracking-wide text-text-faint">{room.note}</span>
+              <span className="link-gradient font-display text-lg">{page.name}</span>
+              <span className="font-mono text-xs uppercase tracking-wide text-text-faint">{page.note}</span>
             </Link>
           </motion.div>
         ))}

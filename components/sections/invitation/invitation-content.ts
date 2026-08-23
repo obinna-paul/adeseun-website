@@ -1,29 +1,31 @@
 /**
- * Content for The Invitation (/invitation) — formerly "The Table" in the
- * sitemap (see lib/navigation.ts), the site's contact/booking page.
- *
- * Rewritten author-first, per direct instruction: "Consulting" (an
- * executive-advisory category left over from the earlier fabricated
- * framing) is replaced with "Workshops," a natural extension of Think
- * Before You Speak's subject rather than a corporate-consulting offer.
+ * Content for The Reception (/contact) — formerly "The Invitation"
+ * (`/invitation`, and "The Table" before that — see lib/navigation.ts),
+ * the site's contact/booking page. Renamed again and reframed
+ * executive-first as part of the wider restructure: the interest
+ * categories now match the blueprint's Contact spec (business, speaking,
+ * media, partnership, general) rather than the earlier author-first
+ * "Workshops"/"Literary Rights" framing alone — Literary Rights is kept
+ * (the books are still real and still hers), Workshops folds into
+ * Speaking, and Advisory/Partnership are added for the executive side of
+ * the work.
  *
  * Social URLs are still honest placeholders (`"#"`) — no confirmed
  * handles were found during research, and inventing one would read as
- * real. Lagos, unlike in the earlier draft, is now a confirmed fact
- * (AFRICAST 2025, which she coordinates, runs in Lagos; Threesixty
- * Africa Group and the NBC are both Nigerian) — not just an inference
- * from the palette's name. Form submission has no backend yet — see
- * InvitationForm's own comment.
+ * real. Lagos is a confirmed fact (AFRICAST 2025, which she coordinates,
+ * runs in Lagos; 360Africa Media Group and the NBC are both Nigerian) —
+ * not just an inference from the palette's name. Form submission has no
+ * backend yet — see InvitationForm's own comment.
  */
 
-export type Interest = "Speaking" | "Workshops" | "Media" | "Literary Rights";
+export type Interest = "Speaking" | "Advisory" | "Media" | "Partnership" | "Literary Rights";
 
-export const INTERESTS: Interest[] = ["Speaking", "Workshops", "Media", "Literary Rights"];
+export const INTERESTS: Interest[] = ["Speaking", "Advisory", "Media", "Partnership", "Literary Rights"];
 
-export const PAGE_EYEBROW = "The Invitation";
-export const PAGE_HEADLINE = "Come to the table.";
+export const PAGE_EYEBROW = "The Reception";
+export const PAGE_HEADLINE = "Let's work together.";
 export const PAGE_INTRO =
-  "For a keynote, a workshop, a press inquiry, or the rights to something she's written — tell her what the room needs.";
+  "For a keynote, an advisory engagement, a media inquiry, a partnership, or the rights to something she's written — tell her what the room needs.";
 
 export const SUCCESS_HEADLINE = "Thank you.";
 export const SUCCESS_BODY = "This landed with her directly. Expect a reply within a few days.";

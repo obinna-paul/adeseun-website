@@ -1,0 +1,1 @@
+export { ExecutiveProfileSection } from "./ExecutiveProfileSection";

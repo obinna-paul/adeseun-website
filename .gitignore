@@ -27,3 +27,6 @@ next-env.d.ts
 
 # velite content cache
 .velite
+
+# Playwright MCP session artifacts (console logs, page snapshots)
+.playwright-mcp/

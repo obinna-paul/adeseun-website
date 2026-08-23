@@ -11,7 +11,7 @@ export const metadata = pageMetadata({
 });
 
 /**
- * A review page, not a "room" — deliberately absent from SITE_ROOMS and
+ * A review page, not a "room" — deliberately absent from SITE_PAGES and
  * noindexed. Every interaction from the micro-interactions pass, isolated
  * so it can be reviewed on its own rather than hunted for across five
  * pages. Eyebrow labels are used freely here on purpose: this is a spec
@@ -111,7 +111,7 @@ export default function InteractionsPage() {
           <h2 className="mt-2 font-display text-3xl font-semibold text-text">Inline links, wiped in gold.</h2>
           <p className="mt-4 text-lg leading-relaxed text-text-subdued">
             This is what a link looks like sitting inside a normal paragraph — hover{" "}
-            <TextLink href="/study">this phrase</TextLink> and watch the color sweep from left to right instead of
+            <TextLink href="/about">this phrase</TextLink> and watch the color sweep from left to right instead of
             just flicking to gold.
           </p>
         </section>

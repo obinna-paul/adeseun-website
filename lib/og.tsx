@@ -4,9 +4,9 @@ import { SITE_NAME } from "./seo";
 /**
  * The site's social card, rendered on demand by `next/og` (Satori) and
  * shared by both `app/opengraph-image.tsx` and `app/twitter-image.tsx`
- * so the two never drift. In-brand: the Foyer's dark hero-ground, a
- * single aso-oke-gold rule, her name, and the four real book titles as
- * the supporting line — author-first, the same hierarchy the site keeps.
+ * so the two never drift. In-brand: the dark hero-ground, an emerald
+ * rule, her name, and her executive role line as the supporting text —
+ * executive-first, per the site's current positioning.
  *
  * No custom font is loaded: Satori supports ttf/otf/woff, and the site's
  * faces ship as woff2 only, so forcing one would mean re-encoding fonts
@@ -19,12 +19,12 @@ import { SITE_NAME } from "./seo";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = "image/png";
-export const OG_ALT = `${SITE_NAME} — Author of Think Before You Speak, Beyond the Mundane, Tranquility, and Black Is Beautiful`;
+export const OG_ALT = `${SITE_NAME} — Entrepreneur, Media Executive, Architect, Interior Designer, Author, Corporate Adviser`;
 
-const HERO_GROUND = "hsl(230, 24%, 7%)";
-const ON_DARK = "hsl(220, 24%, 97%)";
-const GOLD = "hsl(42, 55%, 42%)";
-const ON_DARK_DIM = "hsla(220, 24%, 97%, 0.62)";
+const HERO_GROUND = "hsl(160, 28%, 6%)";
+const ON_DARK = "hsl(38, 32%, 97%)";
+const EMERALD = "hsl(152, 46%, 42%)"; // lightened from the token's L24 — this is a bright accent line on a dark ground, not text-on-light
+const ON_DARK_DIM = "hsla(38, 32%, 97%, 0.62)";
 
 export function renderOgImage() {
   return new ImageResponse(
@@ -41,20 +41,20 @@ export function renderOgImage() {
           fontFamily: "serif",
         }}
       >
-        <div style={{ display: "flex", letterSpacing: "0.28em", fontSize: 26, color: GOLD, textTransform: "uppercase" }}>
-          Author
+        <div style={{ display: "flex", letterSpacing: "0.28em", fontSize: 26, color: EMERALD, textTransform: "uppercase" }}>
+          Entrepreneur &middot; Media Executive &middot; Architect
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", fontSize: 128, color: ON_DARK, lineHeight: 1 }}>{SITE_NAME}</div>
-          <div style={{ display: "flex", width: 180, height: 4, background: GOLD, marginTop: 40, marginBottom: 40 }} />
+          <div style={{ display: "flex", width: 180, height: 4, background: EMERALD, marginTop: 40, marginBottom: 40 }} />
           <div style={{ display: "flex", fontSize: 34, color: ON_DARK_DIM, lineHeight: 1.35, maxWidth: 900 }}>
-            Think Before You Speak · Beyond the Mundane · Tranquility · Black Is Beautiful
+            Building businesses, shaping spaces, and telling African stories.
           </div>
         </div>
 
         <div style={{ display: "flex", fontSize: 24, color: ON_DARK_DIM, letterSpacing: "0.1em", textTransform: "uppercase" }}>
-          Founder &amp; Vice-President, Threesixty Africa Media
+          Vice President, 360Africa Media Group
         </div>
       </div>
     ),

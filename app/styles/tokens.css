@@ -1,5 +1,5 @@
 /**
- * Design tokens — Alabaster Gallery & Aso-Oke Gold
+ * Design tokens — Ivory Atrium & Emerald Brass
  *
  * Canonical source of truth for Tailwind v4 (CSS-first config via @theme).
  * `tailwind.config.ts` stays intentionally thin — v4 reads *this* file.
@@ -7,68 +7,90 @@
  * (Motion variants, canvas/SVG code). If a value changes, change it here
  * first, then design-tokens.ts.
  *
- * Locked to a single visual world (taste-skill 4.11, Page Theme Lock):
- * no dark mode. The gallery is a daylight room, not a toggle.
+ * Replaces the earlier "Alabaster Gallery & Aso-Oke Gold" system (a cool
+ * blue-grey ground with a single yellow-gold accent) per direct
+ * instruction: the site's executive-first repositioning came with real
+ * reference material — professional photography and brand-deck slides of
+ * her actual work across architecture/interior design, media, and
+ * advisory — and that material's recurring colors (deep emerald green,
+ * burnt terracotta/orange, brass/gold, warm neutrals) read as distinctly
+ * hers in a way the previous cooler palette didn't. The deck itself uses
+ * a different color scheme per topic (not one coordinated system), so
+ * this is a synthesis of its most-repeated colors into one disciplined
+ * three-accent system, not a literal copy of any single slide.
  *
- * Every text/background pairing was checked against WCAG contrast before
- * being locked in — see design/style-tile.html for the worked ratios.
+ * Still locked to a single visual world (taste-skill 4.11, Page Theme
+ * Lock): no dark mode. The one sanctioned dark register is the hero
+ * ground below, same exception the old system carried.
+ *
+ * The specific WCAG contrast ratios the old palette's comments cited were
+ * measured against those exact hue/lightness values and no longer apply
+ * now that the hues have changed — re-verify against design/style-tile.html
+ * before shipping any new text/background pairing that looks borderline;
+ * lightness values below were chosen to land in roughly the same tiers
+ * the old system verified (e.g. `--color-text` dark enough for AA-normal,
+ * `--color-gold` reserved for large-text/accent use only), not re-measured
+ * yet with a checker.
  */
 
 @theme {
-  /* ---- grounds & surfaces ---- */
-  --color-ground: hsl(220, 14%, 96%);
-  --color-surface: hsl(0, 0%, 100%);
-  --color-surface-elevated: hsl(220, 20%, 99%);
-  --color-surface-sunken: hsl(220, 14%, 91%);
+  /* ---- grounds & surfaces — warm ivory, not cool grey ---- */
+  --color-ground: hsl(38, 30%, 96%);
+  --color-surface: hsl(40, 35%, 99%);
+  --color-surface-elevated: hsl(40, 40%, 99%);
+  --color-surface-sunken: hsl(36, 26%, 91%);
 
   /* ---- lines ---- */
-  --color-line-whisper: hsl(220, 14%, 90%);
-  --color-line: hsl(220, 14%, 82%);
-  --color-line-strong: hsl(220, 18%, 55%);
+  --color-line-whisper: hsl(36, 22%, 89%);
+  --color-line: hsl(34, 18%, 80%);
+  --color-line-strong: hsl(30, 20%, 50%);
 
   /* ---- text hierarchy ---- */
-  /*
-   * Every tier was checked against WCAG on its real backgrounds (script
-   * in design/, numbers in the commit that set them). `--color-text` and
-   * `--color-text-subdued` clear AA for normal text everywhere; `--color-
-   * text-faint` was darkened from L58 → L46 so the small mono captions it
-   * carries (image labels, the footer copyright) clear AA-normal on the
-   * light grounds instead of sitting at ~2.9:1 — still visibly the
-   * faintest tier (subdued is 6.2:1, faint now ~4.6:1), just no longer
-   * failing.
-   */
-  --color-text: hsl(230, 18%, 14%);
-  --color-text-subdued: hsl(230, 10%, 38%);
-  --color-text-faint: hsl(230, 12%, 46%);
-  --color-text-on-dark: hsl(220, 24%, 97%);
+  --color-text: hsl(28, 24%, 13%);
+  --color-text-subdued: hsl(28, 12%, 36%);
+  --color-text-faint: hsl(28, 14%, 44%);
+  --color-text-on-dark: hsl(38, 32%, 97%);
 
   /*
-   * The site's one sanctioned dark moment (Foyer Acts I–II — "cold open"
-   * per The Walkthrough, before Act III's "warm light breaks in for the
-   * first time"). Same hue family as --color-text (230), just taken
-   * much darker, rather than an unrelated hue — keeps "one palette per
-   * project" intact through the one deliberate light→dark exception
-   * taste-skill's Page Theme Lock allows (4.11).
+   * The site's one sanctioned dark moment (persistent chrome — Header,
+   * Footer, MobileNav — plus the Home hero's cold open). A deep,
+   * slightly green-tinted near-black rather than the old blue-black, so
+   * it reads as one family with the emerald accent instead of a
+   * competing cool note.
    */
-  --color-hero-ground: hsl(230, 24%, 7%);
+  --color-hero-ground: hsl(160, 28%, 6%);
 
-  /* ---- the one accent: aso-oke gold ----
-   * `--color-gold` (L42) stays exactly as tuned: it's used only for large
-   * display accents, 1px borders/rules, and text on the dark hero-ground
-   * (5.4:1 there — AA), never for small body text on light. Its 3.2–3.6:1
-   * on light grounds is the *correct* bar for large text (AA-large is
-   * 3:1); pushing it to 7:1 AAA would drag the one brand accent toward
-   * brown and break palette discipline (taste-skill 4.x). `--color-gold-
-   * ink` (the darker cut actually used for small eyebrow labels on light)
-   * was nudged L34 → L32 so it clears AA-normal on the darkest light
-   * ground it lands on — the Library's `surface-sunken` — where L34 sat
-   * at 4.19:1, just under 4.5. */
-  --color-gold: hsl(42, 55%, 42%);
-  --color-gold-ink: hsl(40, 58%, 32%);
-  --color-gold-fill: hsl(40, 68%, 28%);
-  --color-gold-tint: hsl(42, 55%, 94%);
+  /* ---- primary accent: emerald ----
+   * The dominant accent for CTAs, active nav states, and headline
+   * accents — the role `--color-gold` used to play alone. Dark enough
+   * (L24) to work as accent text on light grounds, not just large
+   * display sizes. */
+  --color-emerald: hsl(152, 42%, 24%);
+  --color-emerald-ink: hsl(152, 46%, 17%);
+  --color-emerald-fill: hsl(152, 48%, 20%);
+  --color-emerald-tint: hsl(150, 36%, 94%);
 
-  /* ---- structural / semantic — rare use, never a second accent ---- */
+  /* ---- secondary accent: terracotta ----
+   * Supporting warmth — secondary CTAs, hover states, callouts that
+   * shouldn't compete with the primary emerald accent. Used more
+   * sparingly than emerald, per taste-skill's "one dominant accent,
+   * others in supporting roles" discipline. */
+  --color-terracotta: hsl(18, 60%, 42%);
+  --color-terracotta-ink: hsl(18, 64%, 33%);
+  --color-terracotta-fill: hsl(18, 66%, 37%);
+  --color-terracotta-tint: hsl(20, 52%, 94%);
+
+  /* ---- tertiary accent: brass ----
+   * What `--color-gold` used to be alone — kept, but retinted slightly
+   * more muted/olive than the old bright "aso-oke gold" so it reads as
+   * a metallic detail (rules, fine borders, small caps labels) rather
+   * than a second competing hero color next to emerald and terracotta. */
+  --color-gold: hsl(38, 46%, 40%);
+  --color-gold-ink: hsl(36, 48%, 30%);
+  --color-gold-fill: hsl(36, 52%, 26%);
+  --color-gold-tint: hsl(38, 42%, 93%);
+
+  /* ---- structural / semantic — rare use, never a fourth accent ---- */
   --color-indigo: hsl(243, 32%, 28%);
   --color-garnet: hsl(350, 45%, 32%);
 
@@ -168,10 +190,11 @@
   --container-frame-narrow: 860px;
 
   /* ---- shadows — tinted to the ground hue, never pure black ---- */
-  --shadow-elevation-card: 0 1px 2px hsla(220, 20%, 20%, 0.06), 0 8px 24px -8px hsla(220, 20%, 20%, 0.10);
-  --shadow-elevation-modal: 0 24px 64px -12px hsla(220, 25%, 15%, 0.18);
-  --shadow-glow-gold: 0 0 0 1px hsla(42, 55%, 42%, 0.35), 0 8px 28px -6px hsla(42, 55%, 42%, 0.25);
-  --shadow-glow-soft: 0 4px 40px hsla(220, 30%, 30%, 0.08);
+  --shadow-elevation-card: 0 1px 2px hsla(30, 20%, 20%, 0.06), 0 8px 24px -8px hsla(30, 20%, 20%, 0.10);
+  --shadow-elevation-modal: 0 24px 64px -12px hsla(30, 25%, 15%, 0.18);
+  --shadow-glow-gold: 0 0 0 1px hsla(38, 46%, 40%, 0.35), 0 8px 28px -6px hsla(38, 46%, 40%, 0.25);
+  --shadow-glow-emerald: 0 0 0 1px hsla(152, 42%, 24%, 0.35), 0 8px 28px -6px hsla(152, 42%, 24%, 0.25);
+  --shadow-glow-soft: 0 4px 40px hsla(30, 30%, 30%, 0.08);
 
   /*
    * ---- radius — documented shape system (taste-skill 4.4, Shape

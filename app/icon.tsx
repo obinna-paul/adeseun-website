@@ -26,9 +26,9 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "hsl(230, 24%, 7%)",
+          background: "hsl(160, 28%, 6%)",
           borderRadius: "50%",
-          border: "1.5px solid hsl(42, 55%, 42%)",
+          border: "1.5px solid hsl(38, 46%, 40%)",
         }}
       >
         <div
@@ -37,7 +37,7 @@ export default function Icon() {
             fontFamily: "serif",
             fontSize: 15,
             letterSpacing: "0.02em",
-            color: "hsl(220, 24%, 97%)",
+            color: "hsl(38, 32%, 97%)",
           }}
         >
           AO

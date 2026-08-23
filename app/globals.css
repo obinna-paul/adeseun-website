@@ -47,7 +47,7 @@ body {
 :focus-visible {
   outline: 2px solid var(--color-gold);
   outline-offset: 2px;
-  box-shadow: 0 0 0 5px hsla(42, 55%, 42%, 0.18);
+  box-shadow: 0 0 0 5px hsla(38, 46%, 40%, 0.18);
 }
 /* Forced-colors mode paints its own system focus color; drop the custom
    halo there so the two don't fight, and let the outline take a system
@@ -170,17 +170,17 @@ a {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: hsla(220, 18%, 55%, 0.35);
+  background: hsla(30, 20%, 50%, 0.35);
   border-radius: var(--radius-control);
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsla(40, 58%, 34%, 0.55);
+  background: hsla(36, 48%, 30%, 0.55);
   background-clip: padding-box;
 }
 html {
-  scrollbar-color: hsla(220, 18%, 55%, 0.35) transparent;
+  scrollbar-color: hsla(30, 20%, 50%, 0.35) transparent;
   scrollbar-width: thin;
 }
 

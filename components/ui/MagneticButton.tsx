@@ -13,8 +13,12 @@ const MotionLink = motion.create(Link);
 
 /**
  * A button that trails the cursor within its own bounds ("magnetic pull")
- * and shows a soft gold glow following the pointer ("glow trace"). Used
- * for the hero's primary/secondary CTAs; reusable anywhere a "luxurious"
+ * and shows a soft glow following the pointer ("glow trace") — emerald on
+ * the primary variant (the site's new dominant accent), a terracotta
+ * border-hover on the secondary variant, so the two supporting accents
+ * from the Ivory Atrium & Emerald Brass palette each get one clear job
+ * rather than both defaulting to the old single gold accent. Used for the
+ * home hero's primary/secondary CTAs; reusable anywhere a "luxurious"
  * hover is called for (e.g. The Boardroom's booking CTA later).
  *
  * Both effects are inert on touch/coarse pointers (magnetism needs
@@ -89,7 +93,7 @@ export function MagneticButton({
   // A reactive CSS string built from motion values — updates on the
   // compositor via WAAPI, not through React re-renders, so it stays
   // smooth even while the button's own layout is otherwise idle.
-  const glowBackground = useMotionTemplate`radial-gradient(160px circle at ${glowX} ${glowY}, hsl(42 55% 60% / 0.35), transparent 70%)`;
+  const glowBackground = useMotionTemplate`radial-gradient(160px circle at ${glowX} ${glowY}, hsl(150 45% 55% / 0.35), transparent 70%)`;
 
   function handlePointerMove(e: MouseEvent<HTMLElement>) {
     if (!eligible || !ref.current) return;
@@ -118,8 +122,8 @@ export function MagneticButton({
     "group relative inline-flex items-center justify-center overflow-hidden rounded-control font-mono tracking-wide transition-colors duration-150 ease-gallery-standard active:scale-[0.97] disabled:opacity-60 disabled:pointer-events-none",
     dense ? "px-2.5 py-2.5 text-xs sm:px-8 sm:py-3.5 sm:text-sm" : "px-8 py-3.5 text-sm",
     variant === "primary"
-      ? "bg-gold-fill text-text-on-dark shadow-[0_1px_2px_rgba(0,0,0,0.25)]"
-      : "border border-text-on-dark/30 text-text-on-dark hover:border-gold",
+      ? "bg-emerald-fill text-text-on-dark shadow-[0_1px_2px_rgba(0,0,0,0.25)]"
+      : "border border-text-on-dark/30 text-text-on-dark hover:border-terracotta",
     className,
   );
 

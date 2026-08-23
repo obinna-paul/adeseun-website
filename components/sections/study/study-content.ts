@@ -19,12 +19,22 @@
  * anchor points.
  *
  * Per direct instruction, this is author-first: her real professional
- * standing (Founder and Vice-President, Threesixty Africa Media — the
- * AFRICAST 2025 / Paris 2024 Olympics / Headies credentials come from
- * her own published author bio, supplied directly) appears as ONE
- * supporting milestone, not the spine of the timeline — the earlier
- * version's fabricated "board seat → Managing Director" corporate-ascent
- * arc has been removed entirely, not just relabeled.
+ * standing (Vice President, 360Africa Media Group — the AFRICAST 2025 /
+ * Paris 2024 Olympics / Headies credentials come from her own published
+ * author bio, supplied directly) appears as ONE supporting milestone, not
+ * the spine of the timeline — the earlier version's fabricated "board
+ * seat → Managing Director" corporate-ascent arc has been removed
+ * entirely, not just relabeled.
+ *
+ * "360Africa Media Group" / "Bounty5 Home" (below, and in
+ * CREDENTIAL_GROUPS) supersede this file's earlier "Threesixty Africa
+ * Media" / "Bounty5 Empire" spellings, per direct confirmation against
+ * her own current executive-profile materials — those were the best
+ * available spelling at the time this file was first researched, not a
+ * different, unrelated entity. Same correction for the overall years-of-
+ * experience figure: 26, not 24 — this file's `twenty-four years` below
+ * was superseded once her current materials confirmed 26 (a 1999–2025
+ * career span).
  *
  * Every `story` line is still original writing in her voice, not a
  * verified account of real events or a quoted statement from her —
@@ -97,9 +107,9 @@ export const TIMELINE_MILESTONES: Milestone[] = [
   {
     id: "threesixty",
     era: "Alongside the Page",
-    title: "Founder and Vice-President, Threesixty Africa Media",
+    title: "Vice President, 360Africa Media Group",
     story:
-      "The other half of her working life — a media, marketing, and content agency she founded, most recently the official marketing engine behind AFRICAST 2025 and Nigeria House at the Paris 2024 Olympics, and a co-executive producer of The Headies for sixteen years. Not the story this site tells. Just also true.",
+      "The other half of her working life — a media, marketing, and content agency, most recently the official marketing engine behind AFRICAST 2025 and Nigeria House at the Paris 2024 Olympics, and a co-executive producer of The Headies for sixteen years. Not the story this site tells. Just also true.",
     image: "/images/adeseun-threesixty.jpg",
   },
 ];
@@ -164,7 +174,7 @@ export const HERO_LINE = "Everything you've read about her started at this desk.
  * this site's facts).
  *
  * The Study's timeline already carries ONE fact from this same source
- * (Threesixty Africa Media / AFRICAST / Paris 2024 / The Headies, on
+ * (360Africa Media Group / AFRICAST / Paris 2024 / The Headies, on
  * the "threesixty" milestone above) as a deliberately singular
  * supporting beat, per direct instruction that this is an author site
  * first, not an executive bio. Everything below is real and verified
@@ -183,7 +193,7 @@ export const HERO_LINE = "Everything you've read about her started at this desk.
 export const BEYOND_EYEBROW = "Beyond the Page";
 export const BEYOND_HEADLINE = "The rest of the working life.";
 export const BEYOND_INTRO =
-  "Entrepreneur, marketing and media executive, life coach — twenty-four years of it. The books are why this page exists; they're not the whole of her. A partial accounting of the rest, real and verified, kept to the margins on purpose.";
+  "Entrepreneur, marketing and media executive, life coach — twenty-six years of it. The books are why this page exists; they're not the whole of her. A partial accounting of the rest, real and verified, kept to the margins on purpose.";
 
 export type CredentialGroup = { label: string; items: string[] };
 
@@ -192,7 +202,7 @@ export const CREDENTIAL_GROUPS: CredentialGroup[] = [
     label: "Also Leads",
     items: [
       "Founder, Universal Worship Network — a faith-based TV channel",
-      "CEO, Bounty5 Empire — home architecture and interior design",
+      "CEO, Bounty5 Home — home architecture and interior design",
       "Founder, PluvSeptember 30 Publishing",
       "Founder, Dream M12 — fitness and lifestyle",
       "Creative Director, Girlbye Pro — a styling agency",
@@ -236,5 +246,5 @@ export const BEYOND_CLIENTS_LINE =
 export const CTA_HEADLINE = "Bring her into the room.";
 export const CTA_BODY =
   "For speaking, book clubs, or a conversation that doesn't fit in an inbox — every engagement starts the same way this page did.";
-// "The Table" was renamed "The Invitation" — same destination, new name/route.
-export const CTA_HREF = "/invitation";
+// "The Table" → "The Invitation" → "The Reception" — same destination, name/route updated each time the room was renamed.
+export const CTA_HREF = "/contact";

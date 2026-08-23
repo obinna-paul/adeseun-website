@@ -22,7 +22,7 @@ export default function AppleIcon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "hsl(230, 24%, 7%)",
+          background: "hsl(160, 28%, 6%)",
         }}
       >
         <div
@@ -33,11 +33,11 @@ export default function AppleIcon() {
             width: 128,
             height: 128,
             borderRadius: "50%",
-            border: "3px solid hsl(42, 55%, 42%)",
+            border: "3px solid hsl(38, 46%, 40%)",
             fontFamily: "serif",
             fontSize: 56,
             letterSpacing: "0.02em",
-            color: "hsl(220, 24%, 97%)",
+            color: "hsl(38, 32%, 97%)",
           }}
         >
           AO

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 
 /**
@@ -28,7 +29,9 @@ export function useLenis() {
 
 export function SmoothScroll({ children }: { children: ReactNode }) {
   const [lenis, setLenis] = useState<Lenis | null>(null);
+  const lenisRef = useRef<Lenis | null>(null);
   const rafRef = useRef<number>(0);
+  const pathname = usePathname();
 
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -46,14 +49,33 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       rafRef.current = requestAnimationFrame(raf);
     }
     rafRef.current = requestAnimationFrame(raf);
+    lenisRef.current = instance;
     setLenis(instance);
 
     return () => {
       cancelAnimationFrame(rafRef.current);
       instance.destroy();
+      lenisRef.current = null;
       setLenis(null);
     };
   }, []);
+
+  // The App Router preserves scroll position across client-side
+  // navigation, but every room is its own self-contained page that should
+  // open at its top. Without this, arriving at The Library (a short page)
+  // from deep inside the Foyer's pinned Manifesto (~9 viewports tall)
+  // lands the visitor scrolled past the content — indistinguishable from
+  // the "blank page" this site kept showing on secondary routes. Reset
+  // instantly on route change (a smooth scroll-to-top here would drag the
+  // visitor through the old page's distance). Reduced motion: Lenis isn't
+  // created, so the plain window.scrollTo fallback runs.
+  useEffect(() => {
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(0, { immediate: true });
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname]);
 
   return <LenisContext.Provider value={lenis}>{children}</LenisContext.Provider>;
 }

@@ -58,7 +58,7 @@ export function StudyHero() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, hsla(220,14%,96%,0) 0%, hsla(220,14%,96%,0.15) 45%, hsla(220,14%,96%,0.92) 88%, hsl(220,14%,96%) 100%)",
+            "linear-gradient(180deg, hsla(38,30%,96%,0) 0%, hsla(38,30%,96%,0.15) 45%, hsla(38,30%,96%,0.92) 88%, hsl(38,30%,96%) 100%)",
         }}
       />
 

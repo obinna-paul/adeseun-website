@@ -126,7 +126,7 @@ export function HeroCanvas() {
         const flicker = 0.75 + 0.25 * Math.sin(t * 0.6 + m.phase * 2);
         ctx.beginPath();
         ctx.arc(x, y, m.r, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(42, 65%, 70%, ${m.baseOpacity * flicker})`;
+        ctx.fillStyle = `hsla(38, 55%, 70%, ${m.baseOpacity * flicker})`;
         ctx.fill();
       }
     }

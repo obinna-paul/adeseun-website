@@ -57,3 +57,14 @@ export const PAGE_EYEBROW = "The Screening Room";
 export const PAGE_HEADLINE = "Watch her speak.";
 export const PAGE_INTRO =
   "Real appearances, panels, and talks — pulled from wherever she's been in the room. Press play on any of them.";
+
+/**
+ * Added when this room moved from /screening-room to /media as part of
+ * the executive-first restructure — the room's job now covers "Media &
+ * Entertainment" broadly, not just her own appearances, so it names the
+ * real media companies alongside the clips. Company names/roles are the
+ * same already-confirmed facts as study-content.ts's CREDENTIAL_GROUPS
+ * and the "threesixty" timeline milestone, not new claims.
+ */
+export const MEDIA_COMPANIES_LINE =
+  "Alongside these appearances: Vice President, 360Africa Media Group — and 360AfricaTv, Universal Worship Network among the platforms she's built or leads.";

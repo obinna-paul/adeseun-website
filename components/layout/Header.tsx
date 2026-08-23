@@ -6,7 +6,7 @@ import { List } from "@phosphor-icons/react/dist/ssr";
 import { Monogram } from "@/components/ui/Monogram";
 import { NavLink } from "./NavLink";
 import { MobileNav } from "./MobileNav";
-import { SITE_ROOMS } from "@/lib/navigation";
+import { SITE_PAGES } from "@/lib/navigation";
 
 /**
  * Persistent top nav — `fixed`, not `sticky`: sticky still consumes its
@@ -36,16 +36,17 @@ import { SITE_ROOMS } from "@/lib/navigation";
  * backdrop/popup (same tier) so an open modal always covers the header
  * too, never the reverse.
  *
- * The Foyer is deliberately absent from the desktop link row — the
- * Monogram already links home right next to it, and a text link that
- * duplicates the logo's own destination one element away is dead
- * weight, not a completeness feature. MobileNav (the hamburger's
- * full-screen drawer) doesn't have that adjacency problem and lists
- * every room, Foyer included.
+ * Home is deliberately absent from the desktop link row — the Monogram
+ * already links there right next to it, and a text link that duplicates
+ * the logo's own destination one element away is dead weight, not a
+ * completeness feature. Desktop only shows `primary`-flagged pages (per
+ * the nav-simplicity brief: keep the visible bar to a handful of items
+ * even though the site has real depth behind it) — MobileNav's
+ * full-screen drawer lists the complete page set instead.
  */
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const linkRooms = SITE_ROOMS.filter((room) => room.href !== "/");
+  const primaryPages = SITE_PAGES.filter((page) => page.primary);
 
   return (
     <>
@@ -56,22 +57,22 @@ export function Header() {
           </Link>
 
           <nav aria-label="Primary" className="hidden items-center gap-8 lg:flex">
-            {linkRooms.map((room) =>
-              room.built ? (
+            {primaryPages.map((page) =>
+              page.built ? (
                 <NavLink
-                  key={room.href}
-                  href={room.href}
+                  key={page.href}
+                  href={page.href}
                   className="font-mono text-xs uppercase tracking-[0.12em] text-text-on-dark/80 transition-colors duration-150 ease-gallery-standard hover:text-gold"
                 >
-                  {room.name}
+                  {page.name}
                 </NavLink>
               ) : (
                 <span
-                  key={room.href}
+                  key={page.href}
                   aria-disabled="true"
                   className="inline-flex items-baseline gap-1.5 font-mono text-xs uppercase tracking-[0.12em] text-text-on-dark/35"
                 >
-                  {room.name}
+                  {page.name}
                   <span className="text-[0.6rem] tracking-[0.1em] text-text-on-dark/25">Soon</span>
                 </span>
               ),

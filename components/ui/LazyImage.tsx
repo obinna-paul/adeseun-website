@@ -44,8 +44,8 @@ type LazyImageProps = {
 };
 
 const PLACEHOLDER_GRADIENTS: Record<"gold" | "indigo", string> = {
-  gold: "radial-gradient(ellipse 80% 80% at 30% 20%, hsl(42 45% 88%) 0%, hsl(42 30% 94%) 55%, hsl(220 14% 91%) 100%)",
-  indigo: "radial-gradient(ellipse 80% 80% at 70% 25%, hsl(243 22% 90%) 0%, hsl(230 18% 93%) 55%, hsl(220 14% 91%) 100%)",
+  gold: "radial-gradient(ellipse 80% 80% at 30% 20%, hsl(38 40% 88%) 0%, hsl(38 30% 94%) 55%, hsl(36 26% 91%) 100%)",
+  indigo: "radial-gradient(ellipse 80% 80% at 70% 25%, hsl(243 22% 90%) 0%, hsl(230 18% 93%) 55%, hsl(36 26% 91%) 100%)",
 };
 
 export function LazyImage({

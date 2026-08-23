@@ -13,30 +13,28 @@ export const SITE_NAME = "Adeseun Oyeneye";
  */
 export const SITE_URL = "https://adeseun-website.vercel.app";
 /**
- * Author-first, per direct instruction: her four real books lead
- * (naming all of them would blow the ~160-character SEO description
- * budget, so two representative titles stand in), her real professional
- * standing (Founder and Vice-President, Threesixty Africa Media —
- * corrected from an earlier "Threesixty Africa Group" guess, and from
- * "Vice-President" alone, once her own author bio confirmed both the
- * real name and that she founded it) is the credibility line, not the
- * headline — see library-content.ts and study-content.ts for the
- * research this is grounded in.
+ * Executive-first, per direct instruction (superseding the earlier
+ * author-first framing): the site's positioning now leads with her as a
+ * Managing Director and entrepreneur, with authorship as one part of a
+ * larger body of work rather than the headline. The role line itself is
+ * reproduced from her own supplied website scope document, not invented
+ * here — see the ADESEUN OYENEYE WEBSITE SCOPE BLUEPRINT's recommended
+ * hero structure.
  */
 const DEFAULT_DESCRIPTION =
-  "Author of Think Before You Speak, Beyond the Mundane, Tranquility, and Black Is Beautiful. Founder and Vice-President, Threesixty Africa Media.";
+  "Entrepreneur, media executive, architect, interior designer, and author — building businesses, shaping spaces, and telling African stories.";
 
 type PageMetadataInput = {
   title: string;
   description?: string;
-  path?: string; // e.g. "/library"
+  path?: string; // e.g. "/books"
   noIndex?: boolean;
 };
 
 /**
  * Builds a Next.js Metadata object with consistent OG/Twitter defaults so
  * every page doesn't hand-roll its own social card config.
- * Usage: `export const metadata = pageMetadata({ title: "The Library", path: "/library" })`
+ * Usage: `export const metadata = pageMetadata({ title: "The Library", path: "/books" })`
  *
  * The OG/Twitter *image* is intentionally not set here — it's supplied by
  * the file-convention generators `app/opengraph-image.tsx` /
@@ -98,7 +96,7 @@ export function personJsonLd() {
     "@type": "Person",
     name: SITE_NAME,
     url: SITE_URL,
-    jobTitle: "Author",
+    jobTitle: "Entrepreneur, Media Executive, Architect, Interior Designer, Author, Corporate Adviser",
     description: DEFAULT_DESCRIPTION,
     sameAs: [] as string[], // fill in confirmed social/press profile URLs
   };

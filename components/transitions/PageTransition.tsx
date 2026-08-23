@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { pageTransition } from "@/lib/motion";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import type { ReactNode } from "react";
@@ -12,14 +12,26 @@ import type { ReactNode } from "react";
  * Manifesto for being the site's one big authored motion moment. This
  * stays in the background so route changes feel considered, not stalled.
  *
- * `mode="wait"` — the outgoing page fully exits before the incoming page
- * enters, so nothing overlaps or jumps.
+ * Deliberately NOT `AnimatePresence mode="wait"`. That mode keeps the
+ * outgoing page mounted until its exit animation completes, then mounts
+ * the incoming page — it depends on Motion's exit-complete callback
+ * firing to swap children. On client-side navigation in the App Router
+ * (React 19 + Motion), that callback can stall, leaving the incoming
+ * page stuck at its `initial` state (`opacity: 0`) — the page renders but
+ * is invisible until some later interaction forces a re-render. This was
+ * the real "page opens blank until I click" bug on The Library, The
+ * Screening Room, and every secondary route.
  *
- * Deliberately NOT `initial={false}` on AnimatePresence. That prop
- * doesn't just skip this wrapper's own first-load fade — Motion's
- * `presenceContext.initial === false` check (see
- * use-visual-state.mjs::makeLatestValues) unconditionally blocks the
- * *initial* animation for every motion component anywhere inside the
+ * A keyed `motion.div` (key = pathname) has no exit dependency: React
+ * unmounts the old page and mounts the new one in the same commit, and
+ * the new wrapper runs its own `initial → animate` entrance on mount.
+ * The trade-off is losing the outgoing page's fade-out — a cosmetic
+ * nicety, not worth an entire page that sometimes never appears.
+ *
+ * Deliberately NOT `initial={false}`. That prop doesn't just skip this
+ * wrapper's own first-load fade — Motion's `presenceContext.initial`
+ * check (use-visual-state.mjs::makeLatestValues) unconditionally blocks
+ * the *initial* animation for every motion component anywhere inside the
  * tree, overriding each one's own explicit `initial` prop. That silently
  * neutered the hero's entire entrance choreography (headline blur-in,
  * portrait reveal delay, everything) on first load — the one thing this
@@ -39,16 +51,8 @@ export function PageTransition({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={pathname}
-        variants={pageTransition}
-        initial="initial"
-        animate="animate"
-        exit="exit"
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div key={pathname} variants={pageTransition} initial="initial" animate="animate">
+      {children}
+    </motion.div>
   );
 }

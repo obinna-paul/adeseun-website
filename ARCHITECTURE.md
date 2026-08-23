@@ -64,10 +64,34 @@ design/                Doctrine, Walkthrough, style tile, tailwind tokens
 
 ## What's scaffolded vs. what's next
 
-Scaffolded and verified running: root layout, fonts, global styles,
-SmoothScroll, CustomCursor, PageTransition, and the 404 page — a full,
-working vertical slice of the design system.
+The site was restructured from an earlier "rooms in a house" literary
+metaphor (The Foyer, The Library, The Study, The Screening Room, The
+Invitation — author-first) to an executive-first "building" metaphor,
+**The Blueprint**, per direct instruction: she's a practicing architect,
+and the site is now framed as a building she designed, toured room by
+room, each room mapped to a business function. See `lib/navigation.ts`
+(`SITE_PAGES`) for the full room map and the reasoning in its doc
+comment.
 
-Not yet built: the actual seven-act Foyer, Library's Shelf-Pull, and the
-other four rooms — that's the next pass, building `components/sections/`
-against this same foundation.
+Built and live: Home (`/`, new executive-first hero — see
+`components/sections/hero/HeroSection.tsx`), The Blueprint (`/about`),
+The Atrium (`/businesses`), The Boardroom (`/executive-profile`), The
+Library (`/books`), The Screening Room (`/media`), The Podium
+(`/speaking`), The Hall (`/awards`), The Foundation (`/impact`), The
+Reception (`/contact`). Old routes (`/library`, `/screening-room`,
+`/study`, `/invitation`) 301-redirect to their new homes
+(`next.config.ts`).
+
+Not yet built (real routes exist in `SITE_PAGES` with `built: false`,
+gated on real assets/content, not fabricated to fill the page): The
+Archive (`/work` — case studies), The Study (`/ideas` — journal/thought
+leadership, blocked on actual essays and the MDX/Velite pipeline), The
+Drafting Room (`/architecture-design` — blocked on real project
+photography), The Press Room (`/press` — blocked on an approved press
+kit/photos), The Gallery (`/gallery` — blocked on curated photography).
+
+The design tokens were also repainted from the original "Alabaster
+Gallery & Aso-Oke Gold" (cool grey, single gold accent) to "Ivory Atrium
+& Emerald Brass" (warm ivory, emerald primary, terracotta secondary,
+brass/gold as a metallic detail accent) — see `app/styles/tokens.css`'s
+own doc comment for the full reasoning.

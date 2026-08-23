@@ -102,7 +102,7 @@ export function HeroPortrait({ src, alt }: HeroPortraitProps) {
             style={{
               filter,
               background:
-                "radial-gradient(ellipse 60% 70% at 50% 32%, hsl(42 40% 30%) 0%, hsl(230 24% 10%) 62%, hsl(230 26% 6%) 100%)",
+                "radial-gradient(ellipse 60% 70% at 50% 32%, hsl(38 36% 26%) 0%, hsl(160 26% 9%) 62%, hsl(160 28% 6%) 100%)",
             }}
           />
         )}
@@ -113,7 +113,7 @@ export function HeroPortrait({ src, alt }: HeroPortraitProps) {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "linear-gradient(180deg, hsla(230,26%,5%,0.15) 0%, hsla(230,26%,5%,0.05) 35%, hsla(230,26%,5%,0.55) 78%, hsla(230,26%,5%,0.86) 100%)",
+            "linear-gradient(180deg, hsla(160,28%,5%,0.15) 0%, hsla(160,28%,5%,0.05) 35%, hsla(160,28%,5%,0.55) 78%, hsla(160,28%,5%,0.86) 100%)",
         }}
       />
       {/* Left-edge scrim, `lg`+ only: HeroSection right-aligns and caps this
@@ -126,7 +126,7 @@ export function HeroPortrait({ src, alt }: HeroPortraitProps) {
       <div
         className="pointer-events-none absolute inset-0 hidden lg:block"
         style={{
-          background: "linear-gradient(90deg, hsla(230,26%,5%,0.75) 0%, hsla(230,26%,5%,0.2) 30%, transparent 55%)",
+          background: "linear-gradient(90deg, hsla(160,28%,5%,0.75) 0%, hsla(160,28%,5%,0.2) 30%, transparent 55%)",
         }}
       />
     </div>

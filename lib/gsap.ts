@@ -13,6 +13,13 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
  */
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
+  // Mobile browsers resize the viewport when the address bar collapses or
+  // expands during scroll. A ScrollTrigger pin that re-measures on every
+  // one of those resizes desyncs mid-scroll; ignoring them keeps the pin
+  // fixed in place exactly as it was measured. This is what lets the
+  // Values Manifesto use the same GSAP pin on mobile as on desktop (see
+  // ManifestoSection.tsx) instead of needing a separate stacked layout.
+  ScrollTrigger.config({ ignoreMobileResize: true });
 }
 
 export { gsap, ScrollTrigger };

@@ -5,13 +5,17 @@ import { HeroPortrait } from "./HeroPortrait";
 import { HeroCanvas } from "./HeroCanvas";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import { MobileDetect } from "@/components/ui/MobileDetect";
-import { heroLine, heroLineGroup, heroSubhead, heroActions, heroAction } from "@/lib/motion";
+import { heroLine, heroLineGroup, heroRoleLine, heroSubhead, heroActions, heroAction } from "@/lib/motion";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 
 /**
- * Act I — The Arrival (see The Walkthrough). The site's cold open: dark,
- * commanding, wordless for its first beat. Everything after this section
- * warms up — Act III is where "light breaks in for the first time."
+ * The Entrance — Home's cold open: dark, commanding, wordless for its
+ * first beat. Rewritten executive-first per the ADESEUN OYENEYE WEBSITE
+ * SCOPE BLUEPRINT's recommended hero structure (her name, then her role
+ * line, then a one-paragraph positioning statement) — replacing the
+ * earlier author-first "Live beyond the mundane" tagline hero. The
+ * portrait is a real photo (cropped from her own executive-profile
+ * materials, not stock), same treatment this section always used.
  *
  * ── One layout, every breakpoint ─────────────────────────────────────
  * Mobile and desktop used to be two different compositions (stacked
@@ -31,8 +35,11 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
  * longer reading as clipped (desktop) both come from — one fix, not two.
  *
  * ── Taming the zoom on wide screens (real bug, fixed via screenshot) ──
- * The source photo (adeseun-threesixty.jpg) is a tight headshot, close
- * to square (720×828). Forcing that to `object-cover` edge-to-edge on an
+ * The source photo (adeseun-portrait-opening.jpg, cropped from her own
+ * executive-profile materials — see public/images/adeseun-*.jpg's
+ * origin, a set of brand-deck slides with real photography and baked-in
+ * text, cropped down to just the photo) is a tall, narrow portrait
+ * (355×833). Forcing that to `object-cover` edge-to-edge on an
  * ultra-wide short viewport (2560×1080, or even a maximized 1920-wide
  * laptop window) demands cropping almost all of it away — there's no
  * object-position that fixes that; the geometry itself is the problem.
@@ -67,29 +74,29 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
  * below — nothing is hidden or broken, the choreography is just skipped.
  */
 
-// Her own words, not invented copy — see library-content.ts for the
-// research this is grounded in. A hardcoded two-line break, not a single
-// string left to `text-balance` to wrap on its own (real bug: relying on
-// the browser to balance-wrap "Live beyond the mundane." made the break
-// point depend on the exact container width and font metrics at render
-// time — it wrapped to two lines in every viewport this was verified at,
-// but rendered as one unbroken line for at least one real visitor, so
-// dev and production visibly disagreed on something that should never
-// have been ambiguous in the first place. Two explicit lines removes the
-// ambiguity entirely — it's identical everywhere, always.
-const HEADLINE_LINES = ["Live beyond", "the mundane."];
+// Her name, split across two lines for the same reason the old
+// "Live beyond / the mundane" headline was hardcoded rather than left to
+// `text-balance`: an exact, browser-independent break point, not one that
+// depends on container width and font metrics at render time.
+const HEADLINE_LINES = ["Adeseun", "Oyeneye"];
+
+// Reproduced from her own supplied website scope document's recommended
+// hero structure, not invented here.
+const ROLE_LINE = "Entrepreneur · Media Executive · Architect · Interior Designer · Author · Corporate Adviser";
+const POSITIONING_LINE =
+  "Building businesses, shaping spaces, and telling African stories — creating institutions designed to outlive their founder.";
 
 export function HeroSection() {
   const reduced = usePrefersReducedMotion();
 
   return (
     <section
-      id="foyer-hero"
+      id="home-hero"
       className="relative min-h-[100dvh] w-full overflow-x-hidden bg-hero-ground"
     >
       <div className="absolute inset-x-0 bottom-0 top-20 lg:flex lg:justify-end">
         <div className="relative h-full w-full lg:max-w-[1300px]">
-          <HeroPortrait src="/images/adeseun-threesixty.jpg" alt="Adeseun Oyeneye" />
+          <HeroPortrait src="/images/adeseun-portrait-opening.jpg" alt="Adeseun Oyeneye" />
         </div>
       </div>
       <MobileDetect>
@@ -103,7 +110,7 @@ export function HeroSection() {
                 lines are block-level (not letter-split), so assistive tech
                 and search crawlers read the full sentence in order. */}
             <motion.h1
-              className="font-display text-4xl font-semibold text-text-on-dark sm:text-6xl"
+              className="font-display text-5xl font-semibold text-text-on-dark sm:text-7xl"
               initial={reduced ? false : "hidden"}
               animate="visible"
               variants={reduced ? undefined : heroLineGroup}
@@ -116,13 +123,21 @@ export function HeroSection() {
             </motion.h1>
 
             <motion.p
+              className="mt-5 max-w-xl font-mono text-xs uppercase tracking-[0.14em] text-gold sm:text-sm"
+              initial={reduced ? false : "hidden"}
+              animate="visible"
+              variants={reduced ? undefined : heroRoleLine}
+            >
+              {ROLE_LINE}
+            </motion.p>
+
+            <motion.p
               className="mt-6 max-w-md text-lg text-text-on-dark/80"
               initial={reduced ? false : "hidden"}
               animate="visible"
               variants={reduced ? undefined : heroSubhead}
             >
-              Adeseun Oyeneye — author of Think Before You Speak, Beyond the
-              Mundane, and Tranquility.
+              {POSITIONING_LINE}
             </motion.p>
 
             <motion.div
@@ -132,17 +147,13 @@ export function HeroSection() {
               variants={reduced ? undefined : heroActions}
             >
               <motion.div variants={reduced ? undefined : heroAction}>
-                <MagneticButton href="/library" variant="primary" dense>
-                  Enter the Library
+                <MagneticButton href="/about" variant="primary" dense>
+                  Read My Story
                 </MagneticButton>
               </motion.div>
-              {/* Restored once The Screening Room had a real page and real
-                  clips behind it — removed during the pre-deploy audit for
-                  pointing at a route with no page, a dead link on the
-                  site's most prominent button. See ScreeningRoomSection. */}
               <motion.div variants={reduced ? undefined : heroAction}>
-                <MagneticButton href="/screening-room" variant="secondary" dense>
-                  Watch Her Speak
+                <MagneticButton href="/contact" variant="secondary" dense>
+                  Work With Me
                 </MagneticButton>
               </motion.div>
             </motion.div>

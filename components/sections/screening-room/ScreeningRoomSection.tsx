@@ -1,4 +1,4 @@
-import { SCREENING_ROOM_VIDEOS, PAGE_EYEBROW, PAGE_HEADLINE, PAGE_INTRO } from "./screening-room-content";
+import { SCREENING_ROOM_VIDEOS, PAGE_EYEBROW, PAGE_HEADLINE, PAGE_INTRO, MEDIA_COMPANIES_LINE } from "./screening-room-content";
 import { VideoCard } from "./VideoCard";
 
 /**
@@ -20,6 +20,7 @@ export function ScreeningRoomSection() {
           {PAGE_HEADLINE}
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-lg text-text-subdued">{PAGE_INTRO}</p>
+        <p className="mx-auto mt-3 max-w-xl text-sm text-text-faint">{MEDIA_COMPANIES_LINE}</p>
       </div>
 
       <div className="mx-auto mt-16 max-w-5xl columns-1 gap-6 sm:columns-2 lg:columns-3">
