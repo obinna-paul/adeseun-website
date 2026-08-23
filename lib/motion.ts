@@ -97,16 +97,6 @@ export const heroLineGroup: Variants = {
   visible: { transition: { staggerChildren: 0.22, delayChildren: 0.15 } },
 };
 
-/** Hero role-line (her title list) — settles between the headline and the subhead, its own beat rather than piggybacking on either's timing. */
-export const heroRoleLine: Variants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: duration.settle + 0.1, ease: ease.out, delay: 1.5 },
-  },
-};
-
 // Both delays below (2.1s) are baked into the variant itself, not passed
 // as a separate `transition` prop at the call site — Motion resolves a
 // variant's own `transition` and a component's `transition` prop through

@@ -54,6 +54,17 @@ type MagneticButtonProps = {
   href?: string;
   onClick?: () => void;
   variant?: "primary" | "secondary";
+  /**
+   * Secondary only. The site is light-themed everywhere except the home
+   * hero (taste-skill's Page Theme Lock) — real bug, reported live: the
+   * secondary variant's border/text colors were hardcoded for that one
+   * dark exception (`text-on-dark`), so every secondary button placed on
+   * an ordinary light section (Home's book/media/businesses CTAs) came
+   * out as near-invisible light-on-light, only readable on hover once
+   * the glow overlay lit it up. Default is now light-appropriate; pass
+   * `onDark` for the hero's own dark-background usage.
+   */
+  onDark?: boolean;
   className?: string;
   /** Only meaningful without `href` — lets this submit a surrounding `<form>` (e.g. The Invitation). */
   type?: "button" | "submit";
@@ -76,6 +87,7 @@ export function MagneticButton({
   href,
   onClick,
   variant = "primary",
+  onDark = false,
   className,
   type = "button",
   disabled,
@@ -123,7 +135,9 @@ export function MagneticButton({
     dense ? "px-2.5 py-2.5 text-xs sm:px-8 sm:py-3.5 sm:text-sm" : "px-8 py-3.5 text-sm",
     variant === "primary"
       ? "bg-emerald-fill text-text-on-dark shadow-[0_1px_2px_rgba(0,0,0,0.25)]"
-      : "border border-text-on-dark/30 text-text-on-dark hover:border-terracotta",
+      : onDark
+        ? "border border-text-on-dark/30 text-text-on-dark hover:border-terracotta"
+        : "border border-line text-text hover:border-terracotta hover:text-terracotta-ink",
     className,
   );
 

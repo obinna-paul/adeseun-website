@@ -5,15 +5,19 @@ import { HeroPortrait } from "./HeroPortrait";
 import { HeroCanvas } from "./HeroCanvas";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import { MobileDetect } from "@/components/ui/MobileDetect";
-import { heroLine, heroLineGroup, heroRoleLine, heroSubhead, heroActions, heroAction } from "@/lib/motion";
+import { heroLine, heroLineGroup, heroSubhead, heroActions, heroAction } from "@/lib/motion";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 
 /**
  * The Entrance — Home's cold open: dark, commanding, wordless for its
  * first beat. Rewritten executive-first per the ADESEUN OYENEYE WEBSITE
- * SCOPE BLUEPRINT's recommended hero structure (her name, then her role
- * line, then a one-paragraph positioning statement) — replacing the
- * earlier author-first "Live beyond the mundane" tagline hero. The
+ * SCOPE BLUEPRINT's recommended hero structure (her name, then a
+ * one-paragraph positioning statement) — replacing the earlier
+ * author-first "Live beyond the mundane" tagline hero. The blueprint's
+ * own recommended role line ("Entrepreneur · Media Executive ·
+ * Architect · ...") was tried directly under her name and then removed
+ * per direct instruction — read as visual clutter between the name and
+ * the positioning line, not as a second beat worth its own space. The
  * portrait is now two separate crops, one per breakpoint — see
  * HeroPortrait's own doc comment for why one image can't serve both
  * shapes, and for the (per direct instruction) AI-generated desktop
@@ -37,9 +41,10 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
  * longer reading as clipped (desktop) both come from — one fix, not two.
  *
  * ── Taming the zoom on wide screens (real bug, fixed via screenshot) ──
- * The mobile source photo (adeseun-portrait-opening.jpg, a real crop from
- * her own executive-profile materials) is a tall, narrow portrait
- * (355×833). Forcing that to `object-cover` edge-to-edge on an
+ * The mobile source photo (adeseun-hero-mobile.jpg — AI-generated, like
+ * the desktop image; see HeroPortrait's own doc comment) is a tall,
+ * narrow portrait (926×1698). Forcing that to `object-cover` edge-to-edge
+ * on an
  * ultra-wide short viewport (2560×1080, or even a maximized 1920-wide
  * laptop window) demands cropping almost all of it away — there's no
  * object-position that fixes that; the geometry itself is the problem.
@@ -85,9 +90,6 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 // depends on container width and font metrics at render time.
 const HEADLINE_LINES = ["Adeseun", "Oyeneye"];
 
-// Reproduced from her own supplied website scope document's recommended
-// hero structure, not invented here.
-const ROLE_LINE = "Entrepreneur · Media Executive · Architect · Interior Designer · Author · Corporate Adviser";
 const POSITIONING_LINE =
   "Building businesses, shaping spaces, and telling African stories — creating institutions designed to outlive their founder.";
 
@@ -102,7 +104,7 @@ export function HeroSection() {
       <div className="absolute inset-x-0 bottom-0 top-20 lg:flex lg:justify-end">
         <div className="relative h-full w-full lg:max-w-[1300px]">
           <HeroPortrait
-            mobileSrc="/images/adeseun-portrait-opening.jpg"
+            mobileSrc="/images/adeseun-hero-mobile.jpg"
             desktopSrc="/images/adeseun-hero-desktop.jpg"
             alt="Adeseun Oyeneye"
           />
@@ -112,7 +114,7 @@ export function HeroSection() {
         <HeroCanvas />
       </MobileDetect>
 
-      <div className="absolute inset-x-0 bottom-0 top-20 z-10 flex flex-col justify-end px-gutter pb-10 sm:px-10 lg:px-16 lg:pb-24">
+      <div className="absolute inset-x-0 bottom-0 top-20 z-10 flex flex-col justify-end px-gutter pb-8 sm:px-10 lg:px-16 lg:pb-16">
         <div className="mx-auto w-full max-w-frame">
           <div className="max-w-3xl">
             {/* h1 is the real, single, SEO-bearing heading — its two visual
@@ -130,15 +132,6 @@ export function HeroSection() {
                 </motion.span>
               ))}
             </motion.h1>
-
-            <motion.p
-              className="mt-5 max-w-xl font-mono text-xs uppercase tracking-[0.14em] text-gold sm:text-sm"
-              initial={reduced ? false : "hidden"}
-              animate="visible"
-              variants={reduced ? undefined : heroRoleLine}
-            >
-              {ROLE_LINE}
-            </motion.p>
 
             <motion.p
               className="mt-6 max-w-md text-lg text-text-on-dark/80"
@@ -161,7 +154,7 @@ export function HeroSection() {
                 </MagneticButton>
               </motion.div>
               <motion.div variants={reduced ? undefined : heroAction}>
-                <MagneticButton href="/contact" variant="secondary" dense>
+                <MagneticButton href="/contact" variant="secondary" onDark dense>
                   Work With Me
                 </MagneticButton>
               </motion.div>
