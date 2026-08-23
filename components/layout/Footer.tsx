@@ -3,7 +3,6 @@ import { BackToTop } from "./BackToTop";
 import { MotionToggle } from "./MotionToggle";
 import { NavLink } from "./NavLink";
 import { SITE_PAGES } from "@/lib/navigation";
-import { CLOSING_LINE } from "@/components/sections/manifesto/manifesto-content";
 
 /**
  * The darkest surface on the site — reusing `--color-hero-ground`
@@ -26,7 +25,7 @@ export function Footer() {
           <div className="flex max-w-sm flex-col gap-6">
             <Monogram />
             <p className="text-balance font-display text-2xl italic leading-snug text-text-on-dark/90 sm:text-3xl">
-              &ldquo;{CLOSING_LINE}&rdquo;
+              Adeseun Oyeneye
             </p>
           </div>
 

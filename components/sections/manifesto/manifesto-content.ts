@@ -35,9 +35,3 @@ export const MANIFESTO_BEATS: Beat[] = [
   { kind: "quote", text: "Say less. Mean more." }, // illustrative
   { kind: "value", text: "None of this is mastered once. It's practiced again, every day.", icon: "infinity" },
 ];
-
-/** Still no verified real quote to reuse — kept as the general, unattributed closing line rather than replaced with an invented "signature" quote. */
-export const CLOSING_LINE = "This isn't a brand. This is just how I live.";
-
-/** Destination for "Learn more about her journey" — The Blueprint (/about). */
-export const JOURNEY_HREF = "/about";
