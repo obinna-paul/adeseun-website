@@ -1,6 +1,5 @@
 import { Monogram } from "@/components/ui/Monogram";
 import { BackToTop } from "./BackToTop";
-import { MotionToggle } from "./MotionToggle";
 import { NavLink } from "./NavLink";
 import { SITE_PAGES } from "@/lib/navigation";
 
@@ -46,10 +45,7 @@ export function Footer() {
           <span className="font-mono text-[0.65rem] uppercase tracking-[0.15em] text-text-on-dark/50">
             &copy; {year} Adeseun Oyeneye. All rights reserved.
           </span>
-          <div className="flex items-center gap-8">
-            <MotionToggle />
-            <BackToTop />
-          </div>
+          <BackToTop />
         </div>
       </div>
     </footer>

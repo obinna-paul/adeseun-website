@@ -1,14 +1,12 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { motionPreferenceStore, getMotionChoice, type MotionChoice } from "./motion-preference";
+import { motionPreferenceStore } from "./motion-preference";
 
 /**
- * A safe replacement for Motion's own `useReducedMotion()`, now reading
- * the shared `motionPreferenceStore` (lib/motion-preference.ts) rather
- * than the media query directly. That store is the OR of the OS
- * `prefers-reduced-motion` query and the visitor's explicit footer-toggle
- * choice, so every call site here automatically honors both.
+ * A safe replacement for Motion's own `useReducedMotion()`, reading the
+ * shared `motionPreferenceStore` (lib/motion-preference.ts) rather than
+ * the media query directly.
  *
  * Motion's own hook reads `matchMedia` synchronously on the first client
  * render (not deferred to an effect), which breaks hydration: the server
@@ -29,20 +27,5 @@ export function usePrefersReducedMotion() {
     motionPreferenceStore.subscribe,
     motionPreferenceStore.getSnapshot,
     motionPreferenceStore.getServerSnapshot,
-  );
-}
-
-/**
- * The raw three-state user choice (`"system" | "reduced" | "full"`), for
- * the footer toggle to reflect and drive. Subscribes to the same store so
- * it re-renders when the choice changes in this tab or another one.
- * Server snapshot is always `"system"` for the same hydration-safety
- * reason as above.
- */
-export function useMotionChoice(): MotionChoice {
-  return useSyncExternalStore(
-    motionPreferenceStore.subscribe,
-    getMotionChoice,
-    () => "system" as MotionChoice,
   );
 }

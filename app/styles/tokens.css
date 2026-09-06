@@ -258,14 +258,7 @@
   from { opacity: 1; transform: scale(1); }
   to { opacity: 0; transform: scale(0.97); }
 }
-/*
- * OS-level reduce, and the manual footer toggle mirrored onto <html> as
- * `data-motion-reduced` (see lib/motion-preference.ts) — both collapse
- * every CSS animation/transition to near-instant. The attribute selector
- * lets a visitor whose OS *doesn't* prefer reduced motion still turn the
- * site's motion off from the footer and have CSS honor it, not just the
- * JS/Motion animations.
- */
+/* OS-level reduce collapses every CSS animation/transition to near-instant. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -273,12 +266,4 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-}
-:root[data-motion-reduced="true"] *,
-:root[data-motion-reduced="true"] *::before,
-:root[data-motion-reduced="true"] *::after {
-  animation-duration: 0.01ms !important;
-  animation-iteration-count: 1 !important;
-  transition-duration: 0.01ms !important;
-  scroll-behavior: auto !important;
 }
