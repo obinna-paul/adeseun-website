@@ -66,8 +66,8 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
  * lib/motion.ts / lib/design-tokens.ts; written out here as seconds so
  * the sequence reads as a score, not a scavenger hunt through imports.
  *
- *   t=0.00  Canvas grain + motes start their ambient loop (no delay —
- *           the room is already "on" before anything else happens).
+ *   t=0.00  Canvas motes start their ambient loop (no delay — the room
+ *           is already "on" before anything else happens).
  *   t=0.00  Portrait mask starts opening (iris, ~2.0s) and its filter
  *           sweep starts (brightness/blur, ~1.7–2.2s) — see HeroPortrait.
  *   t=0.65  Headline begins its blur-in (heroLineGroup's `delayChildren`).

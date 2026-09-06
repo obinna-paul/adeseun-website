@@ -3,38 +3,34 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Ambient hero backdrop: film grain + a handful of slow-drifting gold
- * motes, like dust suspended in a single spotlight beam.
+ * Ambient hero backdrop: a handful of slow-drifting gold motes, like
+ * dust suspended in a single spotlight beam.
  *
- * Canvas 2D, not Three.js/WebGL — deliberately. Grain and drifting dots
- * are inherently flat effects; there's no perspective or lighting model
- * here that benefits from 3D. Three.js would add ~600KB+ and a WebGL
- * context (real cost on low-end phones, and a second failure mode to
- * handle) to render something a 2D canvas does more cheaply. This is
- * the same call pick-ui-library asks for: reach for the heavier tool
- * only when the effect actually needs it.
+ * Canvas 2D, not Three.js/WebGL — deliberately. Drifting dots are an
+ * inherently flat effect; there's no perspective or lighting model here
+ * that benefits from 3D. Three.js would add ~600KB+ and a WebGL context
+ * (real cost on low-end phones, and a second failure mode to handle) to
+ * render something a 2D canvas does more cheaply. This is the same call
+ * pick-ui-library asks for: reach for the heavier tool only when the
+ * effect actually needs it.
  *
  * Also deliberately not a "fluid gradient" blob — that's exactly the
- * AI-purple-glow hero cliché taste-skill bans by default. Grain reads
- * as photographic/editorial, which fits an author's site; a gradient
- * blob reads as generic SaaS.
+ * AI-purple-glow hero cliché taste-skill bans by default. Soft drifting
+ * light reads as photographic/editorial, which fits an author's site; a
+ * gradient blob reads as generic SaaS.
  *
- * Performance:
- * - Two update cadences sharing one rAF loop: motes redraw every frame
- *   (they need to look smooth), grain regenerates every ~90ms (redrawing
- *   fresh random noise every frame is wasted work — the flicker reads
- *   the same at 11fps as it does at 60fps).
- * - Grain is rendered at a fraction of device resolution and scaled up
- *   with `image-rendering: pixelated` — computing full-resolution noise
- *   at a high DPR would be the single most expensive thing on this page
- *   for no visible gain; pixelation IS the grain texture.
- * - Paused via the Page Visibility API when the tab isn't active, and
- *   never started at all under prefers-reduced-motion — a single static
- *   grain frame is drawn once instead.
+ * There used to be a film-grain layer here too (a second canvas of
+ * low-alpha noise, `mix-blend-overlay`'d over the portrait) — removed
+ * per direct feedback: at the density/opacity it was tuned to, it read
+ * as visible pixelation/noise on her photo rather than the intended
+ * subtle texture, especially at the portrait's real resolution rather
+ * than a mockup's. Motes alone still carry the "spotlight, not empty
+ * dark" ambience without degrading the photo itself.
+ *
+ * Performance: paused via the Page Visibility API when the tab isn't
+ * active, and never started at all under prefers-reduced-motion.
  */
 
-const GRAIN_INTERVAL_MS = 90;
-const GRAIN_SCALE = 0.12; // internal grain buffer is 12% of canvas size, then upscaled
 const MOTE_COUNT = 22;
 
 type Mote = {
@@ -61,16 +57,13 @@ function createMotes(width: number, height: number): Mote[] {
 
 export function HeroCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const grainCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const grainCanvas = grainCanvasRef.current;
-    if (!canvas || !grainCanvas) return;
+    if (!canvas) return;
 
     const ctx = canvas.getContext("2d");
-    const grainCtx = grainCanvas.getContext("2d");
-    if (!ctx || !grainCtx) return;
+    if (!ctx) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -79,12 +72,11 @@ export function HeroCanvas() {
     let height = 0;
     let motes: Mote[] = [];
     let rafId = 0;
-    let lastGrainAt = 0;
     let visible = !document.hidden;
     let start = 0;
 
     function resize() {
-      if (!canvas || !grainCanvas) return;
+      if (!canvas) return;
       const rect = canvas.getBoundingClientRect();
       width = rect.width;
       height = rect.height;
@@ -92,28 +84,7 @@ export function HeroCanvas() {
       canvas.height = height * dpr;
       ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const gw = Math.max(1, Math.round(width * GRAIN_SCALE));
-      const gh = Math.max(1, Math.round(height * GRAIN_SCALE));
-      grainCanvas.width = gw;
-      grainCanvas.height = gh;
-
       motes = createMotes(width, height);
-    }
-
-    function drawGrain(timestamp: number) {
-      if (!grainCtx) return;
-      const gw = grainCanvas!.width;
-      const gh = grainCanvas!.height;
-      const imageData = grainCtx.createImageData(gw, gh);
-      for (let i = 0; i < imageData.data.length; i += 4) {
-        const v = Math.random() * 255;
-        imageData.data[i] = v;
-        imageData.data[i + 1] = v;
-        imageData.data[i + 2] = v;
-        imageData.data[i + 3] = 14; // very low alpha — texture, not noise you consciously see
-      }
-      grainCtx.putImageData(imageData, 0, 0);
-      lastGrainAt = timestamp;
     }
 
     function drawMotes(timestamp: number) {
@@ -133,10 +104,7 @@ export function HeroCanvas() {
 
     function frame(timestamp: number) {
       if (!start) start = timestamp;
-      if (visible) {
-        drawMotes(timestamp);
-        if (timestamp - lastGrainAt > GRAIN_INTERVAL_MS) drawGrain(timestamp);
-      }
+      if (visible) drawMotes(timestamp);
       rafId = requestAnimationFrame(frame);
     }
 
@@ -147,8 +115,8 @@ export function HeroCanvas() {
     resize();
 
     if (reduced) {
-      // One static frame: a little grain, no motes drifting.
-      drawGrain(0);
+      // One static frame, no drift.
+      drawMotes(0);
     } else {
       rafId = requestAnimationFrame(frame);
       document.addEventListener("visibilitychange", handleVisibility);
@@ -167,11 +135,6 @@ export function HeroCanvas() {
   return (
     <div className="pointer-events-none absolute inset-0" aria-hidden="true">
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
-      <canvas
-        ref={grainCanvasRef}
-        className="absolute inset-0 h-full w-full opacity-60 mix-blend-overlay"
-        style={{ imageRendering: "pixelated" }}
-      />
     </div>
   );
 }
