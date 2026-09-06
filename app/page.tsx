@@ -6,6 +6,7 @@ import {
   HomeFeaturedBookSection,
   HomeMediaSection,
   HomeRecognitionSection,
+  HomeQuotesSection,
   HomeCTASection,
 } from "@/components/sections/home";
 
@@ -28,7 +29,10 @@ export const metadata = pageMetadata({ title: "Home", path: "/" });
  *   4. Featured book — image/text split
  *   5. Media — image/text split, reversed (zigzag cap: 2 in a row, no more)
  *   6. Recognition — stacked list, breaks the zigzag
- *   7. Final CTA — centered banner, same "Work With Me" intent as the hero
+ *   7. Quotes — swipeable card strip, a new layout family again, placed
+ *      here (not next to Featured Book) so it doesn't disturb the
+ *      Featured Book/Media zigzag pair or their background alternation
+ *   8. Final CTA — centered banner, same "Work With Me" intent as the hero
  */
 export default function Home() {
   return (
@@ -39,6 +43,7 @@ export default function Home() {
       <HomeFeaturedBookSection />
       <HomeMediaSection />
       <HomeRecognitionSection />
+      <HomeQuotesSection />
       <HomeCTASection />
     </main>
   );

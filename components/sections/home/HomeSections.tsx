@@ -1,7 +1,9 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
+import { ArrowLeft, ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { LazyImage } from "@/components/ui/LazyImage";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import { VideoCard } from "@/components/sections/screening-room/VideoCard";
@@ -15,6 +17,8 @@ import {
   POSITIONING_BODY,
   BUSINESSES_HEADLINE,
   BUSINESSES_BODY,
+  QUOTES_HEADLINE,
+  QUOTES_BODY,
   BOOK_HEADLINE,
   MEDIA_HEADLINE,
   MEDIA_BODY,
@@ -27,6 +31,22 @@ const FEATURED_BOOK = BOOKS.find((book) => book.id === "tranquility")!;
 const FEATURED_VENTURES = VENTURES.slice(0, 5);
 const FEATURED_VIDEOS = SCREENING_ROOM_VIDEOS.slice(0, 2);
 const RECOGNITION_ITEMS = (CREDENTIAL_GROUPS.find((group) => group.label === "Recognition")?.items ?? []).slice(0, 4);
+
+/**
+ * Every one of `book.excerpt`'s paragraphs, flattened across all four
+ * books — the same real, already-disclosed copy BookModal shows under
+ * "About the book" (or, for Black Is Beautiful, the actual publisher's
+ * description), not new writing invented for this section. Each card is
+ * captioned by book title only, never phrased as something she said —
+ * library-content.ts's own doc comment is explicit that three of these
+ * four books' excerpt text is site-original summary, not a verbatim
+ * passage from inside the book, so presenting these as quotations from
+ * her would misattribute site copy as her own words. "A line from each
+ * book," not "in her own words."
+ */
+const QUOTES = BOOKS.flatMap((book) =>
+  book.excerpt.map((text, i) => ({ id: `${book.id}-${i}`, text, bookTitle: book.title })),
+);
 
 /**
  * Plain editorial text block, no image, no eyebrow label — a deliberately
@@ -185,6 +205,95 @@ export function HomeRecognitionSection() {
           The full record
         </Link>
       </div>
+    </section>
+  );
+}
+
+/**
+ * A swipeable strip of quote cards — a new layout family, distinct from
+ * every section around it. `bg-surface-sunken` here (not `bg-ground`
+ * like the section it follows) keeps the page's ground/sunken
+ * alternation intact rather than placing two "ground" sections back to
+ * back; the cards themselves use `bg-surface` for contrast against that
+ * darker section background, the same two-token pairing BookModal
+ * already uses (in reverse) for its cover panel.
+ *
+ * Native `overflow-x-auto` + `snap-x snap-mandatory` rather than a hand-
+ * rolled drag gesture: touch swipe, trackpad scroll, and shift+wheel all
+ * just work for free, and scroll-snap holds each card centered when the
+ * gesture ends instead of stopping mid-card. The arrow buttons are a
+ * fallback for mouse-only desktop visitors who won't think to scroll a
+ * text card horizontally; `scrollBy` steps by one card's own measured
+ * width (+ its gap) rather than a guessed pixel amount, so it still
+ * lands on a snap point at any viewport width.
+ */
+export function HomeQuotesSection() {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+
+  function scrollByCard(direction: 1 | -1) {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const card = el.querySelector<HTMLElement>("[data-quote-card]");
+    const gap = 24; // matches gap-6 below
+    const step = card ? card.offsetWidth + gap : el.clientWidth * 0.85;
+    el.scrollBy({ left: step * direction, behavior: "smooth" });
+  }
+
+  return (
+    <section className="bg-surface-sunken py-room" aria-label="Quotes from her books">
+      <div className="mx-auto max-w-2xl px-gutter text-center">
+        <h2 className="text-balance font-display text-3xl font-semibold text-text sm:text-4xl">{QUOTES_HEADLINE}</h2>
+        <p className="mt-4 text-lg text-text-subdued">{QUOTES_BODY}</p>
+      </div>
+
+      <motion.div
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+        variants={gentleReveal}
+        className="mt-12"
+      >
+        <div
+          ref={scrollerRef}
+          className="flex snap-x snap-mandatory gap-6 overflow-x-auto px-gutter pb-2 [scrollbar-width:thin]"
+        >
+          {QUOTES.map((quote) => (
+            <figure
+              key={quote.id}
+              data-quote-card
+              className="flex w-[85vw] shrink-0 snap-center flex-col justify-between rounded-frame border border-line-whisper bg-surface p-8 sm:w-[26rem]"
+            >
+              <blockquote className="text-balance font-display text-xl leading-snug text-text sm:text-2xl">
+                &ldquo;{quote.text}&rdquo;
+              </blockquote>
+              <figcaption className="mt-6 font-mono text-xs uppercase tracking-[0.12em] text-text-faint">
+                {quote.bookTitle}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+
+        <div className="mt-6 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => scrollByCard(-1)}
+            aria-label="Previous quote"
+            data-cursor="link"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-text-subdued transition-colors duration-150 ease-gallery-standard hover:border-gold hover:text-gold-ink active:text-gold-ink"
+          >
+            <ArrowLeft size={18} weight="light" />
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollByCard(1)}
+            aria-label="Next quote"
+            data-cursor="link"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-line text-text-subdued transition-colors duration-150 ease-gallery-standard hover:border-gold hover:text-gold-ink active:text-gold-ink"
+          >
+            <ArrowRight size={18} weight="light" />
+          </button>
+        </div>
+      </motion.div>
     </section>
   );
 }

@@ -4,5 +4,6 @@ export {
   HomeFeaturedBookSection,
   HomeMediaSection,
   HomeRecognitionSection,
+  HomeQuotesSection,
   HomeCTASection,
 } from "./HomeSections";

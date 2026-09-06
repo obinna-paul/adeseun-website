@@ -14,6 +14,9 @@ export const POSITIONING_BODY =
 export const BUSINESSES_HEADLINE = "An ecosystem of companies.";
 export const BUSINESSES_BODY = "Media, architecture, faith, and lifestyle brands, each one part of the same story.";
 
+export const QUOTES_HEADLINE = "From the library.";
+export const QUOTES_BODY = "A line from each of her four books — swipe through a few.";
+
 export const BOOK_HEADLINE = "Her latest book.";
 
 export const MEDIA_HEADLINE = "Watch her speak.";
