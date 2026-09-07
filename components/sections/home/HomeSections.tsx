@@ -33,13 +33,13 @@ const FEATURED_VIDEOS = SCREENING_ROOM_VIDEOS.slice(0, 2);
 const RECOGNITION_ITEMS = (CREDENTIAL_GROUPS.find((group) => group.label === "Recognition")?.items ?? []).slice(0, 4);
 
 /**
- * Every one of `book.excerpt`'s paragraphs, flattened across all four
+ * Every one of `book.excerpt`'s paragraphs, flattened across all eight
  * books — the same real, already-disclosed copy BookModal shows under
  * "About the book" (or, for Black Is Beautiful, the actual publisher's
  * description), not new writing invented for this section. Each card is
  * captioned by book title only, never phrased as something she said —
- * library-content.ts's own doc comment is explicit that three of these
- * four books' excerpt text is site-original summary, not a verbatim
+ * library-content.ts's own doc comment is explicit that seven of these
+ * eight books' excerpt text is site-original summary, not a verbatim
  * passage from inside the book, so presenting these as quotations from
  * her would misattribute site copy as her own words. "A line from each
  * book," not "in her own words."

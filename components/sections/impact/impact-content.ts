@@ -24,7 +24,7 @@ export const IMPACT_THREADS: ImpactThread[] = [
   },
   {
     title: "Publishing & intellectual property",
-    body: "Four books published so far, with more of her thinking still to be put on the page.",
+    body: "Eight books published so far, with more of her thinking still to be put on the page.",
   },
   {
     title: "Mentorship & future creative leaders",

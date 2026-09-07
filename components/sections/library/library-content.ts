@@ -27,7 +27,23 @@
  * functional Amazon search link, but was removed per direct instruction
  * rather than kept on the site without confirmed retail/cover details.
  *
- * What's still original writing, not a verified quote, for the three
+ * Four more added later, each confirmed via a direct Amazon link and
+ * real cover art supplied directly (this repo's WebFetch/WebSearch both
+ * confirmed blocked from/unable to find amazon.com listings, so title,
+ * page count, and cover all came from what was supplied directly, not
+ * independently verified against the listing itself):
+ * - "The Future Is Now: Navigating the New Era of Media Marketing" —
+ *   109 pages (amazon.com/dp/B0HJ1GNHMR).
+ * - "Architectural Soul" — 403 pages (amazon.com/dp/B0HFSQ4R6D).
+ * - "Positive Negative: The Dual Nature of Life" — 220 pages
+ *   (amazon.com/dp/B0HG87HWXD).
+ * - "The Assignment" — 270 pages (amazon.com/dp/B0HH95YHT7).
+ * None of the four has a confirmed publish date, so each `accolades`
+ * carries only the page count. Each introduced a category the original
+ * four didn't need: "Strategy," "Design," "Resilience," and "Purpose"
+ * respectively.
+ *
+ * What's still original writing, not a verified quote, for the seven
  * without a publisher description: every `description` and `excerpt`
  * paragraph is written in this site's own voice, summarizing their
  * real, publicly-described subject — never presented as a direct
@@ -36,9 +52,26 @@
  * press.
  */
 
-export type Category = "Communication" | "Meaning" | "Stillness" | "Identity";
+export type Category =
+  | "Communication"
+  | "Meaning"
+  | "Stillness"
+  | "Identity"
+  | "Strategy"
+  | "Design"
+  | "Resilience"
+  | "Purpose";
 
-export const CATEGORIES: Category[] = ["Communication", "Meaning", "Stillness", "Identity"];
+export const CATEGORIES: Category[] = [
+  "Communication",
+  "Meaning",
+  "Stillness",
+  "Identity",
+  "Strategy",
+  "Design",
+  "Resilience",
+  "Purpose",
+];
 
 export type Vendor = { label: string; url: string };
 
@@ -134,6 +167,74 @@ export const BOOKS: Book[] = [
     vendors: [{ label: "Amazon", url: "https://www.amazon.com/Black-Beautiful-Adeseun-Oyeneye/dp/B0DH261JSK" }],
     coverImage: "/images/black-is-beautiful-cover.webp",
   },
+  {
+    id: "the-future-is-now",
+    order: "V",
+    title: "The Future Is Now",
+    category: "Strategy",
+    tone: "indigo",
+    tagline: "Navigating the new era of media marketing.",
+    description:
+      "A visually driven guide to media marketing's fastest-moving era — the attention economy, digital brand relevance, AI-driven creative strategy, and the leadership mindset it now takes to build what's next.",
+    accolades: ["109 pages."],
+    excerptHeading: "About the book",
+    excerpt: [
+      "The Future Is Now argues that media marketing's old playbooks have expired — the landscape has shifted faster in the last five years than in the fifty before it, and strategies that worked even recently no longer hold up.",
+      "Aimed at marketers, entrepreneurs, and creative leaders, it works through the forces reshaping attention and influence today, from the attention economy to AI-driven creative strategy, pairing each idea with bold full-color visual design rather than dense text alone.",
+    ],
+    vendors: [{ label: "Amazon", url: "https://www.amazon.com/dp/B0HJ1GNHMR" }],
+  },
+  {
+    id: "architectural-soul",
+    order: "VI",
+    title: "Architectural Soul",
+    category: "Design",
+    tone: "ink",
+    tagline: "Breathe life into spaces with thoughtful design and details.",
+    description:
+      "A curated look at how intentional design and refined detail come together to shape spaces that inspire and elevate everyday living — architecture and interior design treated as one continuous creative process.",
+    accolades: ["403 pages."],
+    excerptHeading: "About the book",
+    excerpt: [
+      "Architectural Soul moves through interior design and architecture as one continuous discipline — how intentional design, refined detail, and an understanding of how people actually live combine to shape spaces that inspire and nurture rather than just house.",
+      "It follows the process from concept to completion, treating a finished room or building less as a fixed object than as the record of a series of decisions — where vision meets purpose, and lasting impact begins.",
+    ],
+    vendors: [{ label: "Amazon", url: "https://www.amazon.com/dp/B0HFSQ4R6D" }],
+  },
+  {
+    id: "positive-negative",
+    order: "VII",
+    title: "Positive Negative",
+    category: "Resilience",
+    tone: "garnet",
+    tagline: "The dual nature of life.",
+    description:
+      "An exploration of life's built-in dualities — light and dark, win and loss, faith and fear — framed not as opposites to resolve but as a balance to keep showing up inside.",
+    accolades: ["220 pages."],
+    excerptHeading: "About the book",
+    excerpt: [
+      "Positive Negative treats life's contradictions as the point, not a problem to solve — the same stretch of time can hold both the light that lifts and the darkness that shapes, without one canceling the other out.",
+      "Its throughline isn't picking a side of any of those pairs. It's staying in motion through both of them — whole, honest, and unwilling to stop showing up.",
+    ],
+    vendors: [{ label: "Amazon", url: "https://www.amazon.com/dp/B0HG87HWXD" }],
+  },
+  {
+    id: "the-assignment",
+    order: "VIII",
+    title: "The Assignment",
+    category: "Purpose",
+    tone: "gold",
+    tagline: "Discover it. Accept it. Live it.",
+    description:
+      "A faith-rooted call to live on purpose rather than react to busyness — for anyone who reads as successful from the outside but doesn't feel aligned with what they're actually here to do.",
+    accolades: ["270 pages."],
+    excerptHeading: "About the book",
+    excerpt: [
+      "The Assignment starts from the idea that nobody ends up here by accident, and that it's easy to lose sight of that somewhere between busyness and burnout. It's written for people who look successful from the outside but don't feel fulfilled or aligned on the inside.",
+      "Across its chapters the book moves from confusion toward clarity and from intention toward action, treating purpose less as a vague aspiration than as something to actually discover, accept, and live out with discipline.",
+    ],
+    vendors: [{ label: "Amazon", url: "https://www.amazon.com/dp/B0HH95YHT7" }],
+  },
 ];
 
-export const PAGE_INTRO = "Four books, browsed the way they were written — one at a time, with room to sit with each.";
+export const PAGE_INTRO = "Eight books, browsed the way they were written — one at a time, with room to sit with each.";
