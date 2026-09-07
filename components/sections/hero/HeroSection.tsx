@@ -41,18 +41,18 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
  * longer reading as clipped (desktop) both come from — one fix, not two.
  *
  * ── Taming the zoom on wide screens (real bug, fixed via screenshot) ──
- * The mobile source photo (adeseun-hero-mobile.jpg — AI-generated, like
- * the desktop image; see HeroPortrait's own doc comment) is a tall,
- * narrow portrait (926×1698). Forcing that to `object-cover` edge-to-edge
- * on an
- * ultra-wide short viewport (2560×1080, or even a maximized 1920-wide
- * laptop window) demands cropping almost all of it away — there's no
- * object-position that fixes that; the geometry itself is the problem.
- * This is exactly why `lg`+ now renders a *different* image
- * (adeseun-hero-desktop.jpg, 1448×1086) rather than reusing the mobile
- * crop at a larger size — but the width cap below is still worth keeping
- * even with a better-matched desktop source, since it bounds the crop to
- * a known-good range instead of trusting every possible monitor width.
+ * The mobile source photo (adeseun-hero-mobile.jpg — still the earlier
+ * AI-generated placeholder; see HeroPortrait's own doc comment) is a
+ * tall, narrow portrait (926×1698). Forcing that to `object-cover` edge-
+ * to-edge on an ultra-wide short viewport (2560×1080, or even a
+ * maximized 1920-wide laptop window) demands cropping almost all of it
+ * away — there's no object-position that fixes that; the geometry itself
+ * is the problem. This is exactly why `lg`+ renders a *different* image
+ * (adeseun-hero-desktop.png, a real photo of her, 1448×1086) rather than
+ * reusing the mobile crop at a larger size — but the width cap below is
+ * still worth keeping even with a better-matched desktop source, since
+ * it bounds the crop to a known-good range instead of trusting every
+ * possible monitor width.
  * Past `lg`, the portrait is right-aligned and width-capped
  * (`lg:max-w-[1300px]`) instead of stretching the full section width, so
  * the required crop stays reasonable at any viewport width — typical
@@ -105,7 +105,7 @@ export function HeroSection() {
         <div className="relative h-full w-full lg:max-w-[1300px]">
           <HeroPortrait
             mobileSrc="/images/adeseun-hero-mobile.jpg"
-            desktopSrc="/images/adeseun-hero-desktop.jpg"
+            desktopSrc="/images/adeseun-hero-desktop.png"
             alt="Adeseun Oyeneye"
           />
         </div>

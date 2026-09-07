@@ -31,13 +31,14 @@ type HeroPortraitProps = {
    * image composed for one of those two shapes crops badly in the other.
    * `mobileSrc` falls back to `desktopSrc` if it isn't supplied yet.
    *
-   * `desktopSrc` (adeseun-hero-desktop.jpg) and `mobileSrc`
-   * (adeseun-hero-mobile.jpg) are both AI-generated images, not
-   * photographs of her — used as her likeness here per direct
-   * instruction, unlike every other portrait on this site, which is real.
-   * Flagged here for the same reason this codebase flags every other
-   * illustrative-vs-real distinction (see library-content.ts,
-   * study-content.ts).
+   * `desktopSrc` (adeseun-hero-desktop.png) is now a real photograph of
+   * her, supplied directly. `mobileSrc` (adeseun-hero-mobile.jpg) is
+   * still the earlier AI-generated placeholder, not a photograph of
+   * her — used as her likeness here per direct instruction, unlike every
+   * other portrait on this site, which is real. Flagged here for the
+   * same reason this codebase flags every other illustrative-vs-real
+   * distinction (see library-content.ts, study-content.ts); swap it for
+   * a real photo the same way the desktop one was, once one exists.
    */
   desktopSrc?: string;
   mobileSrc?: string;
