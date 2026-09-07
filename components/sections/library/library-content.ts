@@ -89,6 +89,16 @@ export type Book = {
   vendors: Vendor[];
   /** Real cover art, when it exists — falls back to the BookCover mockup when absent. */
   coverImage?: string;
+  /**
+   * "cover" (default) fills the portrait cover slot, cropping to fit —
+   * right for an image that's already shaped like a book jacket. "contain"
+   * letterboxes instead, for a supplied image that isn't actually
+   * portrait-cropped to begin with (a landscape marketing graphic, not a
+   * jacket photo) — `object-cover` would slice its own title text off the
+   * sides rather than just crop empty margin. Same reasoning as
+   * study-content.ts's `imageFit`, applied to a different component.
+   */
+  coverFit?: "cover" | "contain";
 };
 
 export const BOOKS: Book[] = [
@@ -183,6 +193,7 @@ export const BOOKS: Book[] = [
       "Aimed at marketers, entrepreneurs, and creative leaders, it works through the forces reshaping attention and influence today, from the attention economy to AI-driven creative strategy, pairing each idea with bold full-color visual design rather than dense text alone.",
     ],
     vendors: [{ label: "Amazon", url: "https://www.amazon.com/dp/B0HJ1GNHMR" }],
+    coverImage: "/images/the-future-is-now-cover.png",
   },
   {
     id: "architectural-soul",
@@ -200,6 +211,8 @@ export const BOOKS: Book[] = [
       "It follows the process from concept to completion, treating a finished room or building less as a fixed object than as the record of a series of decisions — where vision meets purpose, and lasting impact begins.",
     ],
     vendors: [{ label: "Amazon", url: "https://www.amazon.com/dp/B0HFSQ4R6D" }],
+    coverImage: "/images/architectural-soul-cover.png",
+    coverFit: "contain",
   },
   {
     id: "positive-negative",
@@ -217,6 +230,7 @@ export const BOOKS: Book[] = [
       "Its throughline isn't picking a side of any of those pairs. It's staying in motion through both of them — whole, honest, and unwilling to stop showing up.",
     ],
     vendors: [{ label: "Amazon", url: "https://www.amazon.com/dp/B0HG87HWXD" }],
+    coverImage: "/images/positive-negative-cover.png",
   },
   {
     id: "the-assignment",
@@ -234,6 +248,7 @@ export const BOOKS: Book[] = [
       "Across its chapters the book moves from confusion toward clarity and from intention toward action, treating purpose less as a vague aspiration than as something to actually discover, accept, and live out with discipline.",
     ],
     vendors: [{ label: "Amazon", url: "https://www.amazon.com/dp/B0HH95YHT7" }],
+    coverImage: "/images/the-assignment-cover.png",
   },
 ];
 

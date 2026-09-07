@@ -17,6 +17,14 @@ import { cn } from "@/lib/utils";
  * dark page section — the page around it stays the Alabaster Gallery;
  * taste-skill's Page Theme Lock (4.11) governs section backgrounds, not
  * the color of an individual card's artwork.
+ *
+ * `book.coverFit === "contain"` (real bug, caught via screenshot):
+ * Architectural Soul's supplied image is a landscape marketing banner,
+ * not a portrait book-jacket photo — `object-cover` in a 2:3 cover slot
+ * sliced its own title text off both sides instead of just cropping
+ * empty margin. `contain` letterboxes it against `bg-surface-sunken`
+ * instead, so the whole graphic (and its text) stays legible. Every
+ * other cover is already jacket-shaped, so the default stays `cover`.
  */
 const TONE_CLASSES: Record<Book["tone"], string> = {
   gold: "bg-gold-fill text-text-on-dark",
@@ -35,14 +43,21 @@ export function BookCover({
   className?: string;
 }) {
   if (book.coverImage) {
+    const contain = book.coverFit === "contain";
     return (
-      <div className={cn("relative h-full w-full overflow-hidden rounded-frame", className)}>
+      <div
+        className={cn(
+          "relative h-full w-full overflow-hidden rounded-frame",
+          contain && "bg-surface-sunken",
+          className,
+        )}
+      >
         <Image
           src={book.coverImage}
           alt={`${book.title} cover`}
           fill
           sizes={size === "modal" ? "(min-width: 640px) 280px, 60vw" : "(min-width: 1024px) 25vw, 45vw"}
-          className="object-cover"
+          className={contain ? "object-contain" : "object-cover"}
         />
       </div>
     );
