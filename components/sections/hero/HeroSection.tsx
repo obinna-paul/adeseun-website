@@ -20,8 +20,7 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
  * the positioning line, not as a second beat worth its own space. The
  * portrait is now two separate crops, one per breakpoint — see
  * HeroPortrait's own doc comment for why one image can't serve both
- * shapes, and for the (per direct instruction) AI-generated desktop
- * image's own flag.
+ * shapes; both crops are now real photographs of her.
  *
  * ── One layout, every breakpoint ─────────────────────────────────────
  * Mobile and desktop used to be two different compositions (stacked
@@ -41,9 +40,8 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
  * longer reading as clipped (desktop) both come from — one fix, not two.
  *
  * ── Taming the zoom on wide screens (real bug, fixed via screenshot) ──
- * The mobile source photo (adeseun-hero-mobile.jpg — still the earlier
- * AI-generated placeholder; see HeroPortrait's own doc comment) is a
- * tall, narrow portrait (926×1698). Forcing that to `object-cover` edge-
+ * The mobile source photo (adeseun-hero-mobile.png, a real photo of her)
+ * is a tall, narrow portrait (926×1698). Forcing that to `object-cover` edge-
  * to-edge on an ultra-wide short viewport (2560×1080, or even a
  * maximized 1920-wide laptop window) demands cropping almost all of it
  * away — there's no object-position that fixes that; the geometry itself
@@ -104,7 +102,7 @@ export function HeroSection() {
       <div className="absolute inset-x-0 bottom-0 top-20 lg:flex lg:justify-end">
         <div className="relative h-full w-full lg:max-w-[1300px]">
           <HeroPortrait
-            mobileSrc="/images/adeseun-hero-mobile.jpg"
+            mobileSrc="/images/adeseun-hero-mobile.png"
             desktopSrc="/images/adeseun-hero-desktop.png"
             alt="Adeseun Oyeneye"
           />
