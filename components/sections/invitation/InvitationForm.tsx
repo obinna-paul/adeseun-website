@@ -9,21 +9,44 @@ import { MagneticButton } from "@/components/ui/MagneticButton";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import { SUCCESS_HEADLINE, SUCCESS_BODY, type Interest } from "./invitation-content";
 
-type Status = "idle" | "submitting" | "success";
+type Status = "idle" | "submitting" | "success" | "error";
 
 export function InvitationForm() {
   const [status, setStatus] = useState<Status>("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [interest, setInterest] = useState<Interest | null>(null);
   const reducedMotion = usePrefersReducedMotion();
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setStatus("submitting");
-    // No backend is wired up yet — this simulates the round trip so the
-    // success state (confetti + thank-you) can be built and reviewed.
-    // Swap for a real POST to an API route (e.g. via Resend, or a form
-    // service) once one exists; the UI below doesn't need to change.
-    window.setTimeout(() => setStatus("success"), 900);
+    setErrorMessage(null);
+
+    const formData = new FormData(e.currentTarget);
+
+    try {
+      const response = await fetch("/api/invitation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.get("name"),
+          email: formData.get("email"),
+          organization: formData.get("organization"),
+          message: formData.get("message"),
+          interest,
+        }),
+      });
+
+      if (!response.ok) {
+        const data: { error?: string } = await response.json().catch(() => ({}));
+        throw new Error(data.error ?? "Something went wrong. Please try again.");
+      }
+
+      setStatus("success");
+    } catch (err) {
+      setStatus("error");
+      setErrorMessage(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    }
   }
 
   if (status === "success") {
@@ -67,6 +90,7 @@ export function InvitationForm() {
         <MagneticButton type="submit" variant="primary" disabled={status === "submitting"} className="w-full sm:w-auto">
           {status === "submitting" ? "Sending…" : "Send the Invitation"}
         </MagneticButton>
+        {status === "error" && errorMessage && <p className="mt-3 text-sm text-garnet">{errorMessage}</p>}
       </div>
     </form>
   );

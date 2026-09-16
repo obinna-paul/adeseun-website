@@ -14,8 +14,9 @@
  * handles were found during research, and inventing one would read as
  * real. Lagos is a confirmed fact (AFRICAST 2025, which she coordinates,
  * runs in Lagos; 360Africa Media Group and the NBC are both Nigerian) —
- * not just an inference from the palette's name. Form submission has no
- * backend yet — see InvitationForm's own comment.
+ * not just an inference from the palette's name. Form submission posts to
+ * app/api/invitation/route.ts, which emails it via Resend — see that
+ * route's own comment.
  */
 
 export type Interest = "Speaking" | "Advisory" | "Media" | "Partnership" | "Literary Rights";
