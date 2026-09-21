@@ -2,15 +2,15 @@
 
 import { useEffect, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Dialog } from "@base-ui/react/dialog";
-import { Select } from "@base-ui/react/select";
 import { AnimatePresence, motion, useDragControls, useMotionValue, useSpring, type PanInfo } from "motion/react";
-import { X, CaretDown, Check, BookOpenText } from "@phosphor-icons/react/dist/ssr";
+import { X, BookOpenText } from "@phosphor-icons/react/dist/ssr";
 import { BookCover } from "./BookCover";
 import type { Book } from "./library-content";
 import { bookTiltSpring } from "@/lib/motion";
 import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import { useMediaQuery } from "@/lib/use-media-query";
-import { cn } from "@/lib/utils";
+import { cn, formatNaira } from "@/lib/utils";
+import { MagneticButton } from "@/components/ui/MagneticButton";
 
 const TILT_RANGE = 10; // degrees — "slow rotation," not a cartoon flip
 
@@ -248,7 +248,9 @@ function BookDetails({ book }: { book: Book }) {
       )}
 
       <div className="mt-8 flex flex-wrap items-center gap-4">
-        <PurchaseSelect book={book} />
+        <MagneticButton href={`/checkout/${book.id}`} variant="primary" dense>
+          Buy — {formatNaira(book.price)}
+        </MagneticButton>
         <button
           type="button"
           onClick={() => setShowExcerpt((v) => !v)}
@@ -286,47 +288,5 @@ function BookDetails({ book }: { book: Book }) {
         )}
       </AnimatePresence>
     </div>
-  );
-}
-
-/** The "Purchase" control — a refined select whose options are vendor links; choosing one opens that retailer in a new tab. */
-function PurchaseSelect({ book }: { book: Book }) {
-  const [value, setValue] = useState<string | null>(null);
-
-  return (
-    <Select.Root
-      value={value}
-      onValueChange={(url) => {
-        setValue(url);
-        if (url) window.open(url, "_blank", "noopener,noreferrer");
-      }}
-    >
-      <Select.Trigger className="inline-flex items-center gap-3 rounded-control border border-line bg-surface px-5 py-2.5 font-mono text-xs uppercase tracking-[0.12em] text-text transition-colors duration-150 ease-gallery-standard hover:border-gold active:border-gold data-[popup-open]:border-gold">
-        <Select.Value placeholder="Purchase" />
-        <Select.Icon className="text-text-faint">
-          <CaretDown size={14} weight="light" />
-        </Select.Icon>
-      </Select.Trigger>
-      <Select.Portal>
-        <Select.Positioner sideOffset={8} className="z-50">
-          <Select.Popup className="min-w-[--anchor-width] overflow-hidden rounded-frame border border-line-whisper bg-surface-elevated py-1 shadow-elevation-card animate-nook-expand data-[ending-style]:animate-nook-collapse">
-            <Select.List>
-              {book.vendors.map((vendor) => (
-                <Select.Item
-                  key={vendor.url}
-                  value={vendor.url}
-                  className="flex cursor-pointer items-center justify-between gap-4 px-4 py-2.5 font-mono text-xs uppercase tracking-[0.1em] text-text-subdued outline-none transition-colors data-[highlighted]:bg-gold-tint data-[highlighted]:text-gold-ink"
-                >
-                  <Select.ItemText>{vendor.label}</Select.ItemText>
-                  <Select.ItemIndicator>
-                    <Check size={14} weight="bold" />
-                  </Select.ItemIndicator>
-                </Select.Item>
-              ))}
-            </Select.List>
-          </Select.Popup>
-        </Select.Positioner>
-      </Select.Portal>
-    </Select.Root>
   );
 }

@@ -19,8 +19,17 @@
  *   site-original writing, which is exactly why its heading says "From
  *   the publisher's description" rather than the generic "About the
  *   book" the other three use.
- * Amazon/Lulu vendor links point at real listings, not fabricated
- * product pages or search-query fallbacks.
+ *
+ * `vendors`/Amazon+Lulu purchase links have been removed entirely per
+ * direct instruction — purchasing now happens on-site via Paystack
+ * (see app/checkout/[bookId] and app/api/checkout). Every `price` below
+ * is a PLACEHOLDER (₦8,000 flat) and every `printSpecs.trimSize` /
+ * `.binding` is a guessed-generic paperback spec — neither is real data.
+ * Both need the real per-book price and real print specs from the
+ * printer before this goes live; see BookModal/checkout route doc
+ * comments for how they're used. `printSpecs.pageCount` is filled in
+ * wherever a real page count was already confirmed above via `accolades`;
+ * left `undefined` for the two books where it never was.
  *
  * A fifth title, "The Hope of a Nigerian Child," was named in her
  * author bio and briefly listed here with a placeholder cover and a
@@ -73,7 +82,24 @@ export const CATEGORIES: Category[] = [
   "Purpose",
 ];
 
-export type Vendor = { label: string; url: string };
+/** Nigeria-only for now — see the checkout route's own doc comment. */
+export const CURRENCY = "NGN";
+
+/**
+ * What the printer needs to actually produce a copy once an order comes
+ * in — sent in the printer's order-notification email (see
+ * app/api/paystack/webhook/route.ts). `trimSize`/`binding` are guessed-
+ * generic placeholders below, not confirmed specs; `pageCount` is real
+ * wherever it was already confirmed via this file's own `accolades`
+ * research, `undefined` where it never was.
+ */
+export type PrintSpecs = {
+  pageCount?: number;
+  trimSize: string;
+  binding: string;
+  /** Anything the printer needs that doesn't fit the fields above (paper stock, finish, etc.). */
+  notes?: string;
+};
 
 export type Book = {
   id: string;
@@ -86,7 +112,9 @@ export type Book = {
   accolades: string[];
   excerptHeading: string;
   excerpt: string[];
-  vendors: Vendor[];
+  /** PLACEHOLDER — in NGN (naira, not kobo). Needs the real price per book before launch. */
+  price: number;
+  printSpecs: PrintSpecs;
   /** Real cover art, when it exists — falls back to the BookCover mockup when absent. */
   coverImage?: string;
   /**
@@ -117,10 +145,8 @@ export const BOOKS: Book[] = [
       "Every word carries consequence, whether or not it was chosen with care. Think Before You Speak is built around that idea — that thoughtful communication isn't a talent some people are born with, but a discipline anyone can practice.",
       "It's a short, direct read, aimed less at eloquence than at intention: saying what you actually mean, and meaning what you say.",
     ],
-    vendors: [
-      { label: "Amazon", url: "https://www.amazon.com/THINK-BEFORE-YOU-SPEAK-communication-ebook/dp/B0CLWWC446" },
-      { label: "Lulu", url: "https://www.lulu.com/shop/adeseun-oyeneye/think-before-you-speak/paperback/product-rmm8edn.html" },
-    ],
+    price: 8000,
+    printSpecs: { pageCount: 197, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/think-before-you-speak-cover.jpg",
   },
   {
@@ -138,7 +164,8 @@ export const BOOKS: Book[] = [
       "Beyond the Mundane asks a plain question that's easy to avoid: what actually makes a life feel meaningful, once the routines that fill most of it are set aside?",
       "The answer isn't treated as a single idea. The book moves between the philosophical, the psychological, the spiritual, and the practical — meaning built from several directions at once, not handed down from one.",
     ],
-    vendors: [{ label: "Amazon", url: "https://www.amazon.com/BEYOND-MUNDANE-Essentials-meaningful-life/dp/B0CV427BX6" }],
+    price: 8000,
+    printSpecs: { trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/beyond-the-mundane-cover.jpg",
   },
   {
@@ -156,7 +183,8 @@ export const BOOKS: Book[] = [
       "Tranquility doesn't promise a life without storms. It's offered instead as a companion inside them — a guide to cultivating serenity as a practice, not a destination reached once and kept forever.",
       "The tone throughout sits closer to companionship than instruction: less a manual, more a steady voice for whoever picks it up mid-storm.",
     ],
-    vendors: [{ label: "Amazon", url: "https://www.amazon.es/Tranquility-Adeseun-Oyeneye/dp/9786958411" }],
+    price: 8000,
+    printSpecs: { trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/tranquility-cover.jpg",
   },
   {
@@ -174,7 +202,8 @@ export const BOOKS: Book[] = [
       "Black Is Beautiful shines a light on the rich and diverse world of Black culture. This book is a heartfelt tribute to the beauty and strength of Black identity, exploring its history, traditions, and creative expressions.",
       "More than just a book, Black Is Beautiful is a celebration of the pride and beauty found in Black communities everywhere. It invites readers to appreciate and understand the true beauty of Black culture, challenging stereotypes and offering a deeper look into what makes it special.",
     ],
-    vendors: [{ label: "Amazon", url: "https://www.amazon.com/Black-Beautiful-Adeseun-Oyeneye/dp/B0DH261JSK" }],
+    price: 8000,
+    printSpecs: { trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/black-is-beautiful-cover.webp",
   },
   {
@@ -192,7 +221,8 @@ export const BOOKS: Book[] = [
       "The Future Is Now argues that media marketing's old playbooks have expired — the landscape has shifted faster in the last five years than in the fifty before it, and strategies that worked even recently no longer hold up.",
       "Aimed at marketers, entrepreneurs, and creative leaders, it works through the forces reshaping attention and influence today, from the attention economy to AI-driven creative strategy, pairing each idea with bold full-color visual design rather than dense text alone.",
     ],
-    vendors: [{ label: "Amazon", url: "https://www.amazon.com/dp/B0HJ1GNHMR" }],
+    price: 8000,
+    printSpecs: { pageCount: 109, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/the-future-is-now-cover.png",
   },
   {
@@ -210,7 +240,8 @@ export const BOOKS: Book[] = [
       "Architectural Soul moves through interior design and architecture as one continuous discipline — how intentional design, refined detail, and an understanding of how people actually live combine to shape spaces that inspire and nurture rather than just house.",
       "It follows the process from concept to completion, treating a finished room or building less as a fixed object than as the record of a series of decisions — where vision meets purpose, and lasting impact begins.",
     ],
-    vendors: [{ label: "Amazon", url: "https://www.amazon.com/dp/B0HFSQ4R6D" }],
+    price: 8000,
+    printSpecs: { pageCount: 403, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/architectural-soul-cover.png",
     coverFit: "contain",
   },
@@ -229,7 +260,8 @@ export const BOOKS: Book[] = [
       "Positive Negative treats life's contradictions as the point, not a problem to solve — the same stretch of time can hold both the light that lifts and the darkness that shapes, without one canceling the other out.",
       "Its throughline isn't picking a side of any of those pairs. It's staying in motion through both of them — whole, honest, and unwilling to stop showing up.",
     ],
-    vendors: [{ label: "Amazon", url: "https://www.amazon.com/dp/B0HG87HWXD" }],
+    price: 8000,
+    printSpecs: { pageCount: 220, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/positive-negative-cover.png",
   },
   {
@@ -247,7 +279,8 @@ export const BOOKS: Book[] = [
       "The Assignment starts from the idea that nobody ends up here by accident, and that it's easy to lose sight of that somewhere between busyness and burnout. It's written for people who look successful from the outside but don't feel fulfilled or aligned on the inside.",
       "Across its chapters the book moves from confusion toward clarity and from intention toward action, treating purpose less as a vague aspiration than as something to actually discover, accept, and live out with discipline.",
     ],
-    vendors: [{ label: "Amazon", url: "https://www.amazon.com/dp/B0HH95YHT7" }],
+    price: 8000,
+    printSpecs: { pageCount: 270, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/the-assignment-cover.png",
   },
 ];
