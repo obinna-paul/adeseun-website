@@ -54,10 +54,19 @@ export async function sendEmail(input: SendEmailInput): Promise<{ error: unknown
 }
 
 /**
- * Resend's shared dev sender — can only deliver to the Resend account's
- * own verified address until a sending domain is verified on that
- * account. Swap for something like "hello@adeseunoyeneye.com" once one
- * is verified; see app/api/invitation/route.ts's own note.
+ * Resend's shared dev sender.
+ *
+ * ⚠ LAUNCH BLOCKER for the order emails: `onboarding@resend.dev` can
+ * only deliver to the address that owns the Resend account. The contact
+ * form survives that (it only ever mails her), but a book order mails
+ * two *arbitrary* third parties — the customer who just paid, and the
+ * printer — and both of those sends will be rejected outright until a
+ * real sending domain is verified in the Resend dashboard (add the
+ * domain, add its DNS records, wait for verification). Until then a
+ * customer can pay and never receive a confirmation.
+ *
+ * Once a domain is verified, swap these for addresses on it (e.g.
+ * "The Library <orders@adeseunoyeneye.com>"); nothing else has to change.
  */
 export const FROM_ADDRESS = {
   reception: "The Reception <onboarding@resend.dev>",

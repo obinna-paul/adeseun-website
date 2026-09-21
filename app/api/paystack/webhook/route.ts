@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { BOOKS } from "@/components/sections/library/library-content";
+import { BOOKS, CURRENCY } from "@/components/sections/library/library-content";
 import { verifyWebhookSignature, verifyTransaction, PaystackNotConfiguredError } from "@/lib/paystack";
-import { getOrder, markOrderFulfilled } from "@/lib/orders";
+import { getOrder, claimOrderForFulfillment, markOrderFulfilled, type EmailOutcome } from "@/lib/orders";
 import { sendEmail, EmailNotConfiguredError, FROM_ADDRESS } from "@/lib/resend";
+import { formatNaira } from "@/lib/utils";
 
 /**
  * The one thing that actually triggers a fulfilled order. The redirect
@@ -13,16 +14,24 @@ import { sendEmail, EmailNotConfiguredError, FROM_ADDRESS } from "@/lib/resend";
  * transaction is re-verified directly against Paystack's own API before
  * any of the three order emails goes out.
  *
- * Order-of-truth for what actually gets emailed: the webhook payload's
- * own `data.metadata` (bookId, customer name/phone/address) — the same
- * object app/api/checkout set at Paystack.initialize — not the Redis
- * order log. That log (lib/orders.ts) is used only for idempotency and
- * as a browsable history; a genuine, signature-verified webhook is
+ * Order-of-truth for what actually gets emailed: the transaction's own
+ * `metadata` (bookId, customer name/phone/address) — the same object
+ * app/api/checkout set at Paystack.initialize — not the Redis order
+ * log. That log (lib/orders.ts) is used only for idempotency and as a
+ * browsable history; a genuine, signature-verified webhook is
  * self-contained and shouldn't depend on a side store that might not be
  * configured yet to actually fulfill an order.
+ *
+ * ── Why fulfillment is claimed before it runs ────────────────────────
+ * Paystack retries deliveries and can overlap them, so the order log's
+ * `status === "fulfilled"` check alone is check-then-act: two concurrent
+ * deliveries could both read "not fulfilled" and both send the full set
+ * of emails — which for the printer means two copies printed against one
+ * paid order. `claimOrderForFulfillment` makes winning the right to
+ * fulfill a single atomic Redis operation, so exactly one run proceeds.
+ * It's taken *after* all validation, so a rejected webhook (bad amount,
+ * unknown book) doesn't burn the claim and block a corrected retry.
  */
-
-const money = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" });
 
 type ChargeMetadata = {
   bookId?: string;
@@ -102,11 +111,18 @@ export async function POST(request: Request) {
   }
 
   const expectedAmountKobo = Math.round(book.price * 100);
-  if (verified.amount !== expectedAmountKobo || verified.currency !== "NGN") {
+  if (verified.amount !== expectedAmountKobo || verified.currency !== CURRENCY) {
     console.error(
-      `Paystack webhook: AMOUNT MISMATCH for ${reference} — paid ${verified.amount} ${verified.currency}, expected ${expectedAmountKobo} NGN for "${book.title}". Not fulfilling automatically; check this order manually in the Paystack dashboard.`,
+      `Paystack webhook: AMOUNT MISMATCH for ${reference} — paid ${verified.amount} ${verified.currency}, expected ${expectedAmountKobo} ${CURRENCY} for "${book.title}". Not fulfilling automatically; check this order manually in the Paystack dashboard.`,
     );
     return NextResponse.json({ ok: true });
+  }
+
+  // Claimed only now that the order is known-good, so a rejected webhook doesn't lock out a corrected retry.
+  const claimed = await claimOrderForFulfillment(reference);
+  if (!claimed) {
+    console.warn(`Paystack webhook: ${reference} is already being fulfilled by another delivery — standing down.`);
+    return NextResponse.json({ ok: true, alreadyClaimed: true });
   }
 
   const customerName = metadata.customerName ?? "";
@@ -118,46 +134,49 @@ export async function POST(request: Request) {
     state: metadata.address?.state ?? "",
   };
 
-  const orderForLog = {
-    reference,
-    bookId: book.id,
-    bookTitle: book.title,
-    priceNaira: book.price,
-    currency: "NGN",
-    customerName,
-    customerEmail,
-    customerPhone,
-    address,
+  const addressBlock = `${address.line1}\n${address.city}, ${address.state}`;
+  const emailStatus: { customer: EmailOutcome; owner: EmailOutcome; printer: EmailOutcome } = {
+    customer: "skipped",
+    owner: "skipped",
+    printer: "skipped",
   };
 
-  const addressBlock = `${address.line1}\n${address.city}, ${address.state}`;
-
   // The first send tells us whether email is configured at all — if not, fail closed (500, so Paystack retries once it's fixed) rather than silently skipping a paid order's notifications.
-  try {
-    const { error } = await sendEmail({
-      from: FROM_ADDRESS.library,
-      to: customerEmail,
-      subject: `Your order — ${book.title}`,
-      text: [
-        `Thank you for your order, ${customerName || "there"}.`,
-        "",
-        `Book: ${book.title}`,
-        `Amount paid: ${money.format(book.price)}`,
-        `Order reference: ${reference}`,
-        "",
-        "Delivery address on file:",
-        addressBlock,
-        "",
-        "Your copy is being prepared for print. Please allow 7–10 business days for it to reach you — thank you for your patience.",
-      ].join("\n"),
-    });
-    if (error) console.error(`Order ${reference}: customer email failed to send:`, error);
-  } catch (err) {
-    if (err instanceof EmailNotConfiguredError) {
-      console.error(err.message);
-      return NextResponse.json({ error: "Email is not configured yet." }, { status: 500 });
+  if (!customerEmail) {
+    console.error(`Order ${reference}: Paystack returned no customer email — cannot send the buyer their confirmation.`);
+  } else {
+    try {
+      const { error } = await sendEmail({
+        from: FROM_ADDRESS.library,
+        to: customerEmail,
+        subject: `Your order — ${book.title}`,
+        text: [
+          `Thank you for your order, ${customerName || "there"}.`,
+          "",
+          `Book: ${book.title}`,
+          `Amount paid: ${formatNaira(book.price)}`,
+          `Order reference: ${reference}`,
+          "",
+          "Delivery address on file:",
+          addressBlock,
+          "",
+          "Your copy is being prepared for print. Please allow 7–10 business days for it to reach you — thank you for your patience.",
+        ].join("\n"),
+      });
+      if (error) {
+        emailStatus.customer = "failed";
+        console.error(`Order ${reference}: customer email failed to send:`, error);
+      } else {
+        emailStatus.customer = "sent";
+      }
+    } catch (err) {
+      if (err instanceof EmailNotConfiguredError) {
+        console.error(err.message);
+        return NextResponse.json({ error: "Email is not configured yet." }, { status: 500 });
+      }
+      emailStatus.customer = "failed";
+      console.error(`Order ${reference}: customer email threw:`, err);
     }
-    console.error(`Order ${reference}: customer email threw:`, err);
   }
 
   try {
@@ -167,7 +186,7 @@ export async function POST(request: Request) {
       subject: `New book order — ${book.title}`,
       text: [
         `Book: ${book.title}`,
-        `Amount: ${money.format(book.price)}`,
+        `Amount: ${formatNaira(book.price)}`,
         `Order reference: ${reference}`,
         "",
         `Customer: ${customerName}`,
@@ -177,8 +196,14 @@ export async function POST(request: Request) {
         addressBlock,
       ].join("\n"),
     });
-    if (error) console.error(`Order ${reference}: notification email to adeseun05@gmail.com failed to send:`, error);
+    if (error) {
+      emailStatus.owner = "failed";
+      console.error(`Order ${reference}: notification email to adeseun05@gmail.com failed to send:`, error);
+    } else {
+      emailStatus.owner = "sent";
+    }
   } catch (err) {
+    emailStatus.owner = "failed";
     console.error(`Order ${reference}: notification email threw:`, err);
   }
 
@@ -210,13 +235,37 @@ export async function POST(request: Request) {
           .filter((line): line is string => line !== null)
           .join("\n"),
       });
-      if (error) console.error(`Order ${reference}: printer email failed to send:`, error);
+      if (error) {
+        emailStatus.printer = "failed";
+        console.error(`Order ${reference}: printer email failed to send:`, error);
+      } else {
+        emailStatus.printer = "sent";
+      }
     } catch (err) {
+      emailStatus.printer = "failed";
       console.error(`Order ${reference}: printer email threw:`, err);
     }
   }
 
-  await markOrderFulfilled(reference, orderForLog);
+  // The printer is the one who actually ships, so their notification not going out means a paid order that nobody is producing — worth its own unmissable line rather than being buried among the per-send logs above.
+  if (emailStatus.printer !== "sent") {
+    console.error(
+      `ACTION REQUIRED — order ${reference} ("${book.title}", ${formatNaira(book.price)}) was paid for but the printer was NOT notified (${emailStatus.printer}). Forward this order to the printer manually.`,
+    );
+  }
+
+  await markOrderFulfilled(reference, {
+    reference,
+    bookId: book.id,
+    bookTitle: book.title,
+    priceNaira: book.price,
+    currency: CURRENCY,
+    customerName,
+    customerEmail,
+    customerPhone,
+    address,
+    emailStatus,
+  });
 
   return NextResponse.json({ ok: true });
 }

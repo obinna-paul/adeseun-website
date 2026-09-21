@@ -29,6 +29,9 @@ import { Redis } from "@upstash/redis";
 
 export type OrderStatus = "pending" | "fulfilled";
 
+/** Per-recipient outcome of the three order emails, so a partial failure is visible after the fact instead of only in a log line that scrolls away. */
+export type EmailOutcome = "sent" | "failed" | "skipped";
+
 export type OrderRecord = {
   reference: string;
   bookId: string;
@@ -46,9 +49,23 @@ export type OrderRecord = {
   status: OrderStatus;
   createdAt: string;
   fulfilledAt?: string;
+  emailStatus?: {
+    customer: EmailOutcome;
+    owner: EmailOutcome;
+    printer: EmailOutcome;
+  };
 };
 
 const ORDER_TTL_SECONDS = 60 * 60 * 24 * 180; // 180 days — an order log, not permanent archival storage
+
+/**
+ * How long a fulfillment claim is held. Long enough to cover a
+ * fulfillment run (three email sends) plus any near-simultaneous retry,
+ * short enough that a crashed run's claim expires and a later retry can
+ * legitimately pick the order back up rather than being locked out for
+ * the order's whole lifetime.
+ */
+const CLAIM_TTL_SECONDS = 60 * 10;
 
 let redis: Redis | null | undefined; // undefined = not checked yet, null = not configured
 
@@ -70,6 +87,44 @@ function getRedis(): Redis | null {
 
 function orderKey(reference: string): string {
   return `order:${reference}`;
+}
+
+function claimKey(reference: string): string {
+  return `order-claim:${reference}`;
+}
+
+/**
+ * Atomically claims an order for fulfillment. `true` means this caller
+ * won the claim and should send the emails; `false` means another
+ * delivery of the same webhook is already doing it and this one should
+ * stand down.
+ *
+ * This exists because the `status === "fulfilled"` check alone is
+ * check-then-act: Paystack retries deliveries and can overlap them, so
+ * two concurrent runs could both read "not fulfilled yet" and both send
+ * the whole set — which for the printer means two copies printed for
+ * one paid order. Redis `SET NX` makes winning the claim a single
+ * atomic operation, so exactly one run proceeds.
+ *
+ * Returns `true` when Redis is unconfigured or erroring, for the same
+ * reason the rest of this module degrades rather than failing closed:
+ * the customer has already paid, and a possible duplicate is better
+ * than dropping their order entirely.
+ */
+export async function claimOrderForFulfillment(reference: string): Promise<boolean> {
+  const client = getRedis();
+  if (!client) return true;
+
+  try {
+    const result = await client.set(claimKey(reference), new Date().toISOString(), {
+      nx: true,
+      ex: CLAIM_TTL_SECONDS,
+    });
+    return result === "OK";
+  } catch (err) {
+    console.error("Failed to claim order in Redis (proceeding anyway):", err);
+    return true;
+  }
 }
 
 /** Best-effort — called right after Paystack initialize, before the customer has paid. Never throws; a failed write here shouldn't block checkout. */
@@ -100,8 +155,11 @@ export async function getOrder(reference: string): Promise<OrderRecord | null> {
   }
 }
 
-/** Best-effort — called after the three fulfillment emails are sent. Never throws. */
-export async function markOrderFulfilled(reference: string, order: Omit<OrderRecord, "status" | "createdAt">): Promise<void> {
+/** Best-effort — called after the three fulfillment emails have been attempted. Never throws. */
+export async function markOrderFulfilled(
+  reference: string,
+  order: Omit<OrderRecord, "status" | "createdAt">,
+): Promise<void> {
   const client = getRedis();
   if (!client) return;
 

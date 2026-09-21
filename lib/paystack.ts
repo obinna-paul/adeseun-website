@@ -84,6 +84,39 @@ export type VerifyTransactionResult = {
   metadata: Record<string, unknown> | null;
 };
 
+/**
+ * Paystack does not consistently echo `metadata` back in the shape it
+ * was sent: depending on how the transaction was created, it comes back
+ * either as the object we passed at initialize or as a JSON *string* of
+ * that object. Reading `.bookId` straight off a string silently yields
+ * `undefined`, which in the webhook means "no matching book" — i.e. a
+ * customer who has already paid gets quietly dropped with nobody
+ * notified. Normalizing both shapes here is what stops that.
+ *
+ * Exported for direct testing — this is exactly the kind of quirk that
+ * should have a case pinned to it rather than being trusted by eye.
+ */
+export function normalizeMetadata(raw: unknown): Record<string, unknown> | null {
+  if (raw === null || raw === undefined) return null;
+
+  if (typeof raw === "string") {
+    try {
+      const parsed = JSON.parse(raw);
+      return typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
+        ? (parsed as Record<string, unknown>)
+        : null;
+    } catch {
+      return null;
+    }
+  }
+
+  if (typeof raw === "object" && !Array.isArray(raw)) {
+    return raw as Record<string, unknown>;
+  }
+
+  return null;
+}
+
 /** Re-checks a transaction directly against Paystack's own record — the webhook payload alone is trusted only after its signature is verified, but this is an extra, independent confirmation before any fulfillment email goes out. */
 export async function verifyTransaction(reference: string): Promise<VerifyTransactionResult> {
   const secretKey = getSecretKey();
@@ -104,7 +137,7 @@ export async function verifyTransaction(reference: string): Promise<VerifyTransa
     amount: data.amount,
     currency: data.currency,
     customerEmail: data.customer?.email ?? "",
-    metadata: data.metadata ?? null,
+    metadata: normalizeMetadata(data.metadata),
   };
 }
 

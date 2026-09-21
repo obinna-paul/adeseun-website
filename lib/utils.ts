@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 const nairaFormatter = new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" });
 
-/** Shared with app/api/paystack/webhook's own copy (kept server-side there to avoid a client/server import edge) — used wherever a book's price is shown in the UI. */
+/** One place a naira price is formatted — the book modal, the checkout page, and the order emails all read from here so a price never renders two different ways. */
 export function formatNaira(amount: number): string {
   return nairaFormatter.format(amount);
 }

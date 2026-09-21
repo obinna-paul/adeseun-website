@@ -30,6 +30,28 @@ function asTrimmedString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+/**
+ * Where Paystack sends the customer back to after paying. Deliberately
+ * NOT derived from the `Origin` header — that's fully caller-controlled,
+ * and feeding it to Paystack as a redirect target would let anyone
+ * bounce a paying customer to a site of their choosing. `request.url`'s
+ * host comes from the platform rather than the request body, but its
+ * *protocol* can arrive as plain http behind a proxy even on an https
+ * deployment, which would hand Paystack a callback the customer can't
+ * reach — hence forcing https for anything that isn't local dev.
+ *
+ * NEXT_PUBLIC_SITE_URL overrides both, for when the canonical domain
+ * differs from whatever host the request happened to come in on.
+ */
+function resolveOrigin(request: Request): string {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (configured) return configured.replace(/\/+$/, "");
+
+  const url = new URL(request.url);
+  const isLocal = url.hostname === "localhost" || url.hostname === "127.0.0.1";
+  return isLocal ? url.origin : `https://${url.host}`;
+}
+
 export async function POST(request: Request) {
   let body: CheckoutPayload;
   try {
@@ -57,7 +79,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "That book couldn't be found." }, { status: 404 });
   }
 
-  const origin = new URL(request.url).origin;
+  const origin = resolveOrigin(request);
 
   try {
     const transaction = await initializeTransaction({
