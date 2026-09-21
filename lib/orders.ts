@@ -10,12 +10,15 @@ import { Redis } from "@upstash/redis";
  *     emails twice.
  *  2. A real place to look up past orders, instead of only three inboxes.
  *
- * Reads either `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` (what
- * Upstash's own dashboard calls them) or `KV_REST_API_URL`/
- * `KV_REST_API_TOKEN` (what Vercel's Storage tab still labels them,
- * depending on which flow provisions the integration) — whichever pair
- * is actually present. Confirm which one your Vercel project sets once
- * it's provisioned; this checks both so it works either way.
+ * Reads whichever of these env var pairs is actually present:
+ *  - `UPSTASH_REDIS_REST_URL`/`UPSTASH_REDIS_REST_TOKEN` — Upstash's own
+ *    dashboard naming.
+ *  - `KV_REST_API_URL`/`KV_REST_API_TOKEN` — unprefixed Vercel Storage naming.
+ *  - `ADESEUN_WEBSITE_KV_REST_API_URL`/`ADESEUN_WEBSITE_KV_REST_API_TOKEN`
+ *    — what this project's actual Vercel Marketplace Redis integration
+ *    provisions: Vercel prefixes Marketplace env vars with the store/
+ *    project name rather than leaving them unprefixed, and this is the
+ *    prefix it chose here.
  *
  * Deliberately degrades rather than failing closed: by the time
  * anything here runs, the customer has already paid. If Redis isn't
@@ -72,11 +75,17 @@ let redis: Redis | null | undefined; // undefined = not checked yet, null = not 
 function getRedis(): Redis | null {
   if (redis !== undefined) return redis;
 
-  const url = process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
+  const url =
+    process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL ?? process.env.ADESEUN_WEBSITE_KV_REST_API_URL;
+  const token =
+    process.env.UPSTASH_REDIS_REST_TOKEN ??
+    process.env.KV_REST_API_TOKEN ??
+    process.env.ADESEUN_WEBSITE_KV_REST_API_TOKEN;
 
   if (!url || !token) {
-    console.error("Redis is not configured (no UPSTASH_REDIS_REST_URL/KV_REST_API_URL env vars) — order log and webhook idempotency are disabled.");
+    console.error(
+      "Redis is not configured (no UPSTASH_REDIS_REST_URL/KV_REST_API_URL/ADESEUN_WEBSITE_KV_REST_API_URL env vars) — order log and webhook idempotency are disabled.",
+    );
     redis = null;
     return redis;
   }
