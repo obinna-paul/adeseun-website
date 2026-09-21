@@ -59,6 +59,13 @@
  * quotation from inside the book. `accolades` only lists facts that are
  * actually confirmed (publish date, page count) — no invented praise or
  * press.
+ *
+ * A ninth added later, "Together, Yet Distinct" — 115 pages, confirmed
+ * via the supplied marketing copy and real cover art supplied directly
+ * (not independently verified against a retail listing). Introduced the
+ * "Connection" category, since the original eight didn't have one that
+ * fit a relationship-focused book. `price`/`printSpecs` are the same
+ * flat placeholders as the rest of the catalog.
  */
 
 export type Category =
@@ -69,7 +76,8 @@ export type Category =
   | "Strategy"
   | "Design"
   | "Resilience"
-  | "Purpose";
+  | "Purpose"
+  | "Connection";
 
 export const CATEGORIES: Category[] = [
   "Communication",
@@ -80,6 +88,7 @@ export const CATEGORIES: Category[] = [
   "Design",
   "Resilience",
   "Purpose",
+  "Connection",
 ];
 
 /** Nigeria-only for now — see the checkout route's own doc comment. */
@@ -283,6 +292,25 @@ export const BOOKS: Book[] = [
     printSpecs: { pageCount: 270, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/the-assignment-cover.png",
   },
+  {
+    id: "together-yet-distinct",
+    order: "IX",
+    title: "Together, Yet Distinct",
+    category: "Connection",
+    tone: "gold",
+    tagline: "How to love deeply, stay desirable, and never lose yourself.",
+    description:
+      "A relationship guide built around one idea: closeness and individuality aren't opposites. It works through desire, emotional maturity, respect, and commitment to make the case for a love chosen freely rather than one that asks either person to disappear into it.",
+    accolades: ["115 pages."],
+    excerptHeading: "About the book",
+    excerpt: [
+      "Together, Yet Distinct starts from a plain distinction: connection and confusion aren't the same thing, and neither are closeness and disappearance. It's written for anyone trying to build something lasting without quietly editing themselves out of it — their boundaries, their growth, their sense of who they are outside the relationship.",
+      "Its throughline is that healthy love isn't possession or dependency, but two people choosing each other on purpose, again and again, while still becoming more fully themselves. Not a love that asks you to shrink to fit it — one built to hold both people whole.",
+    ],
+    price: 8000,
+    printSpecs: { pageCount: 115, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
+    coverImage: "/images/together-yet-distinct-cover.jpg",
+  },
 ];
 
-export const PAGE_INTRO = "Eight books, browsed the way they were written — one at a time, with room to sit with each.";
+export const PAGE_INTRO = "Nine books, browsed the way they were written — one at a time, with room to sit with each.";

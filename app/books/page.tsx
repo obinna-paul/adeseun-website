@@ -6,7 +6,7 @@ export const metadata = pageMetadata({
   title: "The Library",
   path: "/books",
   description:
-    "Her eight books — on thoughtful communication, meaningful living, tranquility, identity, media strategy, design, resilience, and purpose — browsed like a private collection.",
+    "Her nine books — on thoughtful communication, meaningful living, tranquility, identity, media strategy, design, resilience, purpose, and connection — browsed like a private collection.",
 });
 
 /**
