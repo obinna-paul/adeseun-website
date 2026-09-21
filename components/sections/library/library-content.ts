@@ -66,6 +66,42 @@
  * "Connection" category, since the original eight didn't have one that
  * fit a relationship-focused book. `price`/`printSpecs` are the same
  * flat placeholders as the rest of the catalog.
+ *
+ * A tenth, "Young, Able & Unshakable" — 219 pages, same sourcing pattern
+ * (supplied marketing copy + real cover art, not independently
+ * verified). A confidence/decision-making guide for teens and young
+ * adults; close to "Resilience" thematically but distinct enough
+ * (choice and self-assurance, not recovering from hardship) to get its
+ * own "Confidence" category rather than double up an existing one —
+ * every book so far has had a category of its own.
+ *
+ * An eleventh, "The Relationship Repair Room" — 201 pages, supplied
+ * marketing copy only, no cover art yet (the upload didn't land as an
+ * accessible file this time — same lag this repo has hit before; add it
+ * via `coverImage` once one exists, meanwhile it falls back to
+ * BookCover's own mockup jacket like any book without real cover art).
+ * A repair/healing-focused counterpart to "Connection" (Together, Yet
+ * Distinct) rather than a duplicate of it — that one is about staying
+ * yourself inside a healthy relationship, this one is about restoring a
+ * damaged one — so it gets its own "Healing" category.
+ *
+ * A twelfth, "The Red Chair Talk" — 253 pages, same "no cover art yet"
+ * situation as the eleventh (also not landed as an accessible file).
+ * A broader conversations-and-reflection collection across love,
+ * friendship, community, and everyday life, not narrowly about romantic
+ * repair — distinct enough from "Healing"/"Connection" to get its own
+ * "Wisdom" category. `tone` is "garnet" a second time (the real cover,
+ * once wired in, is dominated by deep red) rather than strictly
+ * balancing the four tones — a close color match for the fallback
+ * mockup jacket currently standing in for it mattered more here.
+ *
+ * A thirteenth, "People We Never Meet" — 321 pages, also no cover art
+ * yet (same upload lag as the eleventh/twelfth). A short-story/essay
+ * collection about strangers' lives rather than a guide — distinct
+ * enough in both form and theme (empathy for people outside her own
+ * story, not communication or connection within it) to warrant its own
+ * "Empathy" category rather than stretching "Identity" or "Connection"
+ * to cover it.
  */
 
 export type Category =
@@ -77,7 +113,11 @@ export type Category =
   | "Design"
   | "Resilience"
   | "Purpose"
-  | "Connection";
+  | "Connection"
+  | "Confidence"
+  | "Healing"
+  | "Wisdom"
+  | "Empathy";
 
 export const CATEGORIES: Category[] = [
   "Communication",
@@ -89,6 +129,10 @@ export const CATEGORIES: Category[] = [
   "Resilience",
   "Purpose",
   "Connection",
+  "Confidence",
+  "Healing",
+  "Wisdom",
+  "Empathy",
 ];
 
 /** Nigeria-only for now — see the checkout route's own doc comment. */
@@ -311,6 +355,79 @@ export const BOOKS: Book[] = [
     printSpecs: { pageCount: 115, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/together-yet-distinct-cover.jpg",
   },
+  {
+    id: "young-able-unshakable",
+    order: "X",
+    title: "Young, Able & Unshakable",
+    category: "Confidence",
+    tone: "indigo",
+    tagline: "Own your choices. Build your confidence. Lead your life.",
+    description:
+      "A practical confidence guide for teenagers and young adults — reflection prompts and exercises for making wiser choices, recovering from setbacks, and building self-respect, aimed at mentors and parents as much as the young readers themselves.",
+    accolades: ["219 pages."],
+    excerptHeading: "About the book",
+    excerpt: [
+      "Young, Able & Unshakable treats growing up as a series of decisions, not a single arrival at adulthood — the pressure, comparison, and mistakes that come with it are the material to work with, not obstacles to wait out. Confidence here isn't framed as being unshakeable by nature, but built one choice at a time.",
+      "Its lessons and reflection prompts move through understanding yourself, recovering from setbacks, building healthy habits, choosing good friendships, and taking responsibility for what comes next — a resource meant to be worked through with a mentor, parent, or educator as easily as alone.",
+    ],
+    price: 8000,
+    printSpecs: { pageCount: 219, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
+    coverImage: "/images/young-able-unshakable-cover.jpg",
+  },
+  {
+    id: "the-relationship-repair-room",
+    order: "XI",
+    title: "The Relationship Repair Room",
+    category: "Healing",
+    tone: "garnet",
+    tagline: "Come in. Sit down. Let's fix what hurts.",
+    description:
+      "A session-based guide for couples working to rebuild trust and close the distance that's grown between them — honest conversation, reflection, and practical exercises for repairing what's broken rather than starting over.",
+    accolades: ["201 pages."],
+    excerptHeading: "About the book",
+    excerpt: [
+      "The Relationship Repair Room is built for couples who already know something is wrong — trust has thinned, conversations have gone quiet, distance has crept in — but aren't sure where to start putting it back together. It moves through honest conversation, personal reflection, and practical exercises session by session, rather than asking two people to fix everything at once.",
+      "Its focus stays on the ordinary mechanics of repair: communicating without defensiveness, naming a wound instead of avoiding it, handling conflict without letting it corrode the relationship, and building the small habits that keep a home steady. Written for a relationship in real trouble as much as one that just needs tending to.",
+    ],
+    price: 8000,
+    printSpecs: { pageCount: 201, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
+  },
+  {
+    id: "the-red-chair-talk",
+    order: "XII",
+    title: "The Red Chair Talk",
+    category: "Wisdom",
+    tone: "garnet",
+    tagline: "Real conversations. Real people. Real wisdom.",
+    description:
+      "A collection of honest conversations across love, friendship, community, and everyday life — less a single argument than an invitation to sit down, reflect, and see the ordinary moments that shape how we love, listen, forgive, and show up for each other more clearly.",
+    accolades: ["253 pages."],
+    excerptHeading: "About the book",
+    excerpt: [
+      "The Red Chair Talk moves conversation by conversation rather than chapter by chapter — each one its own pause to sit with a different part of ordinary life: love, friendship, community, the small daily choices that add up to how a person lives. It isn't built around one big idea so much as many honest ones, offered a little at a time.",
+      "What holds the collection together is a consistent lens: warmth without avoiding the hard parts, wisdom offered plainly rather than performed. Written for whoever needs perspective on a relationship, a friendship worth rebuilding, or just a clearer way to show up for the people around them.",
+    ],
+    price: 8000,
+    printSpecs: { pageCount: 253, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
+  },
+  {
+    id: "people-we-never-meet",
+    order: "XIII",
+    title: "People We Never Meet",
+    category: "Empathy",
+    tone: "ink",
+    tagline: "Stories from lives that could have been ours.",
+    description:
+      "A collection of stories about strangers whose paths never cross ours but whose joys, wounds, and choices feel unmistakably familiar — an argument, told story by story, that every life carries something worth understanding, even from a distance.",
+    accolades: ["321 pages."],
+    excerptHeading: "About the book",
+    excerpt: [
+      "People We Never Meet moves through fleeting encounters and quiet turning points in lives that never touch the reader's own directly — a stranger on a journey, a moment glimpsed and then gone — treating each one as a full story rather than a passing detail.",
+      "Underneath the individual stories is one throughline: identity, memory, love, and loss aren't private to the people living them. The collection asks readers to sit with someone else's life long enough to recognize their own in it, on the premise that every stranger could have been us.",
+    ],
+    price: 8000,
+    printSpecs: { pageCount: 321, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
+  },
 ];
 
-export const PAGE_INTRO = "Nine books, browsed the way they were written — one at a time, with room to sit with each.";
+export const PAGE_INTRO = "Thirteen books, browsed the way they were written — one at a time, with room to sit with each.";

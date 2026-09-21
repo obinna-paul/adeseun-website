@@ -9,13 +9,13 @@
 
 export const POSITIONING_HEADLINE = "Twenty-six years across media, architecture, and enterprise.";
 export const POSITIONING_BODY =
-  "She has built platforms, designed spaces, published nine books, and led at the intersection of business and creativity. This is the short version of a longer story.";
+  "She has built platforms, designed spaces, published thirteen books, and led at the intersection of business and creativity. This is the short version of a longer story.";
 
 export const BUSINESSES_HEADLINE = "An ecosystem of companies.";
 export const BUSINESSES_BODY = "Media, architecture, faith, and lifestyle brands, each one part of the same story.";
 
 export const QUOTES_HEADLINE = "From the library.";
-export const QUOTES_BODY = "A line from each of her nine books — swipe through a few.";
+export const QUOTES_BODY = "A line from each of her thirteen books — swipe through a few.";
 
 export const BOOK_HEADLINE = "Her latest book.";
 
