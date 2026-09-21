@@ -207,7 +207,7 @@ export async function POST(request: Request) {
     console.error(`Order ${reference}: notification email threw:`, err);
   }
 
-  // PLACEHOLDER — needs the real printer email (PRINTER_EMAIL env var) before this can actually reach them.
+  // Not hardcoded — needs PRINTER_EMAIL set as an env var (locally and in Vercel) before this can reach them.
   const printerEmail = process.env.PRINTER_EMAIL;
   if (!printerEmail) {
     console.error(`Order ${reference}: PRINTER_EMAIL is not set — the printer was not notified. Set this env var once you have the printer's real address.`);
