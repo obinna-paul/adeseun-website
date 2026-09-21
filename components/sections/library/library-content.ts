@@ -76,32 +76,26 @@
  * every book so far has had a category of its own.
  *
  * An eleventh, "The Relationship Repair Room" — 201 pages, supplied
- * marketing copy only, no cover art yet (the upload didn't land as an
- * accessible file this time — same lag this repo has hit before; add it
- * via `coverImage` once one exists, meanwhile it falls back to
- * BookCover's own mockup jacket like any book without real cover art).
+ * marketing copy and real cover art.
  * A repair/healing-focused counterpart to "Connection" (Together, Yet
  * Distinct) rather than a duplicate of it — that one is about staying
  * yourself inside a healthy relationship, this one is about restoring a
  * damaged one — so it gets its own "Healing" category.
  *
- * A twelfth, "The Red Chair Talk" — 253 pages, same "no cover art yet"
- * situation as the eleventh (also not landed as an accessible file).
+ * A twelfth, "The Red Chair Talk" — 253 pages, with real cover art.
  * A broader conversations-and-reflection collection across love,
  * friendship, community, and everyday life, not narrowly about romantic
  * repair — distinct enough from "Healing"/"Connection" to get its own
- * "Wisdom" category. `tone` is "garnet" a second time (the real cover,
- * once wired in, is dominated by deep red) rather than strictly
- * balancing the four tones — a close color match for the fallback
- * mockup jacket currently standing in for it mattered more here.
+ * "Wisdom" category. `tone` is "garnet" a second time because the real
+ * cover is dominated by deep red, rather than strictly balancing the
+ * four tones.
  *
- * A thirteenth, "People We Never Meet" — 321 pages, also no cover art
- * yet (same upload lag as the eleventh/twelfth). A short-story/essay
- * collection about strangers' lives rather than a guide — distinct
- * enough in both form and theme (empathy for people outside her own
- * story, not communication or connection within it) to warrant its own
- * "Empathy" category rather than stretching "Identity" or "Connection"
- * to cover it.
+ * A thirteenth, "People We Never Meet" — 321 pages, with real cover art.
+ * A short-story/essay collection about strangers' lives rather than a
+ * guide — distinct enough in both form and theme (empathy for people
+ * outside her own story, not communication or connection within it) to
+ * warrant its own "Empathy" category rather than stretching "Identity"
+ * or "Connection" to cover it.
  */
 
 export type Category =
@@ -391,6 +385,7 @@ export const BOOKS: Book[] = [
     ],
     price: 8000,
     printSpecs: { pageCount: 201, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
+    coverImage: "/images/61EalkPctWL._SL1499_.jpg",
   },
   {
     id: "the-red-chair-talk",
@@ -409,6 +404,7 @@ export const BOOKS: Book[] = [
     ],
     price: 8000,
     printSpecs: { pageCount: 253, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
+    coverImage: "/images/618AUljyCdL._SL1499_.jpg",
   },
   {
     id: "people-we-never-meet",
@@ -427,6 +423,7 @@ export const BOOKS: Book[] = [
     ],
     price: 8000,
     printSpecs: { pageCount: 321, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
+    coverImage: "/images/61Cxbtgx93L._SL1499_.jpg",
   },
 ];
 
