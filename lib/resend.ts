@@ -54,21 +54,15 @@ export async function sendEmail(input: SendEmailInput): Promise<{ error: unknown
 }
 
 /**
- * Resend's shared dev sender.
- *
- * ⚠ LAUNCH BLOCKER for the order emails: `onboarding@resend.dev` can
- * only deliver to the address that owns the Resend account. The contact
- * form survives that (it only ever mails her), but a book order mails
- * two *arbitrary* third parties — the customer who just paid, and the
- * printer — and both of those sends will be rejected outright until a
- * real sending domain is verified in the Resend dashboard (add the
- * domain, add its DNS records, wait for verification). Until then a
- * customer can pay and never receive a confirmation.
- *
- * Once a domain is verified, swap these for addresses on it (e.g.
- * "The Library <orders@adeseunoyeneye.com>"); nothing else has to change.
+ * adeseunoyeneye.com is verified in Resend (per direct instruction), so
+ * both senders now live on it — this replaces the earlier
+ * `onboarding@resend.dev` shared dev sender, which could only ever
+ * deliver to the Resend account's own address and would have silently
+ * rejected mail to a paying customer or the printer. `order@` for both,
+ * also per direct instruction, rather than splitting reception/library
+ * onto separate addresses — easy to split later if that's ever wanted.
  */
 export const FROM_ADDRESS = {
-  reception: "The Reception <onboarding@resend.dev>",
-  library: "The Library <onboarding@resend.dev>",
+  reception: "The Reception <order@adeseunoyeneye.com>",
+  library: "The Library <order@adeseunoyeneye.com>",
 } as const;
