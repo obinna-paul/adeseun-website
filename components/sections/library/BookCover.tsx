@@ -37,10 +37,12 @@ export function BookCover({
   book,
   size = "card",
   className,
+  priority = false,
 }: {
   book: Book;
   size?: "card" | "modal";
   className?: string;
+  priority?: boolean;
 }) {
   if (book.coverImage) {
     const contain = book.coverFit === "contain";
@@ -56,6 +58,7 @@ export function BookCover({
           src={book.coverImage}
           alt={`${book.title} cover`}
           fill
+          priority={priority}
           sizes={size === "modal" ? "(min-width: 640px) 280px, 60vw" : "(min-width: 1024px) 25vw, 45vw"}
           className={contain ? "object-contain" : "object-cover"}
         />

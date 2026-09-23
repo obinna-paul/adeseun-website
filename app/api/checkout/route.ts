@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { BOOKS, CURRENCY } from "@/components/sections/library/library-content";
 import { initializeTransaction, PaystackNotConfiguredError } from "@/lib/paystack";
 import { createPendingOrder } from "@/lib/orders";
+import { getEbookPublication } from "@/lib/ebooks";
+import type { BookFormat } from "@/lib/ebook-types";
 
 /**
  * Starts a book purchase: looks up the book's (currently placeholder —
@@ -16,6 +18,7 @@ import { createPendingOrder } from "@/lib/orders";
 
 type CheckoutPayload = {
   bookId?: unknown;
+  format?: unknown;
   name?: unknown;
   email?: unknown;
   phone?: unknown;
@@ -61,6 +64,8 @@ export async function POST(request: Request) {
   }
 
   const bookId = asTrimmedString(body.bookId);
+  const requestedFormat = asTrimmedString(body.format);
+  const format: BookFormat = requestedFormat === "ebook" ? "ebook" : "paperback";
   const name = asTrimmedString(body.name);
   const email = asTrimmedString(body.email);
   const phone = asTrimmedString(body.phone);
@@ -70,8 +75,15 @@ export async function POST(request: Request) {
     state: asTrimmedString(body.address?.state),
   };
 
-  if (!name || !email || !phone || !address.line1 || !address.city || !address.state) {
-    return NextResponse.json({ error: "Name, email, phone, and a full delivery address are required." }, { status: 400 });
+  if (!name || !email) {
+    return NextResponse.json({ error: "Name and email are required." }, { status: 400 });
+  }
+
+  if (format === "paperback" && (!phone || !address.line1 || !address.city || !address.state)) {
+    return NextResponse.json(
+      { error: "Phone and a full delivery address are required for a paperback." },
+      { status: 400 },
+    );
   }
 
   const book = BOOKS.find((b) => b.id === bookId);
@@ -79,17 +91,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "That book couldn't be found." }, { status: 404 });
   }
 
+  const ebookPublication = format === "ebook" ? await getEbookPublication(book.id) : null;
+  if (format === "ebook" && !ebookPublication?.manifestKey) {
+    return NextResponse.json({ error: "The e-book is not available yet." }, { status: 409 });
+  }
+
+  const priceNaira = format === "ebook" ? ebookPublication!.priceNaira : book.price;
+
   const origin = resolveOrigin(request);
 
   try {
     const transaction = await initializeTransaction({
       email,
-      amountNaira: book.price,
+      amountNaira: priceNaira,
       currency: CURRENCY,
-      callbackUrl: `${origin}/checkout/thank-you`,
+      callbackUrl: `${origin}/checkout/thank-you?format=${format}`,
       metadata: {
         bookId: book.id,
         bookTitle: book.title,
+        format,
+        priceNaira,
         customerName: name,
         customerPhone: phone,
         address,
@@ -101,7 +122,8 @@ export async function POST(request: Request) {
       reference: transaction.reference,
       bookId: book.id,
       bookTitle: book.title,
-      priceNaira: book.price,
+      format,
+      priceNaira,
       currency: CURRENCY,
       customerName: name,
       customerEmail: email,

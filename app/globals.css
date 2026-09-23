@@ -184,6 +184,39 @@ html {
   scrollbar-width: thin;
 }
 
+/* The immersive e-book reader uses the native pointer and owns its own
+   internal scrolling instead of Lenis. Its page pixels are deliberately
+   non-selectable and print output is blocked as a redistribution
+   deterrent; authorization and per-reader watermarks remain the real
+   protection boundary. */
+.reader-shell,
+.reader-shell * {
+  cursor: auto;
+}
+.reader-shell img {
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+.reader-range {
+  accent-color: var(--color-emerald-fill);
+}
+
+@media print {
+  .reader-shell > * {
+    display: none !important;
+  }
+  .reader-shell::after {
+    content: "Printing is not available in the online reader.";
+    display: grid;
+    min-height: 100dvh;
+    place-items: center;
+    padding: 2rem;
+    font-family: var(--font-body);
+    color: var(--color-text);
+  }
+}
+
 /* Custom cursor is opt-in per element via [data-cursor]; base cursor stays
    native everywhere else, and always native on touch/coarse pointers. */
 @media (hover: hover) and (pointer: fine) {

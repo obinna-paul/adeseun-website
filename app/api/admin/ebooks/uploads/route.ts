@@ -1,0 +1,234 @@
+import { NextResponse } from "next/server";
+import { BOOKS } from "@/components/sections/library/library-content";
+import { hasAdminSession } from "@/lib/admin-auth";
+import { getEbookPublication, saveEbookPublication } from "@/lib/ebooks";
+import {
+  abortSourceMultipartUpload,
+  completeSourceMultipartUpload,
+  createSourceMultipartUpload,
+  signSourceUploadPart,
+} from "@/lib/ebook-storage";
+import type { EbookPublication } from "@/lib/ebook-types";
+
+export const runtime = "nodejs";
+
+const MAX_SOURCE_BYTES = 2 * 1024 * 1024 * 1024;
+
+type UploadAction =
+  | {
+      action: "create";
+      bookId: string;
+      filename: string;
+      size: number;
+      contentType: string;
+      priceNaira: number;
+    }
+  | { action: "sign-part"; bookId: string; uploadId: string; key: string; partNumber: number }
+  | {
+      action: "complete";
+      bookId: string;
+      uploadId: string;
+      key: string;
+      parts: Array<{ ETag: string; PartNumber: number }>;
+    }
+  | { action: "abort"; bookId: string; uploadId: string; key: string }
+  | { action: "process"; bookId: string };
+
+function cleanFilename(filename: string): string {
+  return filename.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/^-+|-+$/g, "") || "ebook.pdf";
+}
+
+function sourcePrefix(): string {
+  return (process.env.R2_PREFIX ?? "ebooks").replace(/^\/+|\/+$/g, "");
+}
+
+async function triggerGitHubProcessor(publication: EbookPublication): Promise<boolean> {
+  const token = process.env.GITHUB_ACTIONS_TOKEN;
+  const repository = process.env.GITHUB_REPOSITORY;
+  if (!token || !repository) return false;
+
+  if (!/^[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+$/.test(repository)) {
+    throw new Error("GITHUB_REPOSITORY must use the owner/repository format.");
+  }
+
+  const workflow = process.env.GITHUB_EBOOK_WORKFLOW ?? "process-ebook.yml";
+  const ref = process.env.GITHUB_EBOOK_REF ?? "main";
+  const response = await fetch(
+    `https://api.github.com/repos/${repository}/actions/workflows/${encodeURIComponent(workflow)}/dispatches`,
+    {
+      method: "POST",
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        "User-Agent": "adeseun-website",
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+      body: JSON.stringify({
+        ref,
+        inputs: { book_id: publication.bookId, source_key: publication.sourceKey },
+      }),
+    },
+  );
+  if (!response.ok) {
+    const detail = (await response.text()).slice(0, 500);
+    throw new Error(`GitHub processor returned ${response.status}: ${detail}`);
+  }
+  return true;
+}
+
+async function triggerHttpProcessor(publication: EbookPublication): Promise<boolean> {
+  const url = process.env.EBOOK_PROCESSOR_URL;
+  const secret = process.env.EBOOK_PROCESSOR_SECRET;
+  if (!url || !secret) return false;
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${secret}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ bookId: publication.bookId, sourceKey: publication.sourceKey }),
+  });
+  if (!response.ok) throw new Error(`Processor returned ${response.status}.`);
+  return true;
+}
+
+async function triggerProcessor(publication: EbookPublication): Promise<boolean> {
+  if (await triggerGitHubProcessor(publication)) return true;
+  return triggerHttpProcessor(publication);
+}
+
+function uploadMatches(publication: EbookPublication | null, key: string, uploadId: string): publication is EbookPublication {
+  return Boolean(publication && publication.sourceKey === key && publication.uploadId === uploadId);
+}
+
+export async function POST(request: Request) {
+  if (!(await hasAdminSession().catch(() => false))) {
+    return NextResponse.json({ error: "Publishing sign-in required." }, { status: 401 });
+  }
+
+  let body: UploadAction;
+  try {
+    body = (await request.json()) as UploadAction;
+  } catch {
+    return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+  }
+
+  try {
+    if (body.action === "create") {
+      const book = BOOKS.find((candidate) => candidate.id === body.bookId);
+      if (!book) return NextResponse.json({ error: "Book not found." }, { status: 404 });
+      if (!body.filename.toLowerCase().endsWith(".pdf") || body.contentType !== "application/pdf") {
+        return NextResponse.json({ error: "Upload a PDF file." }, { status: 400 });
+      }
+      if (!Number.isFinite(body.size) || body.size < 1 || body.size > MAX_SOURCE_BYTES) {
+        return NextResponse.json({ error: "The PDF must be smaller than 2 GB." }, { status: 400 });
+      }
+      const priceNaira = Math.round(Number(body.priceNaira));
+      if (!Number.isFinite(priceNaira) || priceNaira < 1) {
+        return NextResponse.json({ error: "Enter the e-book price in naira." }, { status: 400 });
+      }
+
+      const existing = await getEbookPublication(book.id);
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const key = `${sourcePrefix()}/sources/${book.id}/${timestamp}-${cleanFilename(body.filename)}`;
+      const uploadId = await createSourceMultipartUpload(key, "application/pdf");
+      const now = new Date().toISOString();
+      const publication: EbookPublication = {
+        ...existing,
+        bookId: book.id,
+        priceNaira,
+        status: "uploading",
+        originalFilename: body.filename,
+        sourceKey: key,
+        sourceBytes: body.size,
+        uploadId,
+        createdAt: existing?.createdAt ?? now,
+        updatedAt: now,
+        error: undefined,
+      };
+      try {
+        await saveEbookPublication(publication);
+      } catch (error) {
+        await abortSourceMultipartUpload(key, uploadId).catch(() => undefined);
+        throw error;
+      }
+      return NextResponse.json({ uploadId, key });
+    }
+
+    if (body.action === "sign-part") {
+      const publication = await getEbookPublication(body.bookId);
+      if (!uploadMatches(publication, body.key, body.uploadId)) {
+        return NextResponse.json({ error: "Upload session not found." }, { status: 404 });
+      }
+      if (!Number.isInteger(body.partNumber) || body.partNumber < 1 || body.partNumber > 10_000) {
+        return NextResponse.json({ error: "Invalid upload part." }, { status: 400 });
+      }
+      const url = await signSourceUploadPart({ key: body.key, uploadId: body.uploadId, partNumber: body.partNumber });
+      return NextResponse.json({ url });
+    }
+
+    if (body.action === "complete") {
+      const publication = await getEbookPublication(body.bookId);
+      if (!uploadMatches(publication, body.key, body.uploadId)) {
+        return NextResponse.json({ error: "Upload session not found." }, { status: 404 });
+      }
+      const parts = body.parts
+        .filter((part) => part.ETag && Number.isInteger(part.PartNumber))
+        .sort((a, b) => a.PartNumber - b.PartNumber);
+      if (parts.length === 0) return NextResponse.json({ error: "No uploaded parts were provided." }, { status: 400 });
+
+      await completeSourceMultipartUpload({ key: body.key, uploadId: body.uploadId, parts });
+      const processing: EbookPublication = {
+        ...publication,
+        status: "processing",
+        uploadId: undefined,
+        updatedAt: new Date().toISOString(),
+        error: undefined,
+      };
+      await saveEbookPublication(processing);
+
+      const processorStarted = await triggerProcessor(processing);
+      return NextResponse.json({
+        ok: true,
+        processorStarted,
+        message: processorStarted
+          ? "Upload complete. Page processing has started."
+          : "Upload complete. Configure the processor or run the processing command to publish it.",
+      });
+    }
+
+    if (body.action === "abort") {
+      const publication = await getEbookPublication(body.bookId);
+      if (uploadMatches(publication, body.key, body.uploadId)) {
+        await abortSourceMultipartUpload(body.key, body.uploadId);
+        await saveEbookPublication({
+          ...publication,
+          status: "failed",
+          uploadId: undefined,
+          updatedAt: new Date().toISOString(),
+          error: "Upload cancelled or failed.",
+        });
+      }
+      return NextResponse.json({ ok: true });
+    }
+
+    if (body.action === "process") {
+      const publication = await getEbookPublication(body.bookId);
+      if (!publication?.sourceKey) return NextResponse.json({ error: "No source PDF is available." }, { status: 404 });
+      const processing = { ...publication, status: "processing" as const, updatedAt: new Date().toISOString(), error: undefined };
+      await saveEbookPublication(processing);
+      const processorStarted = await triggerProcessor(processing);
+      if (!processorStarted) {
+        return NextResponse.json({ error: "The processor service is not configured." }, { status: 503 });
+      }
+      return NextResponse.json({ ok: true, message: "Processing has started." });
+    }
+
+    return NextResponse.json({ error: "Unknown upload action." }, { status: 400 });
+  } catch (err) {
+    console.error("E-book upload action failed:", err);
+    return NextResponse.json({ error: "The e-book upload action failed." }, { status: 500 });
+  }
+}

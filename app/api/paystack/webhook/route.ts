@@ -4,6 +4,12 @@ import { verifyWebhookSignature, verifyTransaction, PaystackNotConfiguredError }
 import { getOrder, claimOrderForFulfillment, markOrderFulfilled, type EmailOutcome } from "@/lib/orders";
 import { sendEmail, EmailNotConfiguredError, FROM_ADDRESS } from "@/lib/resend";
 import { formatNaira } from "@/lib/utils";
+import {
+  createReaderAccessToken,
+  getEbookPublication,
+  grantEbookEntitlement,
+} from "@/lib/ebooks";
+import type { BookFormat } from "@/lib/ebook-types";
 
 /**
  * The one thing that actually triggers a fulfilled order. The redirect
@@ -36,10 +42,16 @@ import { formatNaira } from "@/lib/utils";
 type ChargeMetadata = {
   bookId?: string;
   bookTitle?: string;
+  format?: BookFormat;
+  priceNaira?: number;
   customerName?: string;
   customerPhone?: string;
   address?: { line1?: string; city?: string; state?: string };
 };
+
+function siteUrl(): string {
+  return (process.env.NEXT_PUBLIC_SITE_URL ?? "https://adeseunoyeneye.com").replace(/\/+$/, "");
+}
 
 export async function POST(request: Request) {
   const rawBody = await request.text();
@@ -110,10 +122,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  const expectedAmountKobo = Math.round(book.price * 100);
+  const format: BookFormat = metadata.format === "ebook" ? "ebook" : "paperback";
+  const ebookPublication = format === "ebook" ? await getEbookPublication(book.id) : null;
+  if (format === "ebook" && !ebookPublication?.manifestKey) {
+    console.error(`Paystack webhook: e-book publication for ${book.id} is not available. Retrying later.`);
+    return NextResponse.json({ error: "E-book publication is unavailable." }, { status: 503 });
+  }
+
+  // The verified Paystack transaction preserves the server-calculated
+  // checkout price. This lets an already-open checkout complete safely
+  // even if the publisher changes the catalog price before its webhook
+  // arrives. Older transactions fall back to the current catalog price.
+  const metadataPrice = Number(metadata.priceNaira);
+  const currentPrice = format === "ebook" ? ebookPublication!.priceNaira : book.price;
+  const priceNaira = Number.isFinite(metadataPrice) && metadataPrice > 0 ? metadataPrice : currentPrice;
+  const expectedAmountKobo = Math.round(priceNaira * 100);
   if (verified.amount !== expectedAmountKobo || verified.currency !== CURRENCY) {
     console.error(
-      `Paystack webhook: AMOUNT MISMATCH for ${reference} — paid ${verified.amount} ${verified.currency}, expected ${expectedAmountKobo} ${CURRENCY} for "${book.title}". Not fulfilling automatically; check this order manually in the Paystack dashboard.`,
+      `Paystack webhook: AMOUNT MISMATCH for ${reference} — paid ${verified.amount} ${verified.currency}, expected ${expectedAmountKobo} ${CURRENCY} for "${book.title}" (${format}). Not fulfilling automatically; check this order manually in the Paystack dashboard.`,
     );
     return NextResponse.json({ ok: true });
   }
@@ -141,6 +167,33 @@ export async function POST(request: Request) {
     printer: "skipped",
   };
 
+  let readerAccessUrl: string | null = null;
+  if (format === "ebook") {
+    if (!customerEmail) {
+      console.error(`Order ${reference}: Paystack returned no customer email, so e-book access cannot be granted.`);
+      return NextResponse.json({ error: "Customer email is missing." }, { status: 500 });
+    }
+
+    try {
+      await grantEbookEntitlement({
+        bookId: book.id,
+        customerEmail,
+        customerName,
+        orderReference: reference,
+        grantedAt: new Date().toISOString(),
+      });
+      const token = await createReaderAccessToken({
+        email: customerEmail,
+        name: customerName,
+        nextPath: `/read/${book.id}`,
+      });
+      readerAccessUrl = `${siteUrl()}/api/reader/access/${encodeURIComponent(token)}`;
+    } catch (err) {
+      console.error(`Order ${reference}: could not grant e-book access:`, err);
+      return NextResponse.json({ error: "Could not grant e-book access yet." }, { status: 500 });
+    }
+  }
+
   // The first send tells us whether email is configured at all — if not, fail closed (500, so Paystack retries once it's fixed) rather than silently skipping a paid order's notifications.
   if (!customerEmail) {
     console.error(`Order ${reference}: Paystack returned no customer email — cannot send the buyer their confirmation.`);
@@ -149,19 +202,33 @@ export async function POST(request: Request) {
       const { error } = await sendEmail({
         from: FROM_ADDRESS.library,
         to: customerEmail,
-        subject: `Your order — ${book.title}`,
-        text: [
-          `Thank you for your order, ${customerName || "there"}.`,
-          "",
-          `Book: ${book.title}`,
-          `Amount paid: ${formatNaira(book.price)}`,
-          `Order reference: ${reference}`,
-          "",
-          "Delivery address on file:",
-          addressBlock,
-          "",
-          "Your copy is being prepared for print. Please allow 7–10 business days for it to reach you — thank you for your patience.",
-        ].join("\n"),
+        subject: format === "ebook" ? `Read ${book.title} online` : `Your order — ${book.title}`,
+        text:
+          format === "ebook"
+            ? [
+                `Thank you for your order, ${customerName || "there"}.`,
+                "",
+                `E-book: ${book.title}`,
+                `Amount paid: ${formatNaira(priceNaira)}`,
+                `Order reference: ${reference}`,
+                "",
+                "Open your private reading room:",
+                readerAccessUrl ?? `${siteUrl()}/read`,
+                "",
+                "This sign-in link expires in 15 minutes. You can request a fresh link from the reading room at any time.",
+              ].join("\n")
+            : [
+                `Thank you for your order, ${customerName || "there"}.`,
+                "",
+                `Book: ${book.title}`,
+                `Amount paid: ${formatNaira(priceNaira)}`,
+                `Order reference: ${reference}`,
+                "",
+                "Delivery address on file:",
+                addressBlock,
+                "",
+                "Your copy is being prepared for print. Please allow 7-10 business days for delivery. Thank you for your patience.",
+              ].join("\n"),
       });
       if (error) {
         emailStatus.customer = "failed";
@@ -183,18 +250,21 @@ export async function POST(request: Request) {
     const { error } = await sendEmail({
       from: FROM_ADDRESS.library,
       to: "adeseun05@gmail.com",
-      subject: `New book order — ${book.title}`,
+      subject: `New ${format === "ebook" ? "e-book" : "paperback"} order — ${book.title}`,
       text: [
         `Book: ${book.title}`,
-        `Amount: ${formatNaira(book.price)}`,
+        `Format: ${format === "ebook" ? "E-book" : "Paperback"}`,
+        `Amount: ${formatNaira(priceNaira)}`,
         `Order reference: ${reference}`,
         "",
         `Customer: ${customerName}`,
         `Email: ${customerEmail}`,
-        `Phone: ${customerPhone}`,
-        "Delivery address:",
-        addressBlock,
-      ].join("\n"),
+        format === "paperback" ? `Phone: ${customerPhone}` : null,
+        format === "paperback" ? "Delivery address:" : null,
+        format === "paperback" ? addressBlock : null,
+      ]
+        .filter((line): line is string => line !== null)
+        .join("\n"),
     });
     if (error) {
       emailStatus.owner = "failed";
@@ -209,7 +279,9 @@ export async function POST(request: Request) {
 
   // Not hardcoded — needs PRINTER_EMAIL set as an env var (locally and in Vercel) before this can reach them.
   const printerEmail = process.env.PRINTER_EMAIL;
-  if (!printerEmail) {
+  if (format === "ebook") {
+    emailStatus.printer = "skipped";
+  } else if (!printerEmail) {
     console.error(`Order ${reference}: PRINTER_EMAIL is not set — the printer was not notified. Set this env var once you have the printer's real address.`);
   } else {
     try {
@@ -248,9 +320,9 @@ export async function POST(request: Request) {
   }
 
   // The printer is the one who actually ships, so their notification not going out means a paid order that nobody is producing — worth its own unmissable line rather than being buried among the per-send logs above.
-  if (emailStatus.printer !== "sent") {
+  if (format === "paperback" && emailStatus.printer !== "sent") {
     console.error(
-      `ACTION REQUIRED — order ${reference} ("${book.title}", ${formatNaira(book.price)}) was paid for but the printer was NOT notified (${emailStatus.printer}). Forward this order to the printer manually.`,
+      `ACTION REQUIRED — order ${reference} ("${book.title}", ${formatNaira(priceNaira)}) was paid for but the printer was NOT notified (${emailStatus.printer}). Forward this order to the printer manually.`,
     );
   }
 
@@ -258,7 +330,8 @@ export async function POST(request: Request) {
     reference,
     bookId: book.id,
     bookTitle: book.title,
-    priceNaira: book.price,
+    format,
+    priceNaira,
     currency: CURRENCY,
     customerName,
     customerEmail,

@@ -7,6 +7,7 @@ import { BookCard } from "./BookCard";
 import { FilterBar } from "./FilterBar";
 import { BookModal } from "./BookModal";
 import { ease } from "@/lib/design-tokens";
+import type { EbookCatalogItem } from "@/lib/ebook-types";
 
 /**
  * Grid re-filtering uses AnimatePresence + `layout` (per the brief) —
@@ -14,7 +15,7 @@ import { ease } from "@/lib/design-tokens";
  * animation, new items fade/scale in. `mode="popLayout"` lets exiting
  * items animate out of flow instead of holding the grid's height open.
  */
-export function LibraryGrid() {
+export function LibraryGrid({ ebookCatalog }: { ebookCatalog: Record<string, EbookCatalogItem> }) {
   const [category, setCategory] = useState<Category | "All">("All");
   const [selected, setSelected] = useState<Book | null>(null);
 
@@ -48,7 +49,11 @@ export function LibraryGrid() {
         </AnimatePresence>
       </motion.div>
 
-      <BookModal book={selected} onClose={() => setSelected(null)} />
+      <BookModal
+        book={selected}
+        ebook={selected ? ebookCatalog[selected.id] ?? null : null}
+        onClose={() => setSelected(null)}
+      />
     </>
   );
 }

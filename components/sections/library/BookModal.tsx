@@ -11,6 +11,7 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { cn, formatNaira } from "@/lib/utils";
 import { MagneticButton } from "@/components/ui/MagneticButton";
+import type { EbookCatalogItem } from "@/lib/ebook-types";
 
 const TILT_RANGE = 10; // degrees — "slow rotation," not a cartoon flip
 
@@ -88,7 +89,15 @@ const MotionDialogPopup = motion.create(Dialog.Popup);
  * more"); `dragSnapToOrigin` springs it back whenever a release doesn't
  * clear the close threshold in `handleSheetDragEnd`.
  */
-export function BookModal({ book, onClose }: { book: Book | null; onClose: () => void }) {
+export function BookModal({
+  book,
+  ebook,
+  onClose,
+}: {
+  book: Book | null;
+  ebook: EbookCatalogItem | null;
+  onClose: () => void;
+}) {
   // Mirrors `book`, but only ever advances to a non-null value — the
   // popup keeps rendering the closing book's content through its exit
   // animation instead of going blank the instant the parent clears
@@ -205,7 +214,7 @@ export function BookModal({ book, onClose }: { book: Book | null; onClose: () =>
                 </motion.div>
               </div>
 
-              <BookDetails key={displayBook.id} book={displayBook} />
+              <BookDetails key={displayBook.id} book={displayBook} ebook={ebook} />
             </>
           )}
         </MotionDialogPopup>
@@ -220,7 +229,7 @@ export function BookModal({ book, onClose }: { book: Book | null; onClose: () =>
  * resets `showExcerpt` for free — no effect needed to "reset state when
  * a prop changes."
  */
-function BookDetails({ book }: { book: Book }) {
+function BookDetails({ book, ebook }: { book: Book; ebook: EbookCatalogItem | null }) {
   const [showExcerpt, setShowExcerpt] = useState(false);
 
   return (
@@ -247,10 +256,30 @@ function BookDetails({ book }: { book: Book }) {
         </ul>
       )}
 
-      <div className="mt-8 flex flex-wrap items-center gap-4">
-        <MagneticButton href={`/checkout/${book.id}`} variant="primary" dense>
-          Buy — {formatNaira(book.price)}
-        </MagneticButton>
+      <div className="mt-8 grid gap-5 border-t border-line-whisper pt-6 sm:grid-cols-2">
+        <div>
+          <p className="font-display text-xl font-semibold text-text">Paperback</p>
+          <p className="mt-1 text-sm leading-relaxed text-text-subdued">A printed copy delivered to your address.</p>
+          <MagneticButton href={`/checkout/${book.id}?format=paperback`} variant="primary" dense className="mt-4">
+            Buy for {formatNaira(book.price)}
+          </MagneticButton>
+        </div>
+        <div>
+          <p className="font-display text-xl font-semibold text-text">Read online</p>
+          <p className="mt-1 text-sm leading-relaxed text-text-subdued">
+            Private browser access with your place saved automatically.
+          </p>
+          {ebook ? (
+            <MagneticButton href={`/checkout/${book.id}?format=ebook`} variant="secondary" dense className="mt-4">
+              Buy e-book for {formatNaira(ebook.priceNaira)}
+            </MagneticButton>
+          ) : (
+            <p className="mt-4 font-mono text-xs text-text-faint">E-book not published yet</p>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-6 flex flex-wrap items-center gap-4">
         <button
           type="button"
           onClick={() => setShowExcerpt((v) => !v)}

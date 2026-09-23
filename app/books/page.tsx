@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { pageMetadata, bookJsonLd } from "@/lib/seo";
 import { LibraryGrid } from "@/components/sections/library";
 import { BOOKS, PAGE_INTRO } from "@/components/sections/library/library-content";
+import { getPublishedEbookCatalog } from "@/lib/ebooks";
 
 export const metadata = pageMetadata({
   title: "The Library",
@@ -29,7 +31,12 @@ export const metadata = pageMetadata({
 const PAPER_TEXTURE =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
-export default function BooksPage() {
+export default async function BooksPage() {
+  const ebookCatalog = await getPublishedEbookCatalog(BOOKS.map((book) => book.id)).catch((error) => {
+    console.error("Could not load the e-book catalog:", error);
+    return {};
+  });
+
   return (
     <main id="main-content" tabIndex={-1}>
       <section
@@ -41,12 +48,20 @@ export default function BooksPage() {
         }}
       >
         <div className="relative mx-auto max-w-frame">
-          <div className="max-w-2xl">
-            <h1 className="text-balance font-display text-4xl font-semibold text-text sm:text-5xl">The Library</h1>
-            <p className="mt-4 max-w-md text-lg text-text-subdued">{PAGE_INTRO}</p>
+          <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+            <div className="max-w-2xl">
+              <h1 className="text-balance font-display text-4xl font-semibold text-text sm:text-5xl">The Library</h1>
+              <p className="mt-4 max-w-md text-lg text-text-subdued">{PAGE_INTRO}</p>
+            </div>
+            <Link
+              href="/read"
+              className="rounded-control border border-line-strong bg-surface/60 px-5 py-3 font-mono text-xs uppercase tracking-[0.12em] text-emerald-ink transition-colors duration-150 ease-gallery-standard hover:border-emerald-line hover:bg-emerald-tint"
+            >
+              My e-books
+            </Link>
           </div>
 
-          <LibraryGrid />
+          <LibraryGrid ebookCatalog={ebookCatalog} />
         </div>
       </section>
 

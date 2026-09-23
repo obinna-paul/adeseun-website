@@ -30,3 +30,6 @@ next-env.d.ts
 
 # Playwright MCP session artifacts (console logs, page snapshots)
 .playwright-mcp/
+
+# Local Impeccable visual-review captures (surface briefs remain tracked)
+/.impeccable/review/

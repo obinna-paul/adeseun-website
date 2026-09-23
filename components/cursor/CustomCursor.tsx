@@ -4,6 +4,7 @@ import { useEffect, useSyncExternalStore } from "react";
 import { AnimatePresence, motion, useMotionValue, useSpring } from "motion/react";
 import { ArrowsOutSimple } from "@phosphor-icons/react/dist/ssr";
 import type { CursorVariant } from "./CursorProvider";
+import { usePathname } from "next/navigation";
 
 /**
  * A trailing dot that expands into a labeled circle over links/buttons,
@@ -61,6 +62,7 @@ const DOT_SCALE = 0.2; // 40px * 0.2 = 8px resting dot, matching the original do
 
 export function CustomCursor({ variant, text }: { variant: CursorVariant; text: string }) {
   const enabled = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const pathname = usePathname();
 
   const x = useMotionValue(-100);
   const y = useMotionValue(-100);
@@ -77,7 +79,7 @@ export function CustomCursor({ variant, text }: { variant: CursorVariant; text: 
     return () => window.removeEventListener("pointermove", handleMove);
   }, [enabled, x, y]);
 
-  if (!enabled) return null;
+  if (!enabled || pathname.startsWith("/read/")) return null;
 
   const expanded = variant !== "default";
 

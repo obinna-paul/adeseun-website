@@ -1,4 +1,5 @@
-import { Redis } from "@upstash/redis";
+import { getRedis } from "@/lib/redis";
+import type { BookFormat } from "@/lib/ebook-types";
 
 /**
  * A minimal order log, backed by Upstash Redis (not the deprecated
@@ -39,6 +40,7 @@ export type OrderRecord = {
   reference: string;
   bookId: string;
   bookTitle: string;
+  format: BookFormat;
   priceNaira: number;
   currency: string;
   customerName: string;
@@ -69,30 +71,6 @@ const ORDER_TTL_SECONDS = 60 * 60 * 24 * 180; // 180 days — an order log, not 
  * the order's whole lifetime.
  */
 const CLAIM_TTL_SECONDS = 60 * 10;
-
-let redis: Redis | null | undefined; // undefined = not checked yet, null = not configured
-
-function getRedis(): Redis | null {
-  if (redis !== undefined) return redis;
-
-  const url =
-    process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL ?? process.env.ADESEUN_WEBSITE_KV_REST_API_URL;
-  const token =
-    process.env.UPSTASH_REDIS_REST_TOKEN ??
-    process.env.KV_REST_API_TOKEN ??
-    process.env.ADESEUN_WEBSITE_KV_REST_API_TOKEN;
-
-  if (!url || !token) {
-    console.error(
-      "Redis is not configured (no UPSTASH_REDIS_REST_URL/KV_REST_API_URL/ADESEUN_WEBSITE_KV_REST_API_URL env vars) — order log and webhook idempotency are disabled.",
-    );
-    redis = null;
-    return redis;
-  }
-
-  redis = new Redis({ url, token });
-  return redis;
-}
 
 function orderKey(reference: string): string {
   return `order:${reference}`;

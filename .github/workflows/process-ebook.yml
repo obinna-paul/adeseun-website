@@ -1,0 +1,54 @@
+name: Process e-book
+
+on:
+  workflow_dispatch:
+    inputs:
+      book_id:
+        description: Catalog book ID
+        required: true
+        type: string
+      source_key:
+        description: Private R2 source PDF object key
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ebook-${{ inputs.book_id }}
+  cancel-in-progress: false
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install PDF tools
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Render and publish e-book
+        env:
+          EBOOK_BOOK_ID: ${{ inputs.book_id }}
+          EBOOK_SOURCE_KEY: ${{ inputs.source_key }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          R2_PREFIX: ebooks
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          DELETE_SOURCE_AFTER_PROCESSING: "true"
+        run: npm run ebook:process -- --book-id "$EBOOK_BOOK_ID" --source-key "$EBOOK_SOURCE_KEY"
