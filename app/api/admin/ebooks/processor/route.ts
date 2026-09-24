@@ -13,8 +13,21 @@ type ProcessorPayload = {
     manifestKey?: unknown;
     publishedAt?: unknown;
     error?: unknown;
+    processingStage?: unknown;
+    processingProgress?: unknown;
+    processedPages?: unknown;
+    pageCount?: unknown;
+    processingStartedAt?: unknown;
   };
 };
+
+function optionalNonNegativeInteger(value: unknown): number | undefined {
+  return Number.isInteger(value) && Number(value) >= 0 ? Number(value) : undefined;
+}
+
+function optionalPositiveInteger(value: unknown): number | undefined {
+  return Number.isInteger(value) && Number(value) > 0 ? Number(value) : undefined;
+}
 
 function isAuthorized(request: Request): boolean {
   const expected = process.env.EBOOK_PROCESSOR_SECRET;
@@ -50,6 +63,36 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "This source PDF is no longer current." }, { status: 409 });
     }
 
+    if (body.update.status === "processing") {
+      const processingStage =
+        typeof body.update.processingStage === "string" ? body.update.processingStage.trim().slice(0, 120) : "";
+      const processingProgress = optionalNonNegativeInteger(body.update.processingProgress);
+      const processedPages = optionalNonNegativeInteger(body.update.processedPages);
+      const pageCount = optionalPositiveInteger(body.update.pageCount);
+      const processingStartedAt =
+        typeof body.update.processingStartedAt === "string" ? body.update.processingStartedAt : publication.processingStartedAt;
+
+      if (!processingStage || processingProgress === undefined || processingProgress > 99) {
+        return NextResponse.json({ error: "Invalid processing progress." }, { status: 400 });
+      }
+      if (pageCount !== undefined && processedPages !== undefined && processedPages > pageCount) {
+        return NextResponse.json({ error: "Invalid processed page count." }, { status: 400 });
+      }
+
+      await saveEbookPublication({
+        ...publication,
+        status: "processing",
+        processingStage,
+        processingProgress,
+        processedPages: processedPages ?? publication.processedPages ?? 0,
+        pageCount: pageCount ?? publication.pageCount,
+        processingStartedAt,
+        updatedAt: new Date().toISOString(),
+        error: undefined,
+      });
+      return NextResponse.json({ ok: true });
+    }
+
     if (body.update.status === "published") {
       const manifestKey = typeof body.update.manifestKey === "string" ? body.update.manifestKey : "";
       const publishedAt = typeof body.update.publishedAt === "string" ? body.update.publishedAt : "";
@@ -58,11 +101,16 @@ export async function POST(request: Request) {
       if (!manifestKey.startsWith(expectedManifestPrefix) || !manifestKey.endsWith("/manifest.json") || !publishedAt) {
         return NextResponse.json({ error: "Invalid publication result." }, { status: 400 });
       }
+      const pageCount = optionalPositiveInteger(body.update.pageCount) ?? publication.pageCount;
       await saveEbookPublication({
         ...publication,
         status: "published",
         manifestKey,
         publishedAt,
+        processingStage: "Published",
+        processingProgress: 100,
+        processedPages: pageCount ?? publication.processedPages,
+        pageCount,
         updatedAt: new Date().toISOString(),
         error: undefined,
       });
@@ -74,6 +122,7 @@ export async function POST(request: Request) {
       await saveEbookPublication({
         ...publication,
         status: "failed",
+        processingStage: "Processing failed",
         updatedAt: new Date().toISOString(),
         error,
       });

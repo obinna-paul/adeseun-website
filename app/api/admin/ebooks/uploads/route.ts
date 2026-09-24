@@ -126,6 +126,19 @@ function uploadMatches(publication: EbookPublication | null, key: string, upload
   return Boolean(publication && publication.sourceKey === key && publication.uploadId === uploadId);
 }
 
+export async function GET() {
+  if (!(await hasAdminSession().catch(() => false))) {
+    return NextResponse.json({ error: "Publishing sign-in required." }, { status: 401 });
+  }
+
+  const entries = await Promise.all(
+    BOOKS.map(async (book) => [book.id, await getEbookPublication(book.id)] as const),
+  );
+  const response = NextResponse.json({ publications: Object.fromEntries(entries) });
+  response.headers.set("Cache-Control", "private, no-store");
+  return response;
+}
+
 export async function POST(request: Request) {
   if (!(await hasAdminSession().catch(() => false))) {
     return NextResponse.json({ error: "Publishing sign-in required." }, { status: 401 });
@@ -170,6 +183,11 @@ export async function POST(request: Request) {
         createdAt: existing?.createdAt ?? now,
         updatedAt: now,
         error: undefined,
+        processingStage: undefined,
+        processingProgress: undefined,
+        processedPages: undefined,
+        pageCount: undefined,
+        processingStartedAt: undefined,
       };
       try {
         await saveEbookPublication(publication);
@@ -221,6 +239,11 @@ export async function POST(request: Request) {
         uploadId: undefined,
         updatedAt: new Date().toISOString(),
         error: undefined,
+        processingStage: "Queued for processing",
+        processingProgress: 0,
+        processedPages: 0,
+        pageCount: undefined,
+        processingStartedAt: new Date().toISOString(),
       };
       await saveEbookPublication(processing);
 
@@ -244,6 +267,7 @@ export async function POST(request: Request) {
           uploadId: undefined,
           updatedAt: new Date().toISOString(),
           error: "Upload cancelled or failed.",
+          processingStage: "Upload failed",
         });
       }
       return NextResponse.json({ ok: true });
@@ -252,7 +276,18 @@ export async function POST(request: Request) {
     if (body.action === "process") {
       const publication = await getEbookPublication(body.bookId);
       if (!publication?.sourceKey) return NextResponse.json({ error: "No source PDF is available." }, { status: 404 });
-      const processing = { ...publication, status: "processing" as const, updatedAt: new Date().toISOString(), error: undefined };
+      const now = new Date().toISOString();
+      const processing = {
+        ...publication,
+        status: "processing" as const,
+        updatedAt: now,
+        error: undefined,
+        processingStage: "Queued for processing",
+        processingProgress: 0,
+        processedPages: 0,
+        pageCount: undefined,
+        processingStartedAt: now,
+      };
       await saveEbookPublication(processing);
       const processorStarted = await triggerProcessor(processing);
       if (!processorStarted) {

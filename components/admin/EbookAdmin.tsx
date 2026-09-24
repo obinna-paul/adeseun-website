@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { CloudArrowUp, SignOut } from "@phosphor-icons/react";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import type { EbookPublication } from "@/lib/ebook-types";
@@ -84,11 +84,36 @@ export function EbookAdminDashboard({
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
+  const [livePublications, setLivePublications] = useState(publications);
 
   const selectedTitle = useMemo(
     () => books.find((book) => book.id === selectedBookId)?.title ?? "this book",
     [books, selectedBookId],
   );
+
+  useEffect(() => {
+    let stopped = false;
+
+    async function refreshPublications() {
+      try {
+        const response = await fetch("/api/admin/ebooks/uploads", { cache: "no-store" });
+        if (!response.ok) return;
+        const data = (await response.json()) as {
+          publications?: Record<string, EbookPublication | null>;
+        };
+        if (!stopped && data.publications) setLivePublications(data.publications);
+      } catch {
+        // A later poll will retry transient network failures without interrupting the upload form.
+      }
+    }
+
+    void refreshPublications();
+    const interval = window.setInterval(refreshPublications, 4_000);
+    return () => {
+      stopped = true;
+      window.clearInterval(interval);
+    };
+  }, []);
 
   async function publish(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -264,7 +289,8 @@ export function EbookAdminDashboard({
 
           <div className="mt-5 space-y-5">
             {books.map((book) => {
-              const publication = publications[book.id];
+              const publication = livePublications[book.id];
+              const processingProgress = Math.min(100, Math.max(0, publication?.processingProgress ?? 0));
               return (
                 <div key={book.id} className="border-b border-line-whisper pb-5 last:border-0">
                   <div className="flex items-start justify-between gap-4">
@@ -285,6 +311,37 @@ export function EbookAdminDashboard({
                       </button>
                     )}
                   </div>
+                  {publication?.status === "processing" && (
+                    <div className="mt-4" aria-live="polite" aria-atomic="true">
+                      <div className="flex items-baseline justify-between gap-4 text-xs">
+                        <p className="font-medium text-text">
+                          {publication.processingStage ?? "Waiting for processor"}
+                        </p>
+                        <p className="shrink-0 font-mono text-text-subdued">{processingProgress}%</p>
+                      </div>
+                      <div
+                        role="progressbar"
+                        aria-label={`${book.title} processing progress`}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-valuenow={processingProgress}
+                        className="mt-2 h-1.5 overflow-hidden rounded-control bg-line-whisper"
+                      >
+                        <div
+                          className="h-full bg-emerald-fill transition-[width] duration-500 ease-gallery-out"
+                          style={{ width: `${processingProgress}%` }}
+                        />
+                      </div>
+                      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 font-mono text-[0.65rem] text-text-faint">
+                        <span>
+                          {publication.pageCount
+                            ? `${publication.processedPages ?? 0} of ${publication.pageCount} pages`
+                            : "Preparing the page count…"}
+                        </span>
+                        <span>Updates automatically</span>
+                      </div>
+                    </div>
+                  )}
                   {publication?.error && <p className="mt-2 text-xs leading-relaxed text-garnet">{publication.error}</p>}
                 </div>
               );

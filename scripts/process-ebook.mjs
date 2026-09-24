@@ -87,6 +87,14 @@ async function updatePublication(update) {
   return true;
 }
 
+async function reportProgress(update) {
+  try {
+    await updatePublication({ status: "processing", ...update });
+  } catch (error) {
+    console.warn(`[ebook] could not report processing progress: ${error}`);
+  }
+}
+
 async function main() {
   const workDir = await mkdtemp(join(tmpdir(), "adeseun-ebook-"));
   const pdfPath = join(workDir, "source.pdf");
@@ -94,19 +102,40 @@ async function main() {
   const editionPrefix = `${prefix}/books/${bookId}/versions/${version}`;
   const pageKeyPattern = `${editionPrefix}/pages/{page}.webp`;
   const manifestKey = `${editionPrefix}/manifest.json`;
+  const processingStartedAt = new Date().toISOString();
 
   try {
+    await reportProgress({
+      processingStage: "Downloading source PDF",
+      processingProgress: 1,
+      processedPages: 0,
+      processingStartedAt,
+    });
     console.log(`[ebook] downloading ${sourceKey}`);
     const source = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: sourceKey }));
     if (!source.Body) throw new Error("The source PDF has no body.");
     await pipeline(source.Body, createWriteStream(pdfPath));
 
+    await reportProgress({
+      processingStage: "Inspecting PDF",
+      processingProgress: 3,
+      processedPages: 0,
+      processingStartedAt,
+    });
     const { stdout } = await execFile("pdfinfo", [pdfPath], { maxBuffer: 2 * 1024 * 1024 });
     const pagesMatch = stdout.match(/^Pages:\s+(\d+)$/m);
     const pageCount = Number(pagesMatch?.[1]);
     if (!Number.isInteger(pageCount) || pageCount < 1) throw new Error("Could not determine the PDF page count.");
 
+    await reportProgress({
+      processingStage: "Rendering page images",
+      processingProgress: 5,
+      processedPages: 0,
+      pageCount,
+      processingStartedAt,
+    });
     console.log(`[ebook] rendering ${pageCount} pages for ${bookId}`);
+    const reportEvery = Math.max(1, Math.ceil(pageCount / 50));
     for (let page = 1; page <= pageCount; page += 1) {
       const padded = String(page).padStart(4, "0");
       const renderBase = join(workDir, `page-${padded}`);
@@ -146,8 +175,24 @@ async function main() {
       );
       await Promise.all([unlink(jpegPath), unlink(webpPath)]);
       console.log(`[ebook] uploaded page ${page}/${pageCount}: ${basename(key)}`);
+      if (page === 1 || page === pageCount || page % reportEvery === 0) {
+        await reportProgress({
+          processingStage: "Rendering page images",
+          processingProgress: Math.min(95, 5 + Math.round((page / pageCount) * 90)),
+          processedPages: page,
+          pageCount,
+          processingStartedAt,
+        });
+      }
     }
 
+    await reportProgress({
+      processingStage: "Finalizing publication",
+      processingProgress: 98,
+      processedPages: pageCount,
+      pageCount,
+      processingStartedAt,
+    });
     const manifest = {
       version: 1,
       bookId,
@@ -170,6 +215,10 @@ async function main() {
       status: "published",
       manifestKey,
       publishedAt: new Date().toISOString(),
+      processingStage: "Published",
+      processingProgress: 100,
+      processedPages: pageCount,
+      pageCount,
       error: undefined,
     });
     if (published) {
