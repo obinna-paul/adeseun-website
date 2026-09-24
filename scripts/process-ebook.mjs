@@ -4,9 +4,16 @@ import { mkdtemp, rm, unlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { pipeline } from "node:stream/promises";
+import { setTimeout as delay } from "node:timers/promises";
 import { promisify } from "node:util";
 import { execFile as execFileCallback } from "node:child_process";
-import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  ListObjectsV2Command,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import { Redis } from "@upstash/redis";
 import sharp from "sharp";
 
@@ -95,6 +102,49 @@ async function reportProgress(update) {
   }
 }
 
+async function putFileWithRetry({ key, filePath, contentType, cacheControl, maxAttempts = 5 }) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      await s3.send(
+        new PutObjectCommand({
+          Bucket: bucket,
+          Key: key,
+          Body: createReadStream(filePath),
+          ContentType: contentType,
+          CacheControl: cacheControl,
+        }),
+      );
+      return;
+    } catch (error) {
+      if (attempt === maxAttempts) throw error;
+      const waitMs = 500 * 2 ** (attempt - 1);
+      console.warn(`[ebook] upload failed for ${basename(key)}; retrying in ${waitMs}ms (${attempt}/${maxAttempts})`);
+      await delay(waitMs);
+    }
+  }
+}
+
+async function listExistingPageKeys(pagePrefix) {
+  const keys = new Set();
+  let continuationToken;
+
+  do {
+    const response = await s3.send(
+      new ListObjectsV2Command({
+        Bucket: bucket,
+        Prefix: pagePrefix,
+        ContinuationToken: continuationToken,
+      }),
+    );
+    for (const item of response.Contents ?? []) {
+      if (item.Key) keys.add(item.Key);
+    }
+    continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
+  } while (continuationToken);
+
+  return keys;
+}
+
 async function main() {
   const workDir = await mkdtemp(join(tmpdir(), "adeseun-ebook-"));
   const pdfPath = join(workDir, "source.pdf");
@@ -136,45 +186,50 @@ async function main() {
     });
     console.log(`[ebook] rendering ${pageCount} pages for ${bookId}`);
     const reportEvery = Math.max(1, Math.ceil(pageCount / 50));
+    const existingPageKeys = await listExistingPageKeys(`${editionPrefix}/pages/`);
+    if (existingPageKeys.size > 0) {
+      console.log(`[ebook] resuming with ${existingPageKeys.size} existing pages`);
+    }
     for (let page = 1; page <= pageCount; page += 1) {
       const padded = String(page).padStart(4, "0");
       const renderBase = join(workDir, `page-${padded}`);
       const jpegPath = `${renderBase}.jpg`;
       const webpPath = `${renderBase}.webp`;
-
-      await execFile("pdftoppm", [
-        "-f",
-        String(page),
-        "-l",
-        String(page),
-        "-singlefile",
-        "-jpeg",
-        "-jpegopt",
-        "quality=92",
-        "-r",
-        "150",
-        pdfPath,
-        renderBase,
-      ]);
-
-      await sharp(jpegPath)
-        .rotate()
-        .resize({ width: 1800, withoutEnlargement: true })
-        .webp({ quality: 84, effort: 4 })
-        .toFile(webpPath);
-
       const key = pageKeyPattern.replace("{page}", padded);
-      await s3.send(
-        new PutObjectCommand({
-          Bucket: bucket,
-          Key: key,
-          Body: createReadStream(webpPath),
-          ContentType: "image/webp",
-          CacheControl: "private, no-store",
-        }),
-      );
-      await Promise.all([unlink(jpegPath), unlink(webpPath)]);
-      console.log(`[ebook] uploaded page ${page}/${pageCount}: ${basename(key)}`);
+
+      if (existingPageKeys.has(key)) {
+        console.log(`[ebook] retained page ${page}/${pageCount}: ${basename(key)}`);
+      } else {
+        await execFile("pdftoppm", [
+          "-f",
+          String(page),
+          "-l",
+          String(page),
+          "-singlefile",
+          "-jpeg",
+          "-jpegopt",
+          "quality=92",
+          "-r",
+          "150",
+          pdfPath,
+          renderBase,
+        ]);
+
+        await sharp(jpegPath)
+          .rotate()
+          .resize({ width: 1800, withoutEnlargement: true })
+          .webp({ quality: 84, effort: 4 })
+          .toFile(webpPath);
+
+        await putFileWithRetry({
+          key,
+          filePath: webpPath,
+          contentType: "image/webp",
+          cacheControl: "private, no-store",
+        });
+        await Promise.all([unlink(jpegPath), unlink(webpPath)]);
+        console.log(`[ebook] uploaded page ${page}/${pageCount}: ${basename(key)}`);
+      }
       if (page === 1 || page === pageCount || page % reportEvery === 0) {
         await reportProgress({
           processingStage: "Rendering page images",

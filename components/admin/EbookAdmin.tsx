@@ -9,6 +9,16 @@ import { formatNaira } from "@/lib/utils";
 type AdminBook = { id: string; title: string };
 type UploadSession = { bookId: string; uploadId: string; key: string };
 
+function initialActiveBookId(books: AdminBook[], publications: Record<string, EbookPublication | null>) {
+  const candidates = books
+    .map((book) => publications[book.id])
+    .filter((publication): publication is EbookPublication =>
+      Boolean(publication && (publication.status === "processing" || publication.status === "failed")),
+    )
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  return candidates[0]?.bookId ?? null;
+}
+
 function ProcessingProgress({
   bookTitle,
   publication,
@@ -139,7 +149,7 @@ export function EbookAdminDashboard({
   const [message, setMessage] = useState<string | null>(null);
   const [livePublications, setLivePublications] = useState(publications);
   const [activeBookId, setActiveBookId] = useState<string | null>(
-    () => books.find((book) => publications[book.id]?.status === "processing")?.id ?? null,
+    () => initialActiveBookId(books, publications),
   );
 
   const selectedTitle = useMemo(
@@ -344,6 +354,22 @@ export function EbookAdminDashboard({
                 Published · 100%
               </p>
               <p className="mt-1 text-sm text-text">{activeBook.title} is ready to read online.</p>
+            </div>
+          )}
+
+          {activeBook && activePublication?.status === "failed" && (
+            <div className="mt-6 rounded-frame border border-garnet/25 bg-surface px-5 py-4" role="alert">
+              <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-garnet">Processing failed</p>
+              <p className="mt-2 text-sm leading-relaxed text-text">
+                {activePublication.error ?? `${activeBook.title} could not be processed.`}
+              </p>
+              <button
+                type="button"
+                onClick={() => processAgain(activeBook.id)}
+                className="mt-3 font-mono text-xs text-emerald-ink underline underline-offset-4"
+              >
+                Resume processing
+              </button>
             </div>
           )}
         </form>
