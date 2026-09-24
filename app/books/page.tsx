@@ -1,14 +1,24 @@
 import Link from "next/link";
 import { pageMetadata, bookJsonLd } from "@/lib/seo";
 import { LibraryGrid } from "@/components/sections/library";
-import { BOOKS, PAGE_INTRO } from "@/components/sections/library/library-content";
+import {
+  BOOKS,
+  PAGE_INTRO,
+  applyEbookMetadata,
+  ebookOnlyBook,
+} from "@/components/sections/library/library-content";
 import { getPublishedEbookCatalog } from "@/lib/ebooks";
+import type { EbookCatalogItem } from "@/lib/ebook-types";
+
+// Publication edits and newly released digital-only titles must appear without
+// waiting for a site redeploy.
+export const dynamic = "force-dynamic";
 
 export const metadata = pageMetadata({
   title: "The Library",
   path: "/books",
   description:
-    "Her fourteen books — on thoughtful communication, meaningful living, tranquility, identity, media strategy, design, resilience, purpose, connection, confidence, healing, everyday wisdom, empathy, and faith — browsed like a private collection.",
+    "Books on thoughtful communication, meaningful living, identity, strategy, design, resilience, purpose, connection, and faith, browsed like a private collection.",
 });
 
 /**
@@ -34,8 +44,14 @@ const PAPER_TEXTURE =
 export default async function BooksPage() {
   const ebookCatalog = await getPublishedEbookCatalog(BOOKS.map((book) => book.id)).catch((error) => {
     console.error("Could not load the e-book catalog:", error);
-    return {};
+    return {} as Record<string, EbookCatalogItem>;
   });
+  const catalogBooks = [
+    ...BOOKS.map((book) => applyEbookMetadata(book, ebookCatalog[book.id])),
+    ...Object.values(ebookCatalog)
+      .filter((publication) => publication.standalone && !BOOKS.some((book) => book.id === publication.bookId))
+      .map(ebookOnlyBook),
+  ];
 
   return (
     <main id="main-content" tabIndex={-1}>
@@ -61,11 +77,11 @@ export default async function BooksPage() {
             </Link>
           </div>
 
-          <LibraryGrid ebookCatalog={ebookCatalog} />
+          <LibraryGrid books={catalogBooks} ebookCatalog={ebookCatalog} />
         </div>
       </section>
 
-      {BOOKS.map((book) => (
+      {catalogBooks.map((book) => (
         <script
           key={book.id}
           type="application/ld+json"

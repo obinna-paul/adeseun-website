@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { pageMetadata } from "@/lib/seo";
 import { formatNaira } from "@/lib/utils";
-import { BOOKS } from "@/components/sections/library/library-content";
+import { BOOKS, applyEbookMetadata, ebookOnlyBook } from "@/components/sections/library/library-content";
 import { BookCover } from "@/components/sections/library/BookCover";
 import { CheckoutForm } from "@/components/sections/checkout/CheckoutForm";
 import { getEbookPublication } from "@/lib/ebooks";
@@ -13,7 +13,13 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ bookId: string }> }) {
   const { bookId } = await params;
-  const book = BOOKS.find((b) => b.id === bookId);
+  const publication = await getEbookPublication(bookId).catch(() => null);
+  const catalogBook = BOOKS.find((book) => book.id === bookId);
+  const book = catalogBook
+    ? applyEbookMetadata(catalogBook, publication)
+    : publication?.standalone
+      ? ebookOnlyBook(publication)
+      : null;
   // noIndex: this is a transactional page, not something worth ranking in search.
   return pageMetadata({ title: book ? `Order — ${book.title}` : "Order", path: `/checkout/${bookId}`, noIndex: true });
 }
@@ -35,11 +41,18 @@ export default async function CheckoutPage({
 }) {
   const { bookId } = await params;
   const requestedFormat = (await searchParams).format;
-  const book = BOOKS.find((b) => b.id === bookId);
+  const publication = await getEbookPublication(bookId).catch(() => null);
+  const catalogBook = BOOKS.find((book) => book.id === bookId);
+  const book = catalogBook
+    ? applyEbookMetadata(catalogBook, publication)
+    : publication?.standalone
+      ? ebookOnlyBook(publication)
+      : null;
   if (!book) notFound();
-  const publication = await getEbookPublication(book.id).catch(() => null);
   const ebookPrice = publication?.manifestKey ? publication.priceNaira : null;
-  const initialFormat: BookFormat = requestedFormat === "ebook" && ebookPrice !== null ? "ebook" : "paperback";
+  const paperbackPrice = book.paperbackAvailable === false ? null : book.price;
+  const initialFormat: BookFormat =
+    paperbackPrice === null || (requestedFormat === "ebook" && ebookPrice !== null) ? "ebook" : "paperback";
 
   return (
     <main id="main-content" tabIndex={-1} className="bg-surface px-gutter py-room">
@@ -50,12 +63,12 @@ export default async function CheckoutPage({
           </div>
           <div className="mt-6">
             <span className="font-mono text-[0.65rem] uppercase tracking-[0.15em] text-gold-ink">
-              Book {book.order} · {book.category}
+              {paperbackPrice === null ? "Digital-only edition" : `Book ${book.order} · ${book.category}`}
             </span>
             <h1 className="mt-2 text-balance font-display text-2xl font-semibold leading-tight text-text">{book.title}</h1>
             <p className="mt-3 text-sm leading-relaxed text-text-subdued">
-              Paperback {formatNaira(book.price)}
-              {ebookPrice !== null ? ` · E-book ${formatNaira(ebookPrice)}` : ""}
+              {paperbackPrice !== null ? `Paperback ${formatNaira(paperbackPrice)}` : ""}
+              {ebookPrice !== null ? `${paperbackPrice !== null ? " · " : ""}E-book ${formatNaira(ebookPrice)}` : ""}
             </p>
           </div>
         </div>
@@ -67,7 +80,7 @@ export default async function CheckoutPage({
           </p>
           <CheckoutForm
             bookId={book.id}
-            paperbackPrice={book.price}
+            paperbackPrice={paperbackPrice}
             ebookPrice={ebookPrice}
             initialFormat={initialFormat}
           />

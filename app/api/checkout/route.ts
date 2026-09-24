@@ -86,17 +86,22 @@ export async function POST(request: Request) {
     );
   }
 
-  const book = BOOKS.find((b) => b.id === bookId);
-  if (!book) {
+  const book = BOOKS.find((candidate) => candidate.id === bookId);
+  const ebookPublication = await getEbookPublication(bookId);
+  const standaloneEbook = !book && ebookPublication?.standalone && ebookPublication.manifestKey;
+  if (!book && !standaloneEbook) {
     return NextResponse.json({ error: "That book couldn't be found." }, { status: 404 });
   }
 
-  const ebookPublication = format === "ebook" ? await getEbookPublication(book.id) : null;
+  if (format === "paperback" && !book) {
+    return NextResponse.json({ error: "This title is available only as an e-book." }, { status: 409 });
+  }
   if (format === "ebook" && !ebookPublication?.manifestKey) {
     return NextResponse.json({ error: "The e-book is not available yet." }, { status: 409 });
   }
 
-  const priceNaira = format === "ebook" ? ebookPublication!.priceNaira : book.price;
+  const title = ebookPublication?.title?.trim() || book?.title || "Untitled e-book";
+  const priceNaira = format === "ebook" ? ebookPublication!.priceNaira : book!.price;
 
   const origin = resolveOrigin(request);
 
@@ -107,8 +112,8 @@ export async function POST(request: Request) {
       currency: CURRENCY,
       callbackUrl: `${origin}/checkout/thank-you?format=${format}`,
       metadata: {
-        bookId: book.id,
-        bookTitle: book.title,
+        bookId,
+        bookTitle: title,
         format,
         priceNaira,
         customerName: name,
@@ -120,8 +125,8 @@ export async function POST(request: Request) {
     // Best-effort — see lib/orders.ts's own comment on why this never blocks checkout.
     await createPendingOrder({
       reference: transaction.reference,
-      bookId: book.id,
-      bookTitle: book.title,
+      bookId,
+      bookTitle: title,
       format,
       priceNaira,
       currency: CURRENCY,

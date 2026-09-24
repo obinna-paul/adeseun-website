@@ -1,10 +1,8 @@
 "use client";
 
 import { motion } from "motion/react";
-import { CATEGORIES, type Category } from "./library-content";
+import type { Category } from "./library-content";
 import { ease } from "@/lib/design-tokens";
-
-const OPTIONS: Array<Category | "All"> = ["All", ...CATEGORIES];
 
 /**
  * The active pill uses a shared `layoutId` so Motion animates the
@@ -14,14 +12,18 @@ const OPTIONS: Array<Category | "All"> = ["All", ...CATEGORIES];
  */
 export function FilterBar({
   active,
+  categories,
   onChange,
 }: {
   active: Category | "All";
+  categories: Category[];
   onChange: (value: Category | "All") => void;
 }) {
+  const options: Array<Category | "All"> = ["All", ...categories];
+
   return (
     <div role="group" aria-label="Filter by category" className="flex flex-wrap gap-2">
-      {OPTIONS.map((option) => {
+      {options.map((option) => {
         const isActive = option === active;
         return (
           <button

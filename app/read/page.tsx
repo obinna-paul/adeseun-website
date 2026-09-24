@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { pageMetadata } from "@/lib/seo";
 import { getReaderSession } from "@/lib/reader-auth";
-import { getReaderBookIds } from "@/lib/ebooks";
-import { BOOKS } from "@/components/sections/library/library-content";
+import { getEbookPublication, getReaderBookIds } from "@/lib/ebooks";
+import { BOOKS, applyEbookMetadata, ebookOnlyBook, type Book } from "@/components/sections/library/library-content";
 import { BookCover } from "@/components/sections/library/BookCover";
 import { ReaderAccessForm } from "@/components/reader/ReaderAccessForm";
 import { ReaderSessionActions } from "@/components/reader/ReaderSessionActions";
@@ -37,7 +37,17 @@ export default async function ReaderLibraryPage({
   }
 
   const bookIds: string[] = await getReaderBookIds(session.email).catch(() => [] as string[]);
-  const ownedBooks = BOOKS.filter((book) => bookIds.includes(book.id));
+  const ownedBooks = (
+    await Promise.all(
+      bookIds.map(async (bookId): Promise<Book | null> => {
+        const publication = await getEbookPublication(bookId).catch(() => null);
+        const catalogBook = BOOKS.find((book) => book.id === bookId);
+        if (catalogBook) return applyEbookMetadata(catalogBook, publication);
+        if (publication?.standalone) return ebookOnlyBook(publication);
+        return null;
+      }),
+    )
+  ).filter((book): book is Book => Boolean(book));
 
   return (
     <main id="main-content" tabIndex={-1} className="min-h-[78dvh] bg-surface-sunken px-gutter py-room">

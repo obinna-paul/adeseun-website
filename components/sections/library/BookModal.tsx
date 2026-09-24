@@ -235,7 +235,7 @@ function BookDetails({ book, ebook }: { book: Book; ebook: EbookCatalogItem | nu
   return (
     <div className="flex-1 overflow-y-auto p-6 sm:p-8 lg:p-10">
       <span className="font-mono text-[0.65rem] uppercase tracking-[0.15em] text-gold-ink">
-        Book {book.order} · {book.category}
+        {book.paperbackAvailable === false ? "Digital-only edition" : `Book ${book.order} · ${book.category}`}
       </span>
       <Dialog.Title className="mt-2 text-balance font-display text-3xl font-semibold leading-tight text-text sm:text-4xl">
         {book.title}
@@ -256,14 +256,16 @@ function BookDetails({ book, ebook }: { book: Book; ebook: EbookCatalogItem | nu
         </ul>
       )}
 
-      <div className="mt-8 grid gap-5 border-t border-line-whisper pt-6 sm:grid-cols-2">
-        <div>
-          <p className="font-display text-xl font-semibold text-text">Paperback</p>
-          <p className="mt-1 text-sm leading-relaxed text-text-subdued">A printed copy delivered to your address.</p>
-          <MagneticButton href={`/checkout/${book.id}?format=paperback`} variant="primary" dense className="mt-4">
-            Buy for {formatNaira(book.price)}
-          </MagneticButton>
-        </div>
+      <div className={`mt-8 grid gap-5 border-t border-line-whisper pt-6 ${book.paperbackAvailable === false ? "" : "sm:grid-cols-2"}`}>
+        {book.paperbackAvailable !== false && (
+          <div>
+            <p className="font-display text-xl font-semibold text-text">Paperback</p>
+            <p className="mt-1 text-sm leading-relaxed text-text-subdued">A printed copy delivered to your address.</p>
+            <MagneticButton href={`/checkout/${book.id}?format=paperback`} variant="primary" dense className="mt-4">
+              Buy for {formatNaira(book.price)}
+            </MagneticButton>
+          </div>
+        )}
         <div>
           <p className="font-display text-xl font-semibold text-text">Read online</p>
           <p className="mt-1 text-sm leading-relaxed text-text-subdued">

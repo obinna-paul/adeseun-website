@@ -30,7 +30,7 @@ export function CheckoutForm({
   initialFormat,
 }: {
   bookId: string;
-  paperbackPrice: number;
+  paperbackPrice: number | null;
   ebookPrice: number | null;
   initialFormat: BookFormat;
 }) {
@@ -86,20 +86,22 @@ export function CheckoutForm({
     <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-9">
       <fieldset>
         <legend className="font-display text-xl font-semibold text-text">Choose your format</legend>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <label className="relative flex min-h-28 cursor-pointer flex-col justify-between rounded-frame border border-line bg-surface-elevated p-4 transition-[border-color,background-color] duration-150 ease-gallery-standard has-[:checked]:border-emerald has-[:checked]:bg-emerald-tint">
-            <input
-              className="sr-only"
-              type="radio"
-              name="format"
-              value="paperback"
-              checked={format === "paperback"}
-              onChange={() => setFormat("paperback")}
-            />
-            <span className="font-display text-lg font-semibold text-text">Paperback</span>
-            <span className="mt-2 text-sm text-text-subdued">Delivered to your address</span>
-            <span className="mt-3 font-mono text-xs text-emerald-ink">{formatNaira(paperbackPrice)}</span>
-          </label>
+        <div className={`mt-4 grid gap-3 ${paperbackPrice === null ? "" : "sm:grid-cols-2"}`}>
+          {paperbackPrice !== null && (
+            <label className="relative flex min-h-28 cursor-pointer flex-col justify-between rounded-frame border border-line bg-surface-elevated p-4 transition-[border-color,background-color] duration-150 ease-gallery-standard has-[:checked]:border-emerald has-[:checked]:bg-emerald-tint">
+              <input
+                className="sr-only"
+                type="radio"
+                name="format"
+                value="paperback"
+                checked={format === "paperback"}
+                onChange={() => setFormat("paperback")}
+              />
+              <span className="font-display text-lg font-semibold text-text">Paperback</span>
+              <span className="mt-2 text-sm text-text-subdued">Delivered to your address</span>
+              <span className="mt-3 font-mono text-xs text-emerald-ink">{formatNaira(paperbackPrice)}</span>
+            </label>
+          )}
           <label
             className={`relative flex min-h-28 flex-col justify-between rounded-frame border p-4 transition-[border-color,background-color] duration-150 ease-gallery-standard ${
               ebookPrice === null

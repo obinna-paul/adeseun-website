@@ -116,7 +116,8 @@ export async function fulfillOrder(referenceInput: string): Promise<OrderFulfill
 
   const metadata = (verified.metadata ?? {}) as ChargeMetadata;
   const book = BOOKS.find((candidate) => candidate.id === metadata.bookId);
-  if (!book) {
+  const ebookPublication = metadata.bookId ? await getEbookPublication(metadata.bookId) : null;
+  if (!book && !ebookPublication?.standalone) {
     throw new OrderConfirmationError("unknown_order", "This payment is not linked to a Library book.", 422);
   }
 
@@ -124,8 +125,10 @@ export async function fulfillOrder(referenceInput: string): Promise<OrderFulfill
     throw new OrderConfirmationError("invalid_order", "This payment is missing its book format.", 422);
   }
   const format = metadata.format;
+  if (format === "paperback" && !book) {
+    throw new OrderConfirmationError("invalid_order", "This title does not have a paperback edition.", 422);
+  }
 
-  const ebookPublication = format === "ebook" ? await getEbookPublication(book.id) : null;
   if (format === "ebook" && !ebookPublication?.manifestKey) {
     throw new OrderConfirmationError(
       "ebook_unavailable",
@@ -135,7 +138,7 @@ export async function fulfillOrder(referenceInput: string): Promise<OrderFulfill
   }
 
   const metadataPrice = Number(metadata.priceNaira);
-  const currentPrice = format === "ebook" ? ebookPublication!.priceNaira : book.price;
+  const currentPrice = format === "ebook" ? ebookPublication!.priceNaira : book!.price;
   const priceNaira = Number.isFinite(metadataPrice) && metadataPrice > 0 ? metadataPrice : currentPrice;
   const expectedAmountKobo = Math.round(priceNaira * 100);
   if (verified.amount !== expectedAmountKobo || verified.currency !== CURRENCY) {
@@ -153,8 +156,8 @@ export async function fulfillOrder(referenceInput: string): Promise<OrderFulfill
 
   const order: ConfirmedOrder = {
     reference,
-    bookId: book.id,
-    bookTitle: book.title,
+    bookId: metadata.bookId!,
+    bookTitle: metadata.bookTitle?.trim() || ebookPublication?.title?.trim() || book?.title || "Untitled e-book",
     format,
     priceNaira,
     currency: CURRENCY,
@@ -220,7 +223,11 @@ export async function fulfillOrder(referenceInput: string): Promise<OrderFulfill
     format,
     readerAccessUrl: readerAccessUrl ?? undefined,
     libraryUrl: `${siteUrl()}/read`,
-    coverUrl: book.coverImage ? `${siteUrl()}${book.coverImage}` : undefined,
+    coverUrl: book?.coverImage
+      ? `${siteUrl()}${book.coverImage}`
+      : ebookPublication?.standalone
+        ? `${siteUrl()}/api/ebooks/${encodeURIComponent(order.bookId)}/cover`
+        : undefined,
     address: format === "paperback" ? addressBlock : undefined,
   });
 
@@ -259,10 +266,10 @@ export async function fulfillOrder(referenceInput: string): Promise<OrderFulfill
         customerName: order.customerName,
         customerPhone: order.customerPhone,
         address: addressBlock,
-        pageCount: String(book.printSpecs.pageCount ?? "Unconfirmed"),
-        trimSize: book.printSpecs.trimSize,
-        binding: book.printSpecs.binding,
-        notes: book.printSpecs.notes,
+        pageCount: String(book!.printSpecs.pageCount ?? "Unconfirmed"),
+        trimSize: book!.printSpecs.trimSize,
+        binding: book!.printSpecs.binding,
+        notes: book!.printSpecs.notes,
       });
       printerPromise = sendWithOutcome(reference, "printer", {
         from: FROM_ADDRESS.library,

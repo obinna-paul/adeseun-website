@@ -1,7 +1,8 @@
+import { randomBytes } from "node:crypto";
 import { NextResponse } from "next/server";
 import { BOOKS } from "@/components/sections/library/library-content";
 import { hasAdminSession } from "@/lib/admin-auth";
-import { getEbookPublication, saveEbookPublication } from "@/lib/ebooks";
+import { getEbookPublication, getEbookPublications, saveEbookPublication } from "@/lib/ebooks";
 import {
   EbookStorageNotConfiguredError,
   abortSourceMultipartUpload,
@@ -19,7 +20,10 @@ const MAX_SOURCE_BYTES = 2 * 1024 * 1024 * 1024;
 type UploadAction =
   | {
       action: "create";
-      bookId: string;
+      bookId?: string;
+      title?: string;
+      description?: string;
+      standalone?: boolean;
       filename: string;
       size: number;
       contentType: string;
@@ -35,6 +39,7 @@ type UploadAction =
     }
   | { action: "abort"; bookId: string; uploadId: string; key: string }
   | { action: "process"; bookId: string }
+  | { action: "update"; bookId: string; title?: string; description?: string; priceNaira: number }
   | { action: "diagnose" };
 
 function cleanFilename(filename: string): string {
@@ -43,6 +48,40 @@ function cleanFilename(filename: string): string {
 
 function sourcePrefix(): string {
   return (process.env.R2_PREFIX ?? "ebooks").replace(/^\/+|\/+$/g, "");
+}
+
+function cleanTitle(value: unknown): string {
+  return typeof value === "string" ? value.trim().replace(/\s+/g, " ").slice(0, 120) : "";
+}
+
+function cleanDescription(value: unknown): string {
+  return typeof value === "string" ? value.trim().slice(0, 1200) : "";
+}
+
+function validPrice(value: unknown): number | null {
+  const price = Math.round(Number(value));
+  return Number.isFinite(price) && price >= 1 && price <= 100_000_000 ? price : null;
+}
+
+function slugifyTitle(title: string): string {
+  return title
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60) || "ebook";
+}
+
+async function createStandaloneBookId(title: string): Promise<string> {
+  const base = slugifyTitle(title);
+  if (!BOOKS.some((book) => book.id === base) && !(await getEbookPublication(base))) return base;
+
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const candidate = `${base}-${randomBytes(3).toString("hex")}`;
+    if (!BOOKS.some((book) => book.id === candidate) && !(await getEbookPublication(candidate))) return candidate;
+  }
+  throw new Error("Could not create a unique e-book ID.");
 }
 
 function safeErrorCode(error: unknown): string {
@@ -131,10 +170,8 @@ export async function GET() {
     return NextResponse.json({ error: "Publishing sign-in required." }, { status: 401 });
   }
 
-  const entries = await Promise.all(
-    BOOKS.map(async (book) => [book.id, await getEbookPublication(book.id)] as const),
-  );
-  const response = NextResponse.json({ publications: Object.fromEntries(entries) });
+  const publications = await getEbookPublications(BOOKS.map((book) => book.id));
+  const response = NextResponse.json({ publications });
   response.headers.set("Cache-Control", "private, no-store");
   return response;
 }
@@ -153,27 +190,48 @@ export async function POST(request: Request) {
 
   try {
     if (body.action === "create") {
-      const book = BOOKS.find((candidate) => candidate.id === body.bookId);
-      if (!book) return NextResponse.json({ error: "Book not found." }, { status: 404 });
-      if (!body.filename.toLowerCase().endsWith(".pdf") || body.contentType !== "application/pdf") {
+      const requestedBookId = typeof body.bookId === "string" ? body.bookId.trim() : "";
+      const requestedTitle = cleanTitle(body.title);
+      const isNewStandalone = body.standalone === true && !requestedBookId;
+      if (isNewStandalone && !requestedTitle) {
+        return NextResponse.json({ error: "Enter a title for the new e-book." }, { status: 400 });
+      }
+      const bookId = isNewStandalone ? await createStandaloneBookId(requestedTitle) : requestedBookId;
+      const catalogBook = BOOKS.find((candidate) => candidate.id === bookId);
+      const existing = bookId ? await getEbookPublication(bookId) : null;
+
+      if (!isNewStandalone && !catalogBook && !existing) {
+        return NextResponse.json({ error: "Book not found." }, { status: 404 });
+      }
+      if (
+        typeof body.filename !== "string" ||
+        !body.filename.toLowerCase().endsWith(".pdf") ||
+        body.contentType !== "application/pdf"
+      ) {
         return NextResponse.json({ error: "Upload a PDF file." }, { status: 400 });
       }
       if (!Number.isFinite(body.size) || body.size < 1 || body.size > MAX_SOURCE_BYTES) {
         return NextResponse.json({ error: "The PDF must be smaller than 2 GB." }, { status: 400 });
       }
-      const priceNaira = Math.round(Number(body.priceNaira));
-      if (!Number.isFinite(priceNaira) || priceNaira < 1) {
+      const priceNaira = validPrice(body.priceNaira);
+      if (priceNaira === null) {
         return NextResponse.json({ error: "Enter the e-book price in naira." }, { status: 400 });
       }
 
-      const existing = await getEbookPublication(book.id);
+      const title = requestedTitle || existing?.title || catalogBook?.title || "";
+      if (!title) return NextResponse.json({ error: "Enter a title for the e-book." }, { status: 400 });
+      const description = cleanDescription(body.description) || existing?.description;
+      const standalone = existing?.standalone ?? isNewStandalone;
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const key = `${sourcePrefix()}/sources/${book.id}/${timestamp}-${cleanFilename(body.filename)}`;
+      const key = `${sourcePrefix()}/sources/${bookId}/${timestamp}-${cleanFilename(body.filename)}`;
       const uploadId = await createSourceMultipartUpload(key, "application/pdf");
       const now = new Date().toISOString();
       const publication: EbookPublication = {
         ...existing,
-        bookId: book.id,
+        bookId,
+        title,
+        description,
+        standalone,
         priceNaira,
         status: "uploading",
         originalFilename: body.filename,
@@ -195,7 +253,7 @@ export async function POST(request: Request) {
         await abortSourceMultipartUpload(key, uploadId).catch(() => undefined);
         throw error;
       }
-      return NextResponse.json({ uploadId, key });
+      return NextResponse.json({ bookId, uploadId, key, publication });
     }
 
     if (body.action === "diagnose") {
@@ -296,6 +354,28 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "The processor service is not configured." }, { status: 503 });
       }
       return NextResponse.json({ ok: true, publication: processing, message: "Processing has started." });
+    }
+
+    if (body.action === "update") {
+      const publication = await getEbookPublication(body.bookId);
+      if (!publication) return NextResponse.json({ error: "Publication not found." }, { status: 404 });
+
+      const title = cleanTitle(body.title);
+      const priceNaira = validPrice(body.priceNaira);
+      if (!title) return NextResponse.json({ error: "Enter a title for the e-book." }, { status: 400 });
+      if (priceNaira === null) {
+        return NextResponse.json({ error: "Enter the e-book price in naira." }, { status: 400 });
+      }
+
+      const updated: EbookPublication = {
+        ...publication,
+        title,
+        description: cleanDescription(body.description) || undefined,
+        priceNaira,
+        updatedAt: new Date().toISOString(),
+      };
+      await saveEbookPublication(updated);
+      return NextResponse.json({ ok: true, publication: updated, message: "Publication details saved." });
     }
 
     return NextResponse.json({ error: "Unknown upload action." }, { status: 400 });

@@ -115,7 +115,8 @@ export type Category =
   | "Confidence"
   | "Healing"
   | "Wisdom"
-  | "Empathy";
+  | "Empathy"
+  | "Digital";
 
 export const CATEGORIES: Category[] = [
   "Communication",
@@ -131,6 +132,7 @@ export const CATEGORIES: Category[] = [
   "Healing",
   "Wisdom",
   "Empathy",
+  "Digital",
 ];
 
 /** Nigeria-only for now — see the checkout route's own doc comment. */
@@ -178,7 +180,51 @@ export type Book = {
    * study-content.ts's `imageFit`, applied to a different component.
    */
   coverFit?: "cover" | "contain";
+  /** Omitted for the original catalog, whose paperback edition is available. */
+  paperbackAvailable?: boolean;
 };
+
+type EbookBookMetadata = {
+  bookId: string;
+  title?: string;
+  description?: string;
+  standalone?: boolean;
+};
+
+/** Applies editable e-book metadata without replacing the established print catalog artwork or copy. */
+export function applyEbookMetadata(book: Book, publication?: EbookBookMetadata | null): Book {
+  if (!publication) return book;
+  return {
+    ...book,
+    title: publication.title?.trim() || book.title,
+    description: publication.description?.trim() || book.description,
+  };
+}
+
+/** Builds the public catalog shape for a title that exists only as an e-book. */
+export function ebookOnlyBook(publication: EbookBookMetadata): Book {
+  const title = publication.title?.trim() || "Untitled e-book";
+  const description =
+    publication.description?.trim() ||
+    "A digital-only title available through the private online reading room.";
+
+  return {
+    id: publication.bookId,
+    order: "Digital",
+    title,
+    category: "Digital",
+    tone: "ink",
+    tagline: "A private digital edition for online reading.",
+    description,
+    accolades: [],
+    excerptHeading: "About the book",
+    excerpt: [description],
+    price: 0,
+    printSpecs: { trimSize: "Digital edition", binding: "Online reading" },
+    coverImage: `/api/ebooks/${encodeURIComponent(publication.bookId)}/cover`,
+    paperbackAvailable: false,
+  };
+}
 
 export const BOOKS: Book[] = [
   {
@@ -450,4 +496,4 @@ export const BOOKS: Book[] = [
   },
 ];
 
-export const PAGE_INTRO = "Fourteen books, browsed the way they were written — one at a time, with room to sit with each.";
+export const PAGE_INTRO = "Books browsed the way they were written: one at a time, with room to sit with each.";

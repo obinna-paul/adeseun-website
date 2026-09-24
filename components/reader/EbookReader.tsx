@@ -26,6 +26,7 @@ type ViewMode = "width" | "page" | "actual" | "custom";
 type ViewportSize = { width: number; height: number };
 type PageSize = { width: number; height: number };
 type CachedPage = { url?: string; promise?: Promise<string> };
+type DisplayedPage = { page: number; retryVersion: number; url: string };
 
 const MIN_ZOOM = 50;
 const MAX_ZOOM = 300;
@@ -75,7 +76,7 @@ export function EbookReader({
   const [loadError, setLoadError] = useState("This page could not be loaded.");
   const [saveState, setSaveState] = useState<SaveState>("saved");
   const [retryVersion, setRetryVersion] = useState(0);
-  const [pageSource, setPageSource] = useState<string | null>(null);
+  const [pageSource, setPageSource] = useState<DisplayedPage | null>(null);
   const [focusMode, setFocusMode] = useState(false);
 
   const naturalRatio = pageSize.width / pageSize.height;
@@ -113,18 +114,21 @@ export function EbookReader({
   const progressStyle = { "--reader-progress": `${progressPercent}%` } as CSSProperties;
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(PREFERENCES_KEY);
-      if (raw) {
-        const saved = JSON.parse(raw) as { viewMode?: unknown; zoom?: unknown };
-        if (isViewMode(saved.viewMode)) setViewMode(saved.viewMode);
-        if (typeof saved.zoom === "number") setZoom(clamp(saved.zoom, MIN_ZOOM, MAX_ZOOM));
+    const frame = window.requestAnimationFrame(() => {
+      try {
+        const raw = window.localStorage.getItem(PREFERENCES_KEY);
+        if (raw) {
+          const saved = JSON.parse(raw) as { viewMode?: unknown; zoom?: unknown };
+          if (isViewMode(saved.viewMode)) setViewMode(saved.viewMode);
+          if (typeof saved.zoom === "number") setZoom(clamp(saved.zoom, MIN_ZOOM, MAX_ZOOM));
+        }
+      } catch {
+        // A blocked storage API should never stop someone from reading.
+      } finally {
+        setPreferencesReady(true);
       }
-    } catch {
-      // A blocked storage API should never stop someone from reading.
-    } finally {
-      setPreferencesReady(true);
-    }
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
@@ -184,13 +188,10 @@ export function EbookReader({
 
   useEffect(() => {
     let active = true;
-    setLoadState("loading");
-    setLoadError("This page could not be loaded.");
-    setPageSource(null);
 
     getPageUrl(page, retryVersion > 0)
       .then((url) => {
-        if (active) setPageSource(url);
+        if (active) setPageSource({ page, retryVersion, url });
       })
       .catch((error: unknown) => {
         if (!active) return;
@@ -380,6 +381,8 @@ export function EbookReader({
 
   const stageWidth = Math.max(viewport.width, pageWidth + horizontalGutter * 2);
   const stageHeight = Math.max(viewport.height, pageHeight + verticalGutter * 2);
+  const currentPageSource =
+    pageSource?.page === page && pageSource.retryVersion === retryVersion ? pageSource.url : null;
 
   return (
     <section
@@ -479,13 +482,13 @@ export function EbookReader({
                   Try again
                 </button>
               </div>
-            ) : pageSource ? (
+            ) : currentPageSource ? (
               // A native image is required here. Next's optimizer makes a
               // separate server request without the reader session cookie.
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 key={`${page}-${retryVersion}`}
-                src={pageSource}
+                src={currentPageSource}
                 alt={`Page ${page} of ${title}`}
                 draggable={false}
                 onDragStart={(event) => event.preventDefault()}

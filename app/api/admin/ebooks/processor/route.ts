@@ -1,6 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
-import { BOOKS } from "@/components/sections/library/library-content";
 import { getEbookPublication, saveEbookPublication } from "@/lib/ebooks";
 
 export const runtime = "nodejs";
@@ -53,7 +52,7 @@ export async function POST(request: Request) {
 
   const bookId = typeof body.bookId === "string" ? body.bookId : "";
   const sourceKey = typeof body.sourceKey === "string" ? body.sourceKey : "";
-  if (!BOOKS.some((book) => book.id === bookId) || !sourceKey || !body.update) {
+  if (!/^[a-z0-9][a-z0-9-]{0,79}$/.test(bookId) || !sourceKey || !body.update) {
     return NextResponse.json({ error: "Invalid processor update." }, { status: 400 });
   }
 

@@ -2,8 +2,7 @@ import { pageMetadata } from "@/lib/seo";
 import { BOOKS } from "@/components/sections/library/library-content";
 import { EbookAdminDashboard, EbookAdminLogin } from "@/components/admin/EbookAdmin";
 import { hasAdminSession } from "@/lib/admin-auth";
-import { getEbookPublication } from "@/lib/ebooks";
-import type { EbookPublication } from "@/lib/ebook-types";
+import { getEbookPublications } from "@/lib/ebooks";
 
 export const metadata = pageMetadata({ title: "E-book publisher", path: "/admin/ebooks", noIndex: true });
 
@@ -24,10 +23,10 @@ export default async function EbookAdminPage() {
     );
   }
 
-  const entries = await Promise.all(
-    BOOKS.map(async (book) => [book.id, await getEbookPublication(book.id).catch(() => null)] as const),
-  );
-  const publications = Object.fromEntries(entries) as Record<string, EbookPublication | null>;
+  const publications = await getEbookPublications(BOOKS.map((book) => book.id)).catch(() => ({}));
+  const standaloneBooks = Object.values(publications)
+    .filter((publication) => publication.standalone)
+    .map((publication) => ({ id: publication.bookId, title: publication.title || "Untitled e-book", standalone: true }));
 
   return (
     <main id="main-content" tabIndex={-1} className="min-h-[78dvh] bg-surface px-gutter py-room">
@@ -37,7 +36,10 @@ export default async function EbookAdminPage() {
           Upload a private source PDF. The book becomes purchasable online only after every reading page has been processed successfully.
         </p>
         <EbookAdminDashboard
-          books={BOOKS.map((book) => ({ id: book.id, title: book.title }))}
+          books={[
+            ...BOOKS.map((book) => ({ id: book.id, title: book.title, standalone: false })),
+            ...standaloneBooks,
+          ]}
           publications={publications}
         />
       </div>

@@ -102,9 +102,13 @@ export async function GET(
     const height = metadata.height ?? 2700;
     const mark = compactWatermarkLabel(entitlement.customerName, session.email);
     const layers = await watermarkLayers(width, height, mark);
+    // The source PDF uses light charcoal body copy. Increase tonal separation
+    // around the dark range so reading text renders as solid ink on laptops,
+    // while highlights and the white page remain clean.
     const output = await sharp(source)
+      .linear(1.22, -36)
       .composite(layers)
-      .webp({ quality: 86, effort: 3 })
+      .webp({ quality: 92, effort: 3, smartSubsample: true })
       .toBuffer();
 
     return new Response(new Uint8Array(output), {

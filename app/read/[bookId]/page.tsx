@@ -8,29 +8,32 @@ import { getEbookManifest } from "@/lib/ebook-storage";
 
 export async function generateMetadata({ params }: { params: Promise<{ bookId: string }> }) {
   const { bookId } = await params;
+  const publication = await getEbookPublication(bookId).catch(() => null);
   const book = BOOKS.find((candidate) => candidate.id === bookId);
-  return pageMetadata({ title: book ? `Read ${book.title}` : "Reader", path: `/read/${bookId}`, noIndex: true });
+  const title = publication?.title?.trim() || book?.title;
+  return pageMetadata({ title: title ? `Read ${title}` : "Reader", path: `/read/${bookId}`, noIndex: true });
 }
 
 export default async function EbookReaderPage({ params }: { params: Promise<{ bookId: string }> }) {
   const { bookId } = await params;
   const book = BOOKS.find((candidate) => candidate.id === bookId);
-  if (!book) notFound();
+  const publication = await getEbookPublication(bookId);
+  if (!book && !publication?.standalone) notFound();
+  const title = publication?.title?.trim() || book?.title || "Untitled e-book";
 
   const session = await getReaderSession().catch(() => null);
-  if (!session) redirect(`/read?next=${encodeURIComponent(`/read/${book.id}`)}`);
+  if (!session) redirect(`/read?next=${encodeURIComponent(`/read/${bookId}`)}`);
 
-  const entitlement = await getEbookEntitlement(session.email, book.id).catch(() => null);
+  const entitlement = await getEbookEntitlement(session.email, bookId).catch(() => null);
   if (!entitlement) redirect("/read");
 
-  const publication = await getEbookPublication(book.id);
   if (!publication?.manifestKey) redirect("/read");
 
   const [manifest, progress] = await Promise.all([
     getEbookManifest(publication.manifestKey),
-    getReadingProgress(session.email, book.id).catch(() => null),
+    getReadingProgress(session.email, bookId).catch(() => null),
   ]);
   const initialPage = Math.max(1, Math.min(manifest.pageCount, progress?.page ?? 1));
 
-  return <EbookReader bookId={book.id} title={book.title} pageCount={manifest.pageCount} initialPage={initialPage} />;
+  return <EbookReader bookId={bookId} title={title} pageCount={manifest.pageCount} initialPage={initialPage} />;
 }

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { BOOKS, type Category, type Book } from "./library-content";
+import { CATEGORIES, type Category, type Book } from "./library-content";
 import { BookCard } from "./BookCard";
 import { FilterBar } from "./FilterBar";
 import { BookModal } from "./BookModal";
@@ -15,18 +15,28 @@ import type { EbookCatalogItem } from "@/lib/ebook-types";
  * animation, new items fade/scale in. `mode="popLayout"` lets exiting
  * items animate out of flow instead of holding the grid's height open.
  */
-export function LibraryGrid({ ebookCatalog }: { ebookCatalog: Record<string, EbookCatalogItem> }) {
+export function LibraryGrid({
+  books,
+  ebookCatalog,
+}: {
+  books: Book[];
+  ebookCatalog: Record<string, EbookCatalogItem>;
+}) {
   const [category, setCategory] = useState<Category | "All">("All");
   const [selected, setSelected] = useState<Book | null>(null);
 
   const visible = useMemo(
-    () => (category === "All" ? BOOKS : BOOKS.filter((book) => book.category === category)),
-    [category],
+    () => (category === "All" ? books : books.filter((book) => book.category === category)),
+    [books, category],
+  );
+  const categories = useMemo(
+    () => CATEGORIES.filter((candidate) => books.some((book) => book.category === candidate)),
+    [books],
   );
 
   return (
     <>
-      <FilterBar active={category} onChange={setCategory} />
+      <FilterBar active={category} categories={categories} onChange={setCategory} />
 
       <motion.div
         layout
@@ -34,7 +44,7 @@ export function LibraryGrid({ ebookCatalog }: { ebookCatalog: Record<string, Ebo
         className="mx-auto mt-10 grid max-w-4xl grid-cols-2 gap-x-8 gap-y-12 sm:grid-cols-4"
       >
         <AnimatePresence mode="popLayout">
-          {visible.map((book) => (
+          {visible.map((book, index) => (
             <motion.div
               key={book.id}
               layout
@@ -43,7 +53,7 @@ export function LibraryGrid({ ebookCatalog }: { ebookCatalog: Record<string, Ebo
               exit={{ opacity: 0, scale: 0.94 }}
               transition={{ duration: 0.35, ease: ease.out }}
             >
-              <BookCard book={book} onSelect={setSelected} />
+              <BookCard book={book} priority={index < 4} onSelect={setSelected} />
             </motion.div>
           ))}
         </AnimatePresence>

@@ -11,6 +11,7 @@ import type {
 /** Private reader links stay usable for three days and are consumed on first use. */
 export const READER_ACCESS_LINK_TTL_SECONDS = 60 * 60 * 24 * 3;
 const PROGRESS_TTL_SECONDS = 60 * 60 * 24 * 365 * 5;
+const PUBLICATION_INDEX_KEY = "ebook:publications";
 
 export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
@@ -63,22 +64,48 @@ export async function getEbookPublication(bookId: string): Promise<EbookPublicat
 
 export async function saveEbookPublication(publication: EbookPublication): Promise<void> {
   const client = requireRedis("E-book publishing");
-  await client.set(publicationKey(publication.bookId), JSON.stringify(publication));
+  await Promise.all([
+    client.set(publicationKey(publication.bookId), JSON.stringify(publication)),
+    client.sadd(PUBLICATION_INDEX_KEY, publication.bookId),
+  ]);
 }
 
-export async function getPublishedEbookCatalog(bookIds: string[]): Promise<Record<string, EbookCatalogItem>> {
+export async function getEbookPublications(bookIds: string[] = []): Promise<Record<string, EbookPublication>> {
   const client = getRedis();
-  if (!client || bookIds.length === 0) return {};
+  if (!client) return {};
 
-  const raw = await client.mget<(EbookPublication | string | null)[]>(...bookIds.map(publicationKey));
+  const indexedIds = await client.smembers<string[]>(PUBLICATION_INDEX_KEY);
+  const ids = Array.from(new Set([...bookIds, ...indexedIds])).filter(Boolean);
+  if (ids.length === 0) return {};
+
+  const raw = await client.mget<(EbookPublication | string | null)[]>(...ids.map(publicationKey));
+  const publications: Record<string, EbookPublication> = {};
+
+  ids.forEach((bookId, index) => {
+    const publication = parseRecord<EbookPublication>(raw[index] ?? null);
+    if (publication) publications[bookId] = publication;
+  });
+
+  return publications;
+}
+
+export async function getPublishedEbookCatalog(bookIds: string[] = []): Promise<Record<string, EbookCatalogItem>> {
+  const publications = await getEbookPublications(bookIds);
   const catalog: Record<string, EbookCatalogItem> = {};
 
-  bookIds.forEach((bookId, index) => {
-    const publication = parseRecord<EbookPublication>(raw[index] ?? null);
+  Object.entries(publications).forEach(([bookId, publication]) => {
     // A manifest is the live edition. Keep it available while a replacement
     // PDF uploads or processes, then atomically switch to the new manifest.
-    if (publication?.manifestKey) {
-      catalog[bookId] = { bookId, priceNaira: publication.priceNaira, status: "published" };
+    if (publication.manifestKey) {
+      catalog[bookId] = {
+        bookId,
+        title: publication.title,
+        description: publication.description,
+        standalone: publication.standalone,
+        priceNaira: publication.priceNaira,
+        pageCount: publication.pageCount,
+        status: "published",
+      };
     }
   });
 

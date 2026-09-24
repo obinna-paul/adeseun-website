@@ -4,6 +4,10 @@ export type EbookPublicationStatus = "uploading" | "processing" | "published" | 
 
 export type EbookPublication = {
   bookId: string;
+  /** Publication-owned metadata. Older records fall back to the paperback catalog. */
+  title?: string;
+  description?: string;
+  standalone?: boolean;
   priceNaira: number;
   status: EbookPublicationStatus;
   originalFilename: string;
@@ -24,7 +28,11 @@ export type EbookPublication = {
 
 export type EbookCatalogItem = {
   bookId: string;
+  title?: string;
+  description?: string;
+  standalone?: boolean;
   priceNaira: number;
+  pageCount?: number;
   status: "published";
 };
 

@@ -1,13 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { CloudArrowUp, SignOut } from "@phosphor-icons/react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { CloudArrowUp, PencilSimple, Plus, SignOut } from "@phosphor-icons/react";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import type { EbookPublication } from "@/lib/ebook-types";
 import { formatNaira } from "@/lib/utils";
 
-type AdminBook = { id: string; title: string };
+type AdminBook = { id: string; title: string; standalone: boolean };
 type UploadSession = { bookId: string; uploadId: string; key: string };
+type ActionState = "idle" | "saving" | "uploading" | "success" | "error";
+
+function publicationTitle(book: AdminBook | undefined, publication: EbookPublication | null | undefined) {
+  return publication?.title?.trim() || book?.title || "Untitled e-book";
+}
 
 function initialActiveBookId(books: AdminBook[], publications: Record<string, EbookPublication | null>) {
   const candidates = books
@@ -60,7 +65,7 @@ function ProcessingProgress({
           style={{ width: `${processingProgress}%` }}
         />
       </div>
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 font-mono text-[0.65rem] text-text-faint">
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 font-mono text-[0.65rem] text-text-subdued">
         <span>
           {publication.pageCount
             ? `${publication.processedPages ?? 0} of ${publication.pageCount} pages`
@@ -118,7 +123,7 @@ export function EbookAdminLogin() {
         type="password"
         required
         autoComplete="current-password"
-        className="mt-3 w-full rounded-frame border border-line bg-surface px-4 py-3 text-base text-text"
+        className="mt-3 w-full rounded-frame border border-line bg-surface px-4 py-3 text-base text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"
       />
       <div className="mt-6">
         <MagneticButton type="submit" disabled={status === "submitting"}>
@@ -141,23 +146,52 @@ export function EbookAdminDashboard({
   books: AdminBook[];
   publications: Record<string, EbookPublication | null>;
 }) {
-  const [selectedBookId, setSelectedBookId] = useState(books[0]?.id ?? "");
-  const [file, setFile] = useState<File | null>(null);
-  const [price, setPrice] = useState("");
-  const [progress, setProgress] = useState(0);
-  const [status, setStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
-  const [message, setMessage] = useState<string | null>(null);
+  const initialBookId = initialActiveBookId(books, publications) ?? books[0]?.id ?? "";
+  const initialBook = books.find((book) => book.id === initialBookId);
+  const initialPublication = publications[initialBookId];
+  const editorRef = useRef<HTMLDivElement>(null);
+
   const [livePublications, setLivePublications] = useState(publications);
+  const [selectedBookId, setSelectedBookId] = useState(initialBookId);
+  const [isNewStandalone, setIsNewStandalone] = useState(false);
+  const [title, setTitle] = useState(() => publicationTitle(initialBook, initialPublication));
+  const [description, setDescription] = useState(initialPublication?.description ?? "");
+  const [price, setPrice] = useState(initialPublication ? String(initialPublication.priceNaira) : "");
+  const [file, setFile] = useState<File | null>(null);
+  const [fileInputKey, setFileInputKey] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [status, setStatus] = useState<ActionState>("idle");
+  const [message, setMessage] = useState<string | null>(null);
   const [activeBookId, setActiveBookId] = useState<string | null>(
     () => initialActiveBookId(books, publications),
   );
 
-  const selectedTitle = useMemo(
-    () => books.find((book) => book.id === selectedBookId)?.title ?? "this book",
-    [books, selectedBookId],
-  );
-  const activeBook = activeBookId ? books.find((book) => book.id === activeBookId) : undefined;
+  const liveBooks = useMemo(() => {
+    const result = new Map(books.map((book) => [book.id, { ...book }]));
+    Object.values(livePublications).forEach((publication) => {
+      if (!publication) return;
+      const existing = result.get(publication.bookId);
+      if (existing) {
+        result.set(publication.bookId, {
+          ...existing,
+          title: publication.title?.trim() || existing.title,
+          standalone: publication.standalone ?? existing.standalone,
+        });
+      } else if (publication.standalone) {
+        result.set(publication.bookId, {
+          id: publication.bookId,
+          title: publication.title?.trim() || "Untitled e-book",
+          standalone: true,
+        });
+      }
+    });
+    return Array.from(result.values());
+  }, [books, livePublications]);
+
+  const selectedPublication = selectedBookId ? livePublications[selectedBookId] : null;
+  const activeBook = activeBookId ? liveBooks.find((book) => book.id === activeBookId) : undefined;
   const activePublication = activeBookId ? livePublications[activeBookId] : null;
+  const busy = status === "uploading" || status === "saving";
 
   useEffect(() => {
     let stopped = false;
@@ -171,7 +205,7 @@ export function EbookAdminDashboard({
         };
         if (!stopped && data.publications) setLivePublications(data.publications);
       } catch {
-        // A later poll will retry transient network failures without interrupting the upload form.
+        // A later poll will retry transient network failures without interrupting the editor.
       }
     }
 
@@ -183,26 +217,90 @@ export function EbookAdminDashboard({
     };
   }, []);
 
+  function resetFile() {
+    setFile(null);
+    setFileInputKey((value) => value + 1);
+  }
+
+  function editBook(bookId: string, focusEditor = false) {
+    const book = liveBooks.find((candidate) => candidate.id === bookId);
+    const publication = livePublications[bookId];
+    setSelectedBookId(bookId);
+    setIsNewStandalone(false);
+    setTitle(publicationTitle(book, publication));
+    setDescription(publication?.description ?? "");
+    setPrice(publication ? String(publication.priceNaira) : "");
+    setStatus("idle");
+    setMessage(null);
+    resetFile();
+    if (focusEditor) editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function startNewEbook() {
+    setSelectedBookId("");
+    setIsNewStandalone(true);
+    setTitle("");
+    setDescription("");
+    setPrice("");
+    setStatus("idle");
+    setMessage(null);
+    resetFile();
+    editorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  async function saveDetails() {
+    if (!selectedPublication || !selectedBookId) return;
+    setStatus("saving");
+    setMessage("Saving publication details…");
+    try {
+      const result = await uploadAction<{ message: string; publication: EbookPublication }>({
+        action: "update",
+        bookId: selectedBookId,
+        title,
+        description,
+        priceNaira: Number(price),
+      });
+      setLivePublications((current) => ({ ...current, [selectedBookId]: result.publication }));
+      setStatus("success");
+      setMessage(result.message);
+    } catch (error) {
+      setStatus("error");
+      setMessage(error instanceof Error ? error.message : "The publication could not be saved.");
+    }
+  }
+
   async function publish(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!file || !selectedBookId) return;
+    if (!file || !title.trim() || !price || (!isNewStandalone && !selectedBookId)) return;
 
+    const uploadTitle = title.trim();
     setStatus("uploading");
     setMessage("Preparing resumable upload…");
     setProgress(0);
-    setActiveBookId(selectedBookId);
     let session: UploadSession | null = null;
 
     try {
-      const created = await uploadAction<{ uploadId: string; key: string }>({
+      const created = await uploadAction<{
+        bookId: string;
+        uploadId: string;
+        key: string;
+        publication: EbookPublication;
+      }>({
         action: "create",
-        bookId: selectedBookId,
+        bookId: isNewStandalone ? undefined : selectedBookId,
+        standalone: isNewStandalone,
+        title: uploadTitle,
+        description,
         filename: file.name,
         size: file.size,
         contentType: file.type || "application/pdf",
         priceNaira: Number(price),
       });
-      session = { bookId: selectedBookId, uploadId: created.uploadId, key: created.key };
+      session = { bookId: created.bookId, uploadId: created.uploadId, key: created.key };
+      setSelectedBookId(created.bookId);
+      setIsNewStandalone(false);
+      setActiveBookId(created.bookId);
+      setLivePublications((current) => ({ ...current, [created.bookId]: created.publication }));
 
       const partSize = 10 * 1024 * 1024;
       const partCount = Math.ceil(file.size / partSize);
@@ -225,11 +323,12 @@ export function EbookAdminDashboard({
           const response = await fetch(signed.url, { method: "PUT", body: file!.slice(start, end) });
           if (!response.ok) throw new Error(`Upload part ${partNumber} failed with status ${response.status}.`);
           const etag = response.headers.get("ETag");
-          if (!etag) throw new Error("R2 did not expose the ETag header. Check the bucket CORS policy.");
+          if (!etag) throw new Error("Storage did not confirm the upload part. Check the bucket CORS policy.");
           parts[index] = { ETag: etag, PartNumber: partNumber };
           uploadedBytes += end - start;
-          setProgress(Math.round((uploadedBytes / file!.size) * 100));
-          setMessage(`Uploading ${selectedTitle}: ${Math.round((uploadedBytes / file!.size) * 100)}%`);
+          const percent = Math.round((uploadedBytes / file!.size) * 100);
+          setProgress(percent);
+          setMessage(`Uploading ${uploadTitle}: ${percent}%`);
         }
       }
 
@@ -240,14 +339,13 @@ export function EbookAdminDashboard({
         ...session,
         parts,
       });
-      setLivePublications((current) => ({ ...current, [selectedBookId]: completed.publication }));
+      setLivePublications((current) => ({ ...current, [created.bookId]: completed.publication }));
       setProgress(100);
       setStatus("success");
       setMessage(completed.message);
+      resetFile();
     } catch (error) {
-      if (session) {
-        await uploadAction({ action: "abort", ...session }).catch(() => undefined);
-      }
+      if (session) await uploadAction({ action: "abort", ...session }).catch(() => undefined);
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "The upload failed.");
     }
@@ -273,87 +371,161 @@ export function EbookAdminDashboard({
   }
 
   return (
-    <>
-      <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.72fr)] lg:gap-16">
-        <form onSubmit={publish} className="border-t border-line pt-7">
-          <h2 className="font-display text-2xl font-semibold text-text">Upload a source PDF</h2>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-subdued">
-            The file uploads directly to private storage in resumable 10 MB parts. Processing begins after every part is confirmed.
-          </p>
+    <div className="mt-10 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.72fr)] lg:gap-16">
+      <div ref={editorRef} className="scroll-mt-6 border-t border-line pt-7">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 className="font-display text-2xl font-semibold text-text">
+              {isNewStandalone ? "Publish a new e-book" : "Publication editor"}
+            </h2>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-text-subdued">
+              {isNewStandalone
+                ? "Create a digital-only title. Its first PDF page becomes the public cover when publishing finishes."
+                : "Change the public title, description, price, or replace the PDF with a new edition."}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={startNewEbook}
+            className="inline-flex min-h-11 items-center gap-2 rounded-control border border-emerald-line bg-emerald-tint px-4 py-2 font-mono text-xs text-emerald-ink transition-colors duration-150 ease-gallery-standard hover:bg-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"
+          >
+            <Plus size={16} /> New e-book
+          </button>
+        </div>
 
-          <div className="mt-7 grid gap-6 sm:grid-cols-2">
+        <form onSubmit={publish} className="mt-7">
+          {!isNewStandalone && (
             <label className="block">
-              <span className="font-mono text-xs text-text-subdued">Catalog book</span>
+              <span className="font-mono text-xs text-text-subdued">Choose a title to edit</span>
               <select
                 value={selectedBookId}
-                onChange={(event) => setSelectedBookId(event.target.value)}
-                className="mt-2 w-full rounded-frame border border-line bg-surface px-4 py-3 text-base text-text"
+                onChange={(event) => editBook(event.target.value)}
+                className="mt-2 w-full rounded-frame border border-line bg-surface px-4 py-3 text-base text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"
               >
-                {books.map((book) => (
+                {liveBooks.map((book) => (
                   <option key={book.id} value={book.id}>
-                    {book.title}
+                    {book.title}{book.standalone ? " (e-book only)" : ""}
                   </option>
                 ))}
               </select>
+            </label>
+          )}
+
+          <div className="mt-6 grid gap-6 sm:grid-cols-2">
+            <label className="block sm:col-span-2">
+              <span className="font-mono text-xs text-text-subdued">Title</span>
+              <input
+                type="text"
+                required
+                maxLength={120}
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                className="mt-2 w-full rounded-frame border border-line bg-surface px-4 py-3 text-base text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"
+              />
+            </label>
+            <label className="block sm:col-span-2">
+              <span className="font-mono text-xs text-text-subdued">Short description</span>
+              <textarea
+                rows={4}
+                maxLength={1200}
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                placeholder="Tell readers what this book is about."
+                className="mt-2 w-full resize-y rounded-frame border border-line bg-surface px-4 py-3 text-base text-text placeholder:text-text-subdued focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"
+              />
             </label>
             <label className="block">
               <span className="font-mono text-xs text-text-subdued">E-book price (NGN)</span>
               <input
                 type="number"
                 min={1}
+                max={100000000}
                 step={1}
                 required
                 value={price}
                 onChange={(event) => setPrice(event.target.value)}
-                className="mt-2 w-full rounded-frame border border-line bg-surface px-4 py-3 text-base text-text"
+                className="mt-2 w-full rounded-frame border border-line bg-surface px-4 py-3 text-base text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"
               />
             </label>
+            <div className="flex items-end">
+              {selectedPublication ? (
+                <p className="pb-3 font-mono text-xs text-text-subdued">
+                  Live price: {formatNaira(selectedPublication.priceNaira)}
+                </p>
+              ) : (
+                <p className="pb-3 text-sm text-text-subdued">A price is required before upload.</p>
+              )}
+            </div>
           </div>
 
           <label className="mt-6 flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-frame border border-dashed border-line-strong bg-surface px-6 py-8 text-center transition-colors duration-150 ease-gallery-standard hover:border-emerald hover:bg-emerald-tint">
             <CloudArrowUp size={30} weight="light" className="text-emerald-ink" />
-            <span className="mt-3 font-display text-lg font-semibold text-text">Choose the PDF for {selectedTitle}</span>
-            <span className="mt-1 text-sm text-text-subdued">Large full-color files are supported up to 2 GB.</span>
+            <span className="mt-3 font-display text-lg font-semibold text-text">
+              {selectedPublication ? "Choose a replacement PDF" : "Choose the source PDF"}
+            </span>
+            <span className="mt-1 text-sm text-text-subdued">
+              {selectedPublication
+                ? "Leave this empty when you only want to save the details above."
+                : "Large full-color files are supported up to 2 GB."}
+            </span>
             <input
+              key={fileInputKey}
               type="file"
               accept="application/pdf,.pdf"
-              required
               className="sr-only"
               onChange={(event) => setFile(event.target.files?.[0] ?? null)}
             />
-            {file && <span className="mt-4 font-mono text-xs text-emerald-ink">{file.name}</span>}
+            {file && <span className="mt-4 max-w-full break-all font-mono text-xs text-emerald-ink">{file.name}</span>}
           </label>
 
           {status === "uploading" && (
             <div className="mt-6" aria-label={`Upload ${progress}% complete`}>
               <div className="h-1 overflow-hidden rounded-control bg-line-whisper">
-                <div className="h-full bg-emerald-fill transition-[width] duration-150 ease-gallery-out" style={{ width: `${progress}%` }} />
+                <div
+                  className="h-full bg-emerald-fill transition-[width] duration-150 ease-gallery-out"
+                  style={{ width: `${progress}%` }}
+                />
               </div>
             </div>
           )}
 
-          <div className="mt-6 flex flex-wrap items-center gap-4">
-            <MagneticButton type="submit" disabled={!file || !price || status === "uploading"}>
-              {status === "uploading" ? "Uploading…" : "Upload and process"}
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            {selectedPublication && (
+              <button
+                type="button"
+                disabled={busy || !title.trim() || !price}
+                onClick={() => void saveDetails()}
+                className="min-h-11 rounded-control border border-line-strong bg-surface px-5 py-3 font-mono text-xs text-emerald-ink transition-colors duration-150 ease-gallery-standard hover:border-emerald-line hover:bg-emerald-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald disabled:cursor-not-allowed disabled:opacity-45"
+              >
+                {status === "saving" ? "Saving…" : "Save changes"}
+              </button>
+            )}
+            <MagneticButton type="submit" disabled={!file || !title.trim() || !price || busy}>
+              {status === "uploading"
+                ? "Uploading…"
+                : selectedPublication
+                  ? "Upload new edition"
+                  : isNewStandalone
+                    ? "Create and publish"
+                    : "Upload and process"}
             </MagneticButton>
-            <p
-              aria-live="polite"
-              className={`max-w-md text-sm leading-relaxed ${status === "error" ? "text-garnet" : "text-text-subdued"}`}
-            >
-              {message}
-            </p>
           </div>
 
+          <p
+            aria-live="polite"
+            className={`mt-4 max-w-xl text-sm leading-relaxed ${status === "error" ? "text-garnet" : "text-text-subdued"}`}
+          >
+            {message}
+          </p>
+
           {activeBook && activePublication?.status === "processing" && (
-            <ProcessingProgress bookTitle={activeBook.title} publication={activePublication} featured />
+            <ProcessingProgress bookTitle={publicationTitle(activeBook, activePublication)} publication={activePublication} featured />
           )}
 
           {activeBook && activePublication?.status === "published" && status === "success" && (
             <div className="mt-6 rounded-frame border border-emerald/25 bg-emerald-tint px-5 py-4" role="status">
-              <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-emerald-ink">
-                Published · 100%
-              </p>
-              <p className="mt-1 text-sm text-text">{activeBook.title} is ready to read online.</p>
+              <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-emerald-ink">Published · 100%</p>
+              <p className="mt-1 text-sm text-text">{publicationTitle(activeBook, activePublication)} is ready to read online.</p>
             </div>
           )}
 
@@ -361,70 +533,92 @@ export function EbookAdminDashboard({
             <div className="mt-6 rounded-frame border border-garnet/25 bg-surface px-5 py-4" role="alert">
               <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-garnet">Processing failed</p>
               <p className="mt-2 text-sm leading-relaxed text-text">
-                {activePublication.error ?? `${activeBook.title} could not be processed.`}
+                {activePublication.error ?? `${publicationTitle(activeBook, activePublication)} could not be processed.`}
               </p>
               <button
                 type="button"
                 onClick={() => processAgain(activeBook.id)}
-                className="mt-3 font-mono text-xs text-emerald-ink underline underline-offset-4"
+                className="mt-3 min-h-11 font-mono text-xs text-emerald-ink underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"
               >
                 Resume processing
               </button>
             </div>
           )}
         </form>
-
-        <section className="border-t border-line pt-7" aria-labelledby="publication-status-heading">
-          <div className="flex items-center justify-between gap-4">
-            <h2 id="publication-status-heading" className="font-display text-2xl font-semibold text-text">
-              Publication status
-            </h2>
-            <button
-              type="button"
-              onClick={signOut}
-              className="flex items-center gap-2 font-mono text-xs text-text-subdued underline decoration-line-strong underline-offset-4"
-            >
-              <SignOut size={15} /> Sign out
-            </button>
-          </div>
-
-          <div className="mt-5 space-y-5">
-            {books.map((book) => {
-              const publication = livePublications[book.id];
-              return (
-                <div key={book.id} className="border-b border-line-whisper pb-5 last:border-0">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="font-display text-lg font-semibold leading-tight text-text">{book.title}</p>
-                      <p className="mt-1 font-mono text-[0.65rem] text-text-faint">
-                        {publication ? publication.status : "not uploaded"}
-                        {publication ? ` · ${formatNaira(publication.priceNaira)}` : ""}
-                      </p>
-                    </div>
-                    {(publication?.status === "failed" || publication?.status === "processing") && (
-                      <button
-                        type="button"
-                        onClick={() => processAgain(book.id)}
-                        className="shrink-0 font-mono text-xs text-emerald-ink underline underline-offset-4"
-                      >
-                        {publication.status === "processing" ? "Restart processing" : "Process again"}
-                      </button>
-                    )}
-                  </div>
-                  {publication?.status === "processing" && (
-                    <ProcessingProgress
-                      bookTitle={book.title}
-                      publication={publication}
-                      announce={activeBookId !== book.id}
-                    />
-                  )}
-                  {publication?.error && <p className="mt-2 text-xs leading-relaxed text-garnet">{publication.error}</p>}
-                </div>
-              );
-            })}
-          </div>
-        </section>
       </div>
-    </>
+
+      <section className="border-t border-line pt-7" aria-labelledby="publication-status-heading">
+        <div className="flex items-center justify-between gap-4">
+          <h2 id="publication-status-heading" className="font-display text-2xl font-semibold text-text">
+            Publication status
+          </h2>
+          <button
+            type="button"
+            onClick={signOut}
+            className="flex min-h-11 items-center gap-2 font-mono text-xs text-text-subdued underline decoration-line-strong underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"
+          >
+            <SignOut size={15} /> Sign out
+          </button>
+        </div>
+        <p className="mt-2 text-sm leading-relaxed text-text-subdued">Select any title below to edit its details or replace its PDF.</p>
+
+        <div className="mt-5 space-y-2">
+          {liveBooks.map((book) => {
+            const publication = livePublications[book.id];
+            const current = !isNewStandalone && selectedBookId === book.id;
+            return (
+              <div
+                key={book.id}
+                className={`rounded-frame border p-4 transition-colors duration-150 ease-gallery-standard ${
+                  current ? "border-emerald-line bg-emerald-tint" : "border-line-whisper bg-surface"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <button
+                    type="button"
+                    onClick={() => editBook(book.id, true)}
+                    className="min-w-0 flex-1 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"
+                    aria-label={`Edit ${publicationTitle(book, publication)}`}
+                  >
+                    <span className="block break-words font-display text-lg font-semibold leading-tight text-text">
+                      {publicationTitle(book, publication)}
+                    </span>
+                    <span className="mt-1 block font-mono text-[0.65rem] text-text-subdued">
+                      {publication ? publication.status : "not uploaded"}
+                      {publication ? ` · ${formatNaira(publication.priceNaira)}` : ""}
+                      {book.standalone ? " · e-book only" : ""}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => editBook(book.id, true)}
+                    className="flex min-h-11 shrink-0 items-center gap-1.5 px-2 font-mono text-xs text-emerald-ink underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"
+                  >
+                    <PencilSimple size={15} /> {publication ? "Edit" : "Set up"}
+                  </button>
+                </div>
+                {(publication?.status === "failed" || publication?.status === "processing") && (
+                  <button
+                    type="button"
+                    onClick={() => processAgain(book.id)}
+                    className="mt-3 min-h-11 font-mono text-xs text-emerald-ink underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"
+                  >
+                    {publication.status === "processing" ? "Restart processing" : "Process again"}
+                  </button>
+                )}
+                {publication?.status === "processing" && (
+                  <ProcessingProgress
+                    bookTitle={publicationTitle(book, publication)}
+                    publication={publication}
+                    announce={activeBookId !== book.id}
+                  />
+                )}
+                {publication?.error && <p className="mt-2 text-xs leading-relaxed text-garnet">{publication.error}</p>}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    </div>
   );
 }

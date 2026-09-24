@@ -8,7 +8,15 @@ import { BookCover } from "./BookCover";
  * v4's `hover:` variant already compiles to `@media (hover: hover)`, so
  * this is inert on touch without any extra gating.
  */
-export function BookCard({ book, onSelect }: { book: Book; onSelect: (book: Book) => void }) {
+export function BookCard({
+  book,
+  onSelect,
+  priority = false,
+}: {
+  book: Book;
+  onSelect: (book: Book) => void;
+  priority?: boolean;
+}) {
   return (
     <button
       type="button"
@@ -25,7 +33,7 @@ export function BookCard({ book, onSelect }: { book: Book; onSelect: (book: Book
         {/* Order, category, and title all live on the cover mockup itself
             (BookCover) — real HTML text, not a photo, so repeating them
             as a caption below would just be the same copy twice. */}
-        <BookCover book={book} className="h-full" />
+        <BookCover book={book} priority={priority} className="h-full" />
       </span>
     </button>
   );
