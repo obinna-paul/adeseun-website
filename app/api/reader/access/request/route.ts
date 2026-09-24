@@ -10,6 +10,7 @@ import { fulfillOrder } from "@/lib/order-fulfillment";
 import { findRecentSuccessfulTransactionReferences } from "@/lib/paystack";
 import { sendEmail, EmailNotConfiguredError, FROM_ADDRESS } from "@/lib/resend";
 import { RedisNotConfiguredError } from "@/lib/redis";
+import { readerAccessEmail } from "@/lib/email-templates";
 
 type AccessRequest = {
   email?: unknown;
@@ -76,17 +77,11 @@ export async function POST(request: Request) {
     if (bookIds.length > 0 && !recoveryEmailSent) {
       const token = await createReaderAccessToken({ email, nextPath: safeNextPath(body.nextPath) });
       const link = `${siteUrl(request)}/api/reader/access/${encodeURIComponent(token)}`;
+      const emailContent = readerAccessEmail(link);
       const { error } = await sendEmail({
         from: FROM_ADDRESS.library,
         to: email,
-        subject: "Your private Library sign-in link",
-        text: [
-          "Use this private link to open your e-book library:",
-          "",
-          link,
-          "",
-          "The link expires in 15 minutes. You can request another whenever you need it.",
-        ].join("\n"),
+        ...emailContent,
       });
       if (error) {
         console.error("Reader access email failed:", error);

@@ -20,7 +20,7 @@ The browser never receives the source PDF or an R2 credential.
    - Paystack returns the buyer to `/checkout/thank-you?reference=...`, where the server verifies the reference directly with Paystack.
 4. Only after verification of the status, amount, currency, book, format, and publication does the website grant the permanent Redis entitlement.
 5. The return flow signs an e-book buyer into the reader immediately when the browser still has the HTTP-only checkout-intent cookie created before the Paystack redirect. The confirmation page shows the amount and Paystack reference and links straight to the purchased book, so the original checkout tab does not depend on email delivery. A copied reference alone cannot create a reader session.
-6. Resend sends the buyer a confirmation with a 15-minute private sign-in link. It also sends the owner notification. E-book purchases never notify the printer.
+6. Resend sends the buyer a branded confirmation with a single-use private sign-in link that remains valid for three days. It also sends the owner notification. E-book purchases never notify the printer.
 7. A returning reader enters the purchase email at `/read`. If the webhook was missed and no entitlement exists yet, the server asks Paystack for that customer's recent successful e-book transactions, verifies each candidate, repairs the entitlement, and sends the link.
 
 ### Production configuration checklist

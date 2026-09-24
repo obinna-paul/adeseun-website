@@ -30,6 +30,7 @@ export type SendEmailInput = {
   to: string;
   subject: string;
   text: string;
+  html?: string;
   replyTo?: string;
 };
 
@@ -49,6 +50,7 @@ export async function sendEmail(input: SendEmailInput): Promise<{ error: unknown
     replyTo: input.replyTo,
     subject: input.subject,
     text: input.text,
+    html: input.html,
   });
   return { error };
 }

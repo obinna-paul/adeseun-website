@@ -8,7 +8,8 @@ import type {
   ReadingProgress,
 } from "@/lib/ebook-types";
 
-const ACCESS_LINK_TTL_SECONDS = 60 * 15;
+/** Private reader links stay usable for three days and are consumed on first use. */
+export const READER_ACCESS_LINK_TTL_SECONDS = 60 * 60 * 24 * 3;
 const PROGRESS_TTL_SECONDS = 60 * 60 * 24 * 365 * 5;
 
 export function normalizeEmail(email: string): string {
@@ -113,7 +114,7 @@ export async function createReaderAccessToken(grant: ReaderAccessGrant): Promise
   await client.set(
     accessKey(token),
     JSON.stringify({ ...grant, email: normalizeEmail(grant.email) }),
-    { ex: ACCESS_LINK_TTL_SECONDS },
+    { ex: READER_ACCESS_LINK_TTL_SECONDS },
   );
   return token;
 }

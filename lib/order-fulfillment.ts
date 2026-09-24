@@ -8,6 +8,7 @@ import {
 import { claimOrderForFulfillment, getOrder, markOrderFulfilled, type EmailOutcome } from "@/lib/orders";
 import { verifyTransaction } from "@/lib/paystack";
 import { EmailNotConfiguredError, FROM_ADDRESS, sendEmail } from "@/lib/resend";
+import { customerOrderEmail, ownerOrderEmail, printerOrderEmail } from "@/lib/email-templates";
 import type { BookFormat } from "@/lib/ebook-types";
 import { formatNaira } from "@/lib/utils";
 
@@ -211,58 +212,39 @@ export async function fulfillOrder(referenceInput: string): Promise<OrderFulfill
     readerAccessUrl = `${siteUrl()}/api/reader/access/${encodeURIComponent(token)}`;
   }
 
-  const customerText =
-    format === "ebook"
-      ? [
-          `Thank you for your order, ${order.customerName || "there"}.`,
-          "",
-          `E-book: ${order.bookTitle}`,
-          `Amount paid: ${formatNaira(order.priceNaira)}`,
-          `Payment reference: ${order.reference}`,
-          "",
-          "Open your private reading room:",
-          readerAccessUrl ?? `${siteUrl()}/read`,
-          "",
-          "This sign-in link expires in 15 minutes. You can request a fresh link from the reading room at any time.",
-        ].join("\n")
-      : [
-          `Thank you for your order, ${order.customerName || "there"}.`,
-          "",
-          `Book: ${order.bookTitle}`,
-          `Amount paid: ${formatNaira(order.priceNaira)}`,
-          `Payment reference: ${order.reference}`,
-          "",
-          "Delivery address on file:",
-          addressBlock,
-          "",
-          "Your copy is being prepared for print. Please allow 7-10 business days for delivery.",
-        ].join("\n");
+  const customerEmailContent = customerOrderEmail({
+    bookTitle: order.bookTitle,
+    customerName: order.customerName,
+    amount: formatNaira(order.priceNaira),
+    reference: order.reference,
+    format,
+    readerAccessUrl: readerAccessUrl ?? undefined,
+    libraryUrl: `${siteUrl()}/read`,
+    coverUrl: book.coverImage ? `${siteUrl()}${book.coverImage}` : undefined,
+    address: format === "paperback" ? addressBlock : undefined,
+  });
 
   const customerPromise = sendWithOutcome(reference, "customer", {
     from: FROM_ADDRESS.library,
     to: order.customerEmail,
-    subject: format === "ebook" ? `Payment confirmed: ${order.bookTitle}` : `Order confirmed: ${order.bookTitle}`,
-    text: customerText,
+    ...customerEmailContent,
   });
 
+  const ownerEmail = ownerOrderEmail({
+    bookTitle: order.bookTitle,
+    customerName: order.customerName,
+    customerEmail: order.customerEmail,
+    customerPhone: order.customerPhone,
+    amount: formatNaira(order.priceNaira),
+    reference: order.reference,
+    format,
+    libraryUrl: `${siteUrl()}/read`,
+    address: format === "paperback" ? addressBlock : undefined,
+  });
   const ownerPromise = sendWithOutcome(reference, "owner notification", {
     from: FROM_ADDRESS.library,
     to: "adeseun05@gmail.com",
-    subject: `New ${format === "ebook" ? "e-book" : "paperback"} order: ${order.bookTitle}`,
-    text: [
-      `Book: ${order.bookTitle}`,
-      `Format: ${format === "ebook" ? "E-book" : "Paperback"}`,
-      `Amount: ${formatNaira(order.priceNaira)}`,
-      `Payment reference: ${order.reference}`,
-      "",
-      `Customer: ${order.customerName}`,
-      `Email: ${order.customerEmail}`,
-      format === "paperback" ? `Phone: ${order.customerPhone}` : null,
-      format === "paperback" ? "Delivery address:" : null,
-      format === "paperback" ? addressBlock : null,
-    ]
-      .filter((line): line is string => line !== null)
-      .join("\n"),
+    ...ownerEmail,
   });
 
   let printerPromise: Promise<EmailOutcome> = Promise.resolve("skipped");
@@ -271,27 +253,21 @@ export async function fulfillOrder(referenceInput: string): Promise<OrderFulfill
     if (!printerEmail) {
       console.error(`Order ${reference}: PRINTER_EMAIL is not set. The printer was not notified.`);
     } else {
+      const printerEmailContent = printerOrderEmail({
+        bookTitle: order.bookTitle,
+        reference: order.reference,
+        customerName: order.customerName,
+        customerPhone: order.customerPhone,
+        address: addressBlock,
+        pageCount: String(book.printSpecs.pageCount ?? "Unconfirmed"),
+        trimSize: book.printSpecs.trimSize,
+        binding: book.printSpecs.binding,
+        notes: book.printSpecs.notes,
+      });
       printerPromise = sendWithOutcome(reference, "printer", {
         from: FROM_ADDRESS.library,
         to: printerEmail,
-        subject: `New print job: ${order.bookTitle} (Qty: 1)`,
-        text: [
-          `New order to print. Payment reference: ${order.reference}.`,
-          "",
-          `Book: ${order.bookTitle}`,
-          "Quantity: 1",
-          `Page count: ${book.printSpecs.pageCount ?? "unconfirmed"}`,
-          `Trim size: ${book.printSpecs.trimSize}`,
-          `Binding: ${book.printSpecs.binding}`,
-          book.printSpecs.notes ? `Notes: ${book.printSpecs.notes}` : null,
-          "",
-          "Ship to:",
-          order.customerName,
-          addressBlock,
-          `Phone: ${order.customerPhone}`,
-        ]
-          .filter((line): line is string => line !== null)
-          .join("\n"),
+        ...printerEmailContent,
       });
     }
   }
