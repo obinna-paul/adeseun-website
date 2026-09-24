@@ -1,3 +1,4 @@
+import path from "node:path";
 import sharp from "sharp";
 import { NextResponse } from "next/server";
 import {
@@ -10,6 +11,8 @@ import { getEbookManifest, getPrivateObject, pageKeyFromManifest } from "@/lib/e
 import { getReaderSession } from "@/lib/reader-auth";
 
 export const runtime = "nodejs";
+
+const WATERMARK_FONT_PATH = path.join(process.cwd(), "app", "fonts", "IBMPlexMono-500.woff2");
 
 function escapeXml(value: string): string {
   return value.replace(/[<>&'\"]/g, (character) => {
@@ -24,18 +27,44 @@ function escapeXml(value: string): string {
   });
 }
 
-function watermarkSvg(width: number, height: number, label: string): Buffer {
+function compactWatermarkLabel(name: string, email: string): string {
+  const normalizedName = name.trim().replace(/\s+/g, " ");
+  if (!normalizedName) return maskReaderEmail(email);
+  return normalizedName.length > 38 ? `${normalizedName.slice(0, 35).trim()}...` : normalizedName;
+}
+
+async function watermarkLayers(width: number, height: number, label: string) {
   const safeLabel = escapeXml(label);
-  return Buffer.from(`
-    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <pattern id="reader-mark" width="520" height="260" patternUnits="userSpaceOnUse" patternTransform="rotate(-24)">
-          <text x="20" y="130" fill="rgba(70, 50, 32, 0.13)" font-family="Arial, sans-serif" font-size="22" letter-spacing="1.5">${safeLabel}</text>
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#reader-mark)"/>
-    </svg>
-  `);
+  const { data, info } = await sharp({
+    text: {
+      text: `<span foreground="#463220" alpha="15%" font_size="18pt">${safeLabel}</span>`,
+      font: "IBM Plex Mono",
+      fontfile: WATERMARK_FONT_PATH,
+      width: 520,
+      align: "center",
+      rgba: true,
+      dpi: 110,
+    },
+  })
+    .rotate(-22, { background: { r: 0, g: 0, b: 0, alpha: 0 } })
+    .png()
+    .toBuffer({ resolveWithObject: true });
+
+  const layers: Array<{ input: Buffer; top: number; left: number; blend: "over" }> = [];
+  const stepX = Math.max(680, info.width + 140);
+  const stepY = Math.max(360, info.height + 180);
+  const maxLeft = Math.max(0, width - info.width);
+  const maxTop = Math.max(0, height - info.height);
+
+  for (let row = 0, top = 80; top <= maxTop; row += 1, top += stepY) {
+    const offset = row % 2 === 0 ? 40 : Math.floor(stepX / 2);
+    for (let left = Math.min(offset, maxLeft); left <= maxLeft; left += stepX) {
+      layers.push({ input: data, top, left, blend: "over" });
+    }
+  }
+
+  if (layers.length === 0) layers.push({ input: data, top: 0, left: 0, blend: "over" });
+  return layers;
 }
 
 export async function GET(
@@ -71,10 +100,10 @@ export async function GET(
     const metadata = await sharp(source).metadata();
     const width = metadata.width ?? 1800;
     const height = metadata.height ?? 2700;
-    const reference = entitlement.orderReference.slice(-8).toUpperCase();
-    const mark = `${maskReaderEmail(session.email)}  ${reference}`;
+    const mark = compactWatermarkLabel(entitlement.customerName, session.email);
+    const layers = await watermarkLayers(width, height, mark);
     const output = await sharp(source)
-      .composite([{ input: watermarkSvg(width, height, mark), blend: "over" }])
+      .composite(layers)
       .webp({ quality: 86, effort: 3 })
       .toBuffer();
 

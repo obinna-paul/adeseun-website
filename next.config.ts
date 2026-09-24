@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  outputFileTracingIncludes: {
+    "/api/reader/books/*/pages/*": ["./app/fonts/IBMPlexMono-500.woff2"],
+  },
   images: {
     remotePatterns: [
       // Book covers, headshots, and press assets will come from Sanity's
