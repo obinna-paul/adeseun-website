@@ -23,11 +23,11 @@
  * `vendors`/Amazon+Lulu purchase links have been removed entirely per
  * direct instruction — purchasing now happens on-site via Paystack
  * (see app/checkout/[bookId] and app/api/checkout). Every `price` below
- * is a PLACEHOLDER (₦8,000 flat) and every `printSpecs.trimSize` /
- * `.binding` is a guessed-generic paperback spec — neither is real data.
- * Both need the real per-book price and real print specs from the
- * printer before this goes live; see BookModal/checkout route doc
- * comments for how they're used. `printSpecs.pageCount` is filled in
+ * is the confirmed paperback price in naira. Every
+ * `printSpecs.trimSize` / `.binding` is still a guessed-generic
+ * paperback spec and needs confirmation from the printer before this
+ * goes live; see BookModal/checkout route doc comments for how they're
+ * used. `printSpecs.pageCount` is filled in
  * wherever a real page count was already confirmed above via `accolades`;
  * left `undefined` for the two books where it never was.
  *
@@ -64,8 +64,8 @@
  * via the supplied marketing copy and real cover art supplied directly
  * (not independently verified against a retail listing). Introduced the
  * "Connection" category, since the original eight didn't have one that
- * fit a relationship-focused book. `price`/`printSpecs` are the same
- * flat placeholders as the rest of the catalog.
+ * fit a relationship-focused book. Its `printSpecs` use the same
+ * placeholders as the rest of the catalog.
  *
  * A tenth, "Young, Able & Unshakable" — 219 pages, same sourcing pattern
  * (supplied marketing copy + real cover art, not independently
@@ -159,7 +159,7 @@ export type Book = {
   accolades: string[];
   excerptHeading: string;
   excerpt: string[];
-  /** PLACEHOLDER — in NGN (naira, not kobo). Needs the real price per book before launch. */
+  /** Confirmed paperback price in NGN (naira, not kobo). */
   price: number;
   printSpecs: PrintSpecs;
   /** Real cover art, when it exists — falls back to the BookCover mockup when absent. */
@@ -192,7 +192,7 @@ export const BOOKS: Book[] = [
       "Every word carries consequence, whether or not it was chosen with care. Think Before You Speak is built around that idea — that thoughtful communication isn't a talent some people are born with, but a discipline anyone can practice.",
       "It's a short, direct read, aimed less at eloquence than at intention: saying what you actually mean, and meaning what you say.",
     ],
-    price: 8000,
+    price: 25000,
     printSpecs: { pageCount: 197, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/think-before-you-speak-mockup.png",
   },
@@ -211,7 +211,7 @@ export const BOOKS: Book[] = [
       "Beyond the Mundane asks a plain question that's easy to avoid: what actually makes a life feel meaningful, once the routines that fill most of it are set aside?",
       "The answer isn't treated as a single idea. The book moves between the philosophical, the psychological, the spiritual, and the practical — meaning built from several directions at once, not handed down from one.",
     ],
-    price: 8000,
+    price: 35000,
     printSpecs: { trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/beyond-the-mundane-mockup.png",
   },
@@ -230,7 +230,7 @@ export const BOOKS: Book[] = [
       "Tranquility doesn't promise a life without storms. It's offered instead as a companion inside them — a guide to cultivating serenity as a practice, not a destination reached once and kept forever.",
       "The tone throughout sits closer to companionship than instruction: less a manual, more a steady voice for whoever picks it up mid-storm.",
     ],
-    price: 8000,
+    price: 30000,
     printSpecs: { trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/tranquility-mockup.png",
   },
@@ -249,7 +249,7 @@ export const BOOKS: Book[] = [
       "Black Is Beautiful shines a light on the rich and diverse world of Black culture. This book is a heartfelt tribute to the beauty and strength of Black identity, exploring its history, traditions, and creative expressions.",
       "More than just a book, Black Is Beautiful is a celebration of the pride and beauty found in Black communities everywhere. It invites readers to appreciate and understand the true beauty of Black culture, challenging stereotypes and offering a deeper look into what makes it special.",
     ],
-    price: 8000,
+    price: 30000,
     printSpecs: { trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/black-is-beautiful-mockup.png",
   },
@@ -268,7 +268,7 @@ export const BOOKS: Book[] = [
       "The Future Is Now argues that media marketing's old playbooks have expired — the landscape has shifted faster in the last five years than in the fifty before it, and strategies that worked even recently no longer hold up.",
       "Aimed at marketers, entrepreneurs, and creative leaders, it works through the forces reshaping attention and influence today, from the attention economy to AI-driven creative strategy, pairing each idea with bold full-color visual design rather than dense text alone.",
     ],
-    price: 8000,
+    price: 40000,
     printSpecs: { pageCount: 109, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/the-future-is-now-mockup.png",
   },
@@ -287,7 +287,7 @@ export const BOOKS: Book[] = [
       "Architectural Soul moves through interior design and architecture as one continuous discipline — how intentional design, refined detail, and an understanding of how people actually live combine to shape spaces that inspire and nurture rather than just house.",
       "It follows the process from concept to completion, treating a finished room or building less as a fixed object than as the record of a series of decisions — where vision meets purpose, and lasting impact begins.",
     ],
-    price: 8000,
+    price: 100000,
     printSpecs: { pageCount: 403, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/architectural-soul-mockup.png",
   },
@@ -306,7 +306,7 @@ export const BOOKS: Book[] = [
       "Positive Negative treats life's contradictions as the point, not a problem to solve — the same stretch of time can hold both the light that lifts and the darkness that shapes, without one canceling the other out.",
       "Its throughline isn't picking a side of any of those pairs. It's staying in motion through both of them — whole, honest, and unwilling to stop showing up.",
     ],
-    price: 8000,
+    price: 35000,
     printSpecs: { pageCount: 220, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/positive-negative-mockup.png",
   },
@@ -325,7 +325,7 @@ export const BOOKS: Book[] = [
       "The Assignment starts from the idea that nobody ends up here by accident, and that it's easy to lose sight of that somewhere between busyness and burnout. It's written for people who look successful from the outside but don't feel fulfilled or aligned on the inside.",
       "Across its chapters the book moves from confusion toward clarity and from intention toward action, treating purpose less as a vague aspiration than as something to actually discover, accept, and live out with discipline.",
     ],
-    price: 8000,
+    price: 35000,
     printSpecs: { pageCount: 270, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/the-assignment-mockup.png",
   },
@@ -344,7 +344,7 @@ export const BOOKS: Book[] = [
       "Together, Yet Distinct starts from a plain distinction: connection and confusion aren't the same thing, and neither are closeness and disappearance. It's written for anyone trying to build something lasting without quietly editing themselves out of it — their boundaries, their growth, their sense of who they are outside the relationship.",
       "Its throughline is that healthy love isn't possession or dependency, but two people choosing each other on purpose, again and again, while still becoming more fully themselves. Not a love that asks you to shrink to fit it — one built to hold both people whole.",
     ],
-    price: 8000,
+    price: 35000,
     printSpecs: { pageCount: 115, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/together-yet-distinct-mockup.png",
   },
@@ -363,7 +363,7 @@ export const BOOKS: Book[] = [
       "Young, Able & Unshakable treats growing up as a series of decisions, not a single arrival at adulthood — the pressure, comparison, and mistakes that come with it are the material to work with, not obstacles to wait out. Confidence here isn't framed as being unshakeable by nature, but built one choice at a time.",
       "Its lessons and reflection prompts move through understanding yourself, recovering from setbacks, building healthy habits, choosing good friendships, and taking responsibility for what comes next — a resource meant to be worked through with a mentor, parent, or educator as easily as alone.",
     ],
-    price: 8000,
+    price: 20000,
     printSpecs: { pageCount: 219, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/young-able-unshakable-mockup.png",
   },
@@ -382,7 +382,7 @@ export const BOOKS: Book[] = [
       "The Relationship Repair Room is built for couples who already know something is wrong — trust has thinned, conversations have gone quiet, distance has crept in — but aren't sure where to start putting it back together. It moves through honest conversation, personal reflection, and practical exercises session by session, rather than asking two people to fix everything at once.",
       "Its focus stays on the ordinary mechanics of repair: communicating without defensiveness, naming a wound instead of avoiding it, handling conflict without letting it corrode the relationship, and building the small habits that keep a home steady. Written for a relationship in real trouble as much as one that just needs tending to.",
     ],
-    price: 8000,
+    price: 50000,
     printSpecs: { pageCount: 201, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/the-relationship-repair-room-mockup.png",
   },
@@ -401,7 +401,7 @@ export const BOOKS: Book[] = [
       "The Red Chair Talk moves conversation by conversation rather than chapter by chapter — each one its own pause to sit with a different part of ordinary life: love, friendship, community, the small daily choices that add up to how a person lives. It isn't built around one big idea so much as many honest ones, offered a little at a time.",
       "What holds the collection together is a consistent lens: warmth without avoiding the hard parts, wisdom offered plainly rather than performed. Written for whoever needs perspective on a relationship, a friendship worth rebuilding, or just a clearer way to show up for the people around them.",
     ],
-    price: 8000,
+    price: 35000,
     printSpecs: { pageCount: 253, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/the-red-chair-talk-mockup.png",
   },
@@ -420,7 +420,7 @@ export const BOOKS: Book[] = [
       "People We Never Meet moves through fleeting encounters and quiet turning points in lives that never touch the reader's own directly — a stranger on a journey, a moment glimpsed and then gone — treating each one as a full story rather than a passing detail.",
       "Underneath the individual stories is one throughline: identity, memory, love, and loss aren't private to the people living them. The collection asks readers to sit with someone else's life long enough to recognize their own in it, on the premise that every stranger could have been us.",
     ],
-    price: 8000,
+    price: 30000,
     printSpecs: { pageCount: 321, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/people-we-never-meet-mockup.png",
   },
