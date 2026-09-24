@@ -141,6 +141,89 @@ export async function verifyTransaction(reference: string): Promise<VerifyTransa
   };
 }
 
+type PaystackCustomerLookup = {
+  id: number;
+};
+
+/**
+ * Finds recent successful transactions for an email address. This is a
+ * recovery path for buyers whose charge succeeded while the webhook was
+ * unavailable. Every returned reference must still go through
+ * `verifyTransaction` before the site grants access.
+ */
+export async function findRecentSuccessfulTransactionReferences(
+  email: string,
+  limit = 5,
+): Promise<string[]> {
+  const secretKey = getSecretKey();
+  const headers = { Authorization: `Bearer ${secretKey}` };
+
+  const customerResponse = await fetch(
+    `${PAYSTACK_BASE_URL}/customer/${encodeURIComponent(email)}`,
+    { headers },
+  );
+  const customerJson = await customerResponse.json().catch(() => null);
+
+  // A customer who has never paid through this Paystack integration is a
+  // normal result for the passwordless form, not an application error.
+  if (customerResponse.status === 404) return [];
+  if (!customerResponse.ok) {
+    throw new Error(`Paystack customer lookup failed: ${customerJson?.message ?? customerResponse.statusText}`);
+  }
+  if (!customerJson?.status) return [];
+
+  const customer = customerJson.data as PaystackCustomerLookup | undefined;
+  if (!Number.isFinite(customer?.id)) return [];
+
+  const query = new URLSearchParams({
+    customer: String(customer!.id),
+    status: "success",
+    perPage: "50",
+    page: "1",
+  });
+  const transactionsResponse = await fetch(`${PAYSTACK_BASE_URL}/transaction?${query}`, { headers });
+  const transactionsJson = await transactionsResponse.json().catch(() => null);
+  if (!transactionsResponse.ok || !transactionsJson?.status) {
+    throw new Error(
+      `Paystack transaction lookup failed: ${transactionsJson?.message ?? transactionsResponse.statusText}`,
+    );
+  }
+
+  const normalizedEmail = email.trim().toLowerCase();
+  const transactions: Record<string, unknown>[] = Array.isArray(transactionsJson.data)
+    ? (transactionsJson.data as Record<string, unknown>[])
+    : [];
+
+  const candidateReferences: string[] = transactions
+    .filter((transaction: Record<string, unknown>) => {
+      const customerEmail =
+        typeof transaction.customer === "object" && transaction.customer !== null
+          ? String((transaction.customer as Record<string, unknown>).email ?? "").trim().toLowerCase()
+          : "";
+      return transaction.status === "success" && customerEmail === normalizedEmail;
+    })
+    .map((transaction: Record<string, unknown>) => String(transaction.reference ?? ""))
+    .filter(Boolean)
+    .slice(0, Math.max(1, Math.min(limit, 10)));
+
+  // List responses can omit or abbreviate metadata. Verify each small,
+  // bounded candidate set so recovery never depends on the list shape and
+  // never treats a paperback transaction as an e-book purchase.
+  const verifiedCandidates = await Promise.allSettled(
+    candidateReferences.map((reference) => verifyTransaction(reference)),
+  );
+
+  return verifiedCandidates
+    .filter(
+      (candidate): candidate is PromiseFulfilledResult<VerifyTransactionResult> =>
+        candidate.status === "fulfilled" &&
+        candidate.value.status === "success" &&
+        candidate.value.customerEmail.trim().toLowerCase() === normalizedEmail &&
+        candidate.value.metadata?.format === "ebook",
+    )
+    .map((candidate) => candidate.value.reference);
+}
+
 /**
  * Paystack signs every webhook body with HMAC-SHA512 over the raw
  * request bytes, using the same secret key — the `x-paystack-signature`

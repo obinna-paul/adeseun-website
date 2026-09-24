@@ -11,6 +11,29 @@ The e-book system has four boundaries:
 
 The browser never receives the source PDF or an R2 credential.
 
+## Purchase and reader flow
+
+1. The buyer chooses **Read online**, enters a name and email, and the website initializes a Paystack transaction with the book, format, price, and buyer details in server-created metadata.
+2. Paystack collects payment on its hosted checkout page. The website never handles card details.
+3. A successful charge is fulfilled through two safe paths that share the same idempotent service:
+   - Paystack sends `charge.success` to `https://www.adeseunoyeneye.com/api/paystack/webhook`.
+   - Paystack returns the buyer to `/checkout/thank-you?reference=...`, where the server verifies the reference directly with Paystack.
+4. Only after verification of the status, amount, currency, book, format, and publication does the website grant the permanent Redis entitlement.
+5. The return flow signs an e-book buyer into the reader immediately when the browser still has the HTTP-only checkout-intent cookie created before the Paystack redirect. The confirmation page shows the amount and Paystack reference and links straight to the purchased book, so the original checkout tab does not depend on email delivery. A copied reference alone cannot create a reader session.
+6. Resend sends the buyer a confirmation with a 15-minute private sign-in link. It also sends the owner notification. E-book purchases never notify the printer.
+7. A returning reader enters the purchase email at `/read`. If the webhook was missed and no entitlement exists yet, the server asks Paystack for that customer's recent successful e-book transactions, verifies each candidate, repairs the entitlement, and sends the link.
+
+### Production configuration checklist
+
+- `PAYSTACK_SECRET_KEY` is set for the same Paystack mode used by checkout (live or test).
+- The matching Paystack dashboard webhook URL is exactly `https://www.adeseunoyeneye.com/api/paystack/webhook`. Avoid relying on an apex-to-`www` redirect for a POST webhook.
+- `RESEND_API_KEY` is set and `adeseunoyeneye.com` remains verified in Resend for `order@adeseunoyeneye.com`.
+- One supported Redis URL/token pair is set (`UPSTASH_REDIS_REST_*`, `KV_REST_API_*`, or `ADESEUN_WEBSITE_KV_REST_API_*`).
+- `READER_SESSION_SECRET` is at least 32 characters and stable across deployments.
+- `NEXT_PUBLIC_SITE_URL` uses the public HTTPS origin.
+
+When a paid order is reported without access, check Paystack's webhook event log first. A failed event records the response status and can be resent after configuration is corrected. The reader email recovery path handles the buyer-facing repair without exposing whether arbitrary email addresses have purchased a book.
+
 ## Cloudflare R2 setup
 
 Create one private R2 bucket and an S3 API token scoped to that bucket. Add the values shown in `.env.example` to both the website and the processor service.

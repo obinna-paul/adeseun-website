@@ -23,7 +23,7 @@ export default async function ReaderLibraryPage({
         <div className="mx-auto max-w-frame-narrow">
           <h1 className="text-balance font-display text-4xl font-semibold text-text sm:text-5xl">Your private reading room</h1>
           <p className="mt-4 max-w-xl text-lg leading-relaxed text-text-subdued">
-            Enter the email used for your e-book purchase. We will send a private sign-in link so you can continue from your saved page.
+            Enter the email used for your e-book purchase. We will recover any recent confirmed payment and send a private sign-in link so you can continue from your saved page.
           </p>
           {query.error === "expired" && (
             <p role="alert" className="mt-5 max-w-xl text-sm text-garnet">

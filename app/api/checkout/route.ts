@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { BOOKS, CURRENCY } from "@/components/sections/library/library-content";
+import { CHECKOUT_INTENT_COOKIE, CHECKOUT_INTENT_SECONDS } from "@/lib/checkout-intent";
 import { initializeTransaction, PaystackNotConfiguredError } from "@/lib/paystack";
 import { createPendingOrder } from "@/lib/orders";
 import { getEbookPublication } from "@/lib/ebooks";
@@ -9,11 +10,10 @@ import type { BookFormat } from "@/lib/ebook-types";
  * Starts a book purchase: looks up the book's (currently placeholder —
  * see library-content.ts) price, opens a Paystack transaction for it,
  * and hands back the hosted payment page URL to redirect the customer
- * to. This never touches card details itself — Paystack's own page
- * collects those. Fulfillment (the three order emails) does NOT happen
- * here; it only happens once Paystack confirms payment via webhook (see
- * app/api/paystack/webhook/route.ts) — this route only ever *starts* a
- * transaction, it can't know yet whether the customer actually pays.
+ * to. This never touches card details itself. Paystack's own page
+ * collects those. This route only starts a transaction; fulfillment is
+ * performed after a server-side verification by either the signed webhook
+ * or the customer's verified return callback.
  */
 
 type CheckoutPayload = {
@@ -131,7 +131,18 @@ export async function POST(request: Request) {
       address,
     });
 
-    return NextResponse.json({ authorizationUrl: transaction.authorizationUrl });
+    const response = NextResponse.json({
+      authorizationUrl: transaction.authorizationUrl,
+      reference: transaction.reference,
+    });
+    response.cookies.set(CHECKOUT_INTENT_COOKIE, transaction.reference, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: CHECKOUT_INTENT_SECONDS,
+    });
+    return response;
   } catch (err) {
     if (err instanceof PaystackNotConfiguredError) {
       console.error(err.message);

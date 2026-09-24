@@ -50,6 +50,10 @@ function accessKey(token: string): string {
   return `ebook:access:${digest}`;
 }
 
+function accessRateKey(email: string): string {
+  return `ebook:access-rate:${emailHash(email)}`;
+}
+
 export async function getEbookPublication(bookId: string): Promise<EbookPublication | null> {
   const client = getRedis();
   if (!client) return null;
@@ -121,11 +125,17 @@ export async function consumeReaderAccessToken(token: string): Promise<ReaderAcc
 
 export async function canSendReaderAccessEmail(email: string): Promise<boolean> {
   const client = requireRedis("Reader access links");
-  const result = await client.set(`ebook:access-rate:${emailHash(email)}`, new Date().toISOString(), {
+  const result = await client.set(accessRateKey(email), new Date().toISOString(), {
     nx: true,
     ex: 60,
   });
   return result === "OK";
+}
+
+/** Let a buyer retry immediately when the email provider rejected a send. */
+export async function releaseReaderAccessEmailRateLimit(email: string): Promise<void> {
+  const client = requireRedis("Reader access links");
+  await client.del(accessRateKey(email));
 }
 
 export async function getReadingProgress(email: string, bookId: string): Promise<ReadingProgress | null> {

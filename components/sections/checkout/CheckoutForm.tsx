@@ -63,10 +63,16 @@ export function CheckoutForm({
         }),
       });
 
-      const data: { authorizationUrl?: string; error?: string } = await response.json().catch(() => ({}));
+      const data: { authorizationUrl?: string; reference?: string; error?: string } = await response
+        .json()
+        .catch(() => ({}));
 
       if (!response.ok || !data.authorizationUrl) {
         throw new Error(data.error ?? "Something went wrong. Please try again.");
+      }
+
+      if (data.reference) {
+        sessionStorage.setItem("adeseun_checkout_reference", data.reference);
       }
 
       window.location.href = data.authorizationUrl;
