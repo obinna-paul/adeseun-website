@@ -48,7 +48,7 @@ jobs:
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           R2_BUCKET: ${{ secrets.R2_BUCKET }}
           R2_PREFIX: ebooks
-          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          EBOOK_STATUS_CALLBACK_URL: https://www.adeseunoyeneye.com/api/admin/ebooks/processor
+          EBOOK_PROCESSOR_SECRET: ${{ secrets.EBOOK_PROCESSOR_SECRET }}
           DELETE_SOURCE_AFTER_PROCESSING: "true"
         run: npm run ebook:process -- --book-id "$EBOOK_BOOK_ID" --source-key "$EBOOK_SOURCE_KEY"

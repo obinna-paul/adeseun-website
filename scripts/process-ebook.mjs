@@ -33,16 +33,17 @@ const accountId = required("R2_ACCOUNT_ID", process.env.R2_ACCOUNT_ID);
 const accessKeyId = required("R2_ACCESS_KEY_ID", process.env.R2_ACCESS_KEY_ID);
 const secretAccessKey = required("R2_SECRET_ACCESS_KEY", process.env.R2_SECRET_ACCESS_KEY);
 const bucket = required("R2_BUCKET", process.env.R2_BUCKET);
-const redisUrl = required(
-  "Redis URL",
-  process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL ?? process.env.ADESEUN_WEBSITE_KV_REST_API_URL,
-);
-const redisToken = required(
-  "Redis token",
+const callbackUrl = process.env.EBOOK_STATUS_CALLBACK_URL;
+const callbackSecret = process.env.EBOOK_PROCESSOR_SECRET;
+const redisUrl =
+  process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL ?? process.env.ADESEUN_WEBSITE_KV_REST_API_URL;
+const redisToken =
   process.env.UPSTASH_REDIS_REST_TOKEN ??
-    process.env.KV_REST_API_TOKEN ??
-    process.env.ADESEUN_WEBSITE_KV_REST_API_TOKEN,
-);
+  process.env.KV_REST_API_TOKEN ??
+  process.env.ADESEUN_WEBSITE_KV_REST_API_TOKEN;
+if ((!callbackUrl || !callbackSecret) && (!redisUrl || !redisToken)) {
+  throw new Error("Either the protected status callback or Redis credentials are required.");
+}
 const prefix = (process.env.R2_PREFIX ?? "ebooks").replace(/^\/+|\/+$/g, "");
 
 const s3 = new S3Client({
@@ -51,10 +52,31 @@ const s3 = new S3Client({
   credentials: { accessKeyId, secretAccessKey },
   forcePathStyle: true,
 });
-const redis = new Redis({ url: redisUrl, token: redisToken });
+const redis = redisUrl && redisToken ? new Redis({ url: redisUrl, token: redisToken }) : null;
 const publicationKey = `ebook:publication:${bookId}`;
 
 async function updatePublication(update) {
+  if (callbackUrl && callbackSecret) {
+    const response = await fetch(callbackUrl, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${callbackSecret}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ bookId, sourceKey, update }),
+    });
+    if (response.status === 409) {
+      console.log(`[ebook] skipped stale publication update for ${bookId}: ${sourceKey}`);
+      return false;
+    }
+    if (!response.ok) {
+      const detail = (await response.text()).slice(0, 500);
+      throw new Error(`Publication callback returned ${response.status}: ${detail}`);
+    }
+    return true;
+  }
+
+  if (!redis) throw new Error("Redis is not configured.");
   const current = parseRecord(await redis.get(publicationKey));
   if (!current) throw new Error(`No publication record exists for ${bookId}.`);
   if (current.sourceKey !== sourceKey) {

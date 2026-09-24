@@ -44,8 +44,9 @@ Add these repository Actions secrets in GitHub under **Settings → Secrets and 
 - `R2_ACCESS_KEY_ID`
 - `R2_SECRET_ACCESS_KEY`
 - `R2_BUCKET`
-- `UPSTASH_REDIS_REST_URL`
-- `UPSTASH_REDIS_REST_TOKEN`
+- `EBOOK_PROCESSOR_SECRET`
+
+The workflow reports publication status to the website through an authenticated callback, so Redis credentials remain only in Vercel and are not duplicated in GitHub.
 
 Create a fine-grained GitHub personal access token restricted to `obinna-paul/adeseun-website` with **Actions: Read and write** permission. Add it only to Vercel as `GITHUB_ACTIONS_TOKEN`. Also add the non-secret variables `GITHUB_REPOSITORY=obinna-paul/adeseun-website`, `GITHUB_EBOOK_WORKFLOW=process-ebook.yml`, and `GITHUB_EBOOK_REF=main` to Vercel.
 
