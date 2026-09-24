@@ -9,6 +9,59 @@ import { formatNaira } from "@/lib/utils";
 type AdminBook = { id: string; title: string };
 type UploadSession = { bookId: string; uploadId: string; key: string };
 
+function ProcessingProgress({
+  bookTitle,
+  publication,
+  featured = false,
+  announce = true,
+}: {
+  bookTitle: string;
+  publication: EbookPublication;
+  featured?: boolean;
+  announce?: boolean;
+}) {
+  const processingProgress = Math.min(100, Math.max(0, publication.processingProgress ?? 0));
+
+  return (
+    <div
+      className={featured ? "mt-6 rounded-frame border border-line bg-surface px-5 py-4" : "mt-4"}
+      aria-live={announce ? "polite" : "off"}
+      aria-atomic="true"
+    >
+      {featured && (
+        <p className="mb-2 font-mono text-[0.65rem] uppercase tracking-[0.14em] text-emerald-ink">
+          Processing {bookTitle}
+        </p>
+      )}
+      <div className="flex items-baseline justify-between gap-4 text-xs">
+        <p className="font-medium text-text">{publication.processingStage ?? "Waiting for processor"}</p>
+        <p className="shrink-0 font-mono text-text-subdued">{processingProgress}%</p>
+      </div>
+      <div
+        role="progressbar"
+        aria-label={`${bookTitle} processing progress`}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={processingProgress}
+        className="mt-2 h-1.5 overflow-hidden rounded-control bg-line-whisper"
+      >
+        <div
+          className="h-full bg-emerald-fill transition-[width] duration-500 ease-gallery-out motion-reduce:transition-none"
+          style={{ width: `${processingProgress}%` }}
+        />
+      </div>
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 font-mono text-[0.65rem] text-text-faint">
+        <span>
+          {publication.pageCount
+            ? `${publication.processedPages ?? 0} of ${publication.pageCount} pages`
+            : "Preparing the page count…"}
+        </span>
+        <span>Updates automatically</span>
+      </div>
+    </div>
+  );
+}
+
 async function uploadAction<T>(body: Record<string, unknown>): Promise<T> {
   const response = await fetch("/api/admin/ebooks/uploads", {
     method: "POST",
@@ -85,11 +138,16 @@ export function EbookAdminDashboard({
   const [status, setStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [livePublications, setLivePublications] = useState(publications);
+  const [activeBookId, setActiveBookId] = useState<string | null>(
+    () => books.find((book) => publications[book.id]?.status === "processing")?.id ?? null,
+  );
 
   const selectedTitle = useMemo(
     () => books.find((book) => book.id === selectedBookId)?.title ?? "this book",
     [books, selectedBookId],
   );
+  const activeBook = activeBookId ? books.find((book) => book.id === activeBookId) : undefined;
+  const activePublication = activeBookId ? livePublications[activeBookId] : null;
 
   useEffect(() => {
     let stopped = false;
@@ -122,6 +180,7 @@ export function EbookAdminDashboard({
     setStatus("uploading");
     setMessage("Preparing resumable upload…");
     setProgress(0);
+    setActiveBookId(selectedBookId);
     let session: UploadSession | null = null;
 
     try {
@@ -166,11 +225,12 @@ export function EbookAdminDashboard({
 
       await Promise.all(Array.from({ length: Math.min(3, partCount) }, () => worker()));
       setMessage("Finalizing upload…");
-      const completed = await uploadAction<{ message: string }>({
+      const completed = await uploadAction<{ message: string; publication: EbookPublication }>({
         action: "complete",
         ...session,
         parts,
       });
+      setLivePublications((current) => ({ ...current, [selectedBookId]: completed.publication }));
       setProgress(100);
       setStatus("success");
       setMessage(completed.message);
@@ -185,8 +245,10 @@ export function EbookAdminDashboard({
 
   async function processAgain(bookId: string) {
     setMessage("Starting the processor…");
+    setActiveBookId(bookId);
     try {
-      const result = await uploadAction<{ message: string }>({ action: "process", bookId });
+      const result = await uploadAction<{ message: string; publication: EbookPublication }>({ action: "process", bookId });
+      setLivePublications((current) => ({ ...current, [bookId]: result.publication }));
       setStatus("success");
       setMessage(result.message);
     } catch (error) {
@@ -271,6 +333,19 @@ export function EbookAdminDashboard({
               {message}
             </p>
           </div>
+
+          {activeBook && activePublication?.status === "processing" && (
+            <ProcessingProgress bookTitle={activeBook.title} publication={activePublication} featured />
+          )}
+
+          {activeBook && activePublication?.status === "published" && status === "success" && (
+            <div className="mt-6 rounded-frame border border-emerald/25 bg-emerald-tint px-5 py-4" role="status">
+              <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-emerald-ink">
+                Published · 100%
+              </p>
+              <p className="mt-1 text-sm text-text">{activeBook.title} is ready to read online.</p>
+            </div>
+          )}
         </form>
 
         <section className="border-t border-line pt-7" aria-labelledby="publication-status-heading">
@@ -290,7 +365,6 @@ export function EbookAdminDashboard({
           <div className="mt-5 space-y-5">
             {books.map((book) => {
               const publication = livePublications[book.id];
-              const processingProgress = Math.min(100, Math.max(0, publication?.processingProgress ?? 0));
               return (
                 <div key={book.id} className="border-b border-line-whisper pb-5 last:border-0">
                   <div className="flex items-start justify-between gap-4">
@@ -312,35 +386,11 @@ export function EbookAdminDashboard({
                     )}
                   </div>
                   {publication?.status === "processing" && (
-                    <div className="mt-4" aria-live="polite" aria-atomic="true">
-                      <div className="flex items-baseline justify-between gap-4 text-xs">
-                        <p className="font-medium text-text">
-                          {publication.processingStage ?? "Waiting for processor"}
-                        </p>
-                        <p className="shrink-0 font-mono text-text-subdued">{processingProgress}%</p>
-                      </div>
-                      <div
-                        role="progressbar"
-                        aria-label={`${book.title} processing progress`}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-valuenow={processingProgress}
-                        className="mt-2 h-1.5 overflow-hidden rounded-control bg-line-whisper"
-                      >
-                        <div
-                          className="h-full bg-emerald-fill transition-[width] duration-500 ease-gallery-out"
-                          style={{ width: `${processingProgress}%` }}
-                        />
-                      </div>
-                      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 font-mono text-[0.65rem] text-text-faint">
-                        <span>
-                          {publication.pageCount
-                            ? `${publication.processedPages ?? 0} of ${publication.pageCount} pages`
-                            : "Preparing the page count…"}
-                        </span>
-                        <span>Updates automatically</span>
-                      </div>
-                    </div>
+                    <ProcessingProgress
+                      bookTitle={book.title}
+                      publication={publication}
+                      announce={activeBookId !== book.id}
+                    />
                   )}
                   {publication?.error && <p className="mt-2 text-xs leading-relaxed text-garnet">{publication.error}</p>}
                 </div>

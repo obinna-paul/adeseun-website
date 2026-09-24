@@ -233,17 +233,18 @@ export async function POST(request: Request) {
       if (parts.length === 0) return NextResponse.json({ error: "No uploaded parts were provided." }, { status: 400 });
 
       await completeSourceMultipartUpload({ key: body.key, uploadId: body.uploadId, parts });
+      const now = new Date().toISOString();
       const processing: EbookPublication = {
         ...publication,
         status: "processing",
         uploadId: undefined,
-        updatedAt: new Date().toISOString(),
+        updatedAt: now,
         error: undefined,
         processingStage: "Queued for processing",
         processingProgress: 0,
         processedPages: 0,
         pageCount: undefined,
-        processingStartedAt: new Date().toISOString(),
+        processingStartedAt: now,
       };
       await saveEbookPublication(processing);
 
@@ -251,6 +252,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         ok: true,
         processorStarted,
+        publication: processing,
         message: processorStarted
           ? "Upload complete. Page processing has started."
           : "Upload complete. Configure the processor or run the processing command to publish it.",
@@ -293,7 +295,7 @@ export async function POST(request: Request) {
       if (!processorStarted) {
         return NextResponse.json({ error: "The processor service is not configured." }, { status: 503 });
       }
-      return NextResponse.json({ ok: true, message: "Processing has started." });
+      return NextResponse.json({ ok: true, publication: processing, message: "Processing has started." });
     }
 
     return NextResponse.json({ error: "Unknown upload action." }, { status: 400 });
