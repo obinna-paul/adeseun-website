@@ -3,11 +3,13 @@ import { BOOKS } from "@/components/sections/library/library-content";
 import { hasAdminSession } from "@/lib/admin-auth";
 import { getEbookPublication, saveEbookPublication } from "@/lib/ebooks";
 import {
+  EbookStorageNotConfiguredError,
   abortSourceMultipartUpload,
   completeSourceMultipartUpload,
   createSourceMultipartUpload,
   signSourceUploadPart,
 } from "@/lib/ebook-storage";
+import { RedisNotConfiguredError } from "@/lib/redis";
 import type { EbookPublication } from "@/lib/ebook-types";
 
 export const runtime = "nodejs";
@@ -32,7 +34,8 @@ type UploadAction =
       parts: Array<{ ETag: string; PartNumber: number }>;
     }
   | { action: "abort"; bookId: string; uploadId: string; key: string }
-  | { action: "process"; bookId: string };
+  | { action: "process"; bookId: string }
+  | { action: "diagnose" };
 
 function cleanFilename(filename: string): string {
   return filename.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/^-+|-+$/g, "") || "ebook.pdf";
@@ -40,6 +43,25 @@ function cleanFilename(filename: string): string {
 
 function sourcePrefix(): string {
   return (process.env.R2_PREFIX ?? "ebooks").replace(/^\/+|\/+$/g, "");
+}
+
+function safeErrorCode(error: unknown): string {
+  if (error instanceof EbookStorageNotConfiguredError) return "R2_NOT_CONFIGURED";
+  if (error instanceof RedisNotConfiguredError) return "REDIS_NOT_CONFIGURED";
+  if (!(error instanceof Error)) return "UNKNOWN_ERROR";
+
+  const knownCodes: Record<string, string> = {
+    AccessDenied: "R2_ACCESS_DENIED",
+    CredentialsProviderError: "R2_CREDENTIALS_INVALID",
+    InvalidAccessKeyId: "R2_ACCESS_KEY_INVALID",
+    NoSuchBucket: "R2_BUCKET_NOT_FOUND",
+    SignatureDoesNotMatch: "R2_SECRET_INVALID",
+  };
+  if (knownCodes[error.name]) return knownCodes[error.name];
+  if (error.message.startsWith("GitHub processor returned 401")) return "GITHUB_TOKEN_INVALID";
+  if (error.message.startsWith("GitHub processor returned 403")) return "GITHUB_ACTIONS_FORBIDDEN";
+  if (error.message.startsWith("GitHub processor returned 404")) return "GITHUB_WORKFLOW_NOT_FOUND";
+  return error.name.replace(/[^A-Z0-9_]/gi, "_").toUpperCase() || "UNKNOWN_ERROR";
 }
 
 async function triggerGitHubProcessor(publication: EbookPublication): Promise<boolean> {
@@ -157,6 +179,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ uploadId, key });
     }
 
+    if (body.action === "diagnose") {
+      await getEbookPublication("__diagnostic__");
+      const key = `${sourcePrefix()}/diagnostics/${Date.now()}-configuration-check.pdf`;
+      const uploadId = await createSourceMultipartUpload(key, "application/pdf");
+      try {
+        await signSourceUploadPart({ key, uploadId, partNumber: 1 });
+      } finally {
+        await abortSourceMultipartUpload(key, uploadId);
+      }
+      return NextResponse.json({ ok: true, redis: "ok", storage: "ok" });
+    }
+
     if (body.action === "sign-part") {
       const publication = await getEbookPublication(body.bookId);
       if (!uploadMatches(publication, body.key, body.uploadId)) {
@@ -229,6 +263,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unknown upload action." }, { status: 400 });
   } catch (err) {
     console.error("E-book upload action failed:", err);
-    return NextResponse.json({ error: "The e-book upload action failed." }, { status: 500 });
+    const code = safeErrorCode(err);
+    return NextResponse.json(
+      { error: `The e-book ${body.action} action failed (${code}).`, code },
+      { status: 500 },
+    );
   }
 }
