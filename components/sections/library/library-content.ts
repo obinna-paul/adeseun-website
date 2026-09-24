@@ -1,5 +1,5 @@
 /**
- * Content for The Library (/library) — her four published books.
+ * Content for The Library (/library) — her fourteen published books.
  *
  * Grounded in real, verified research (web search, checked against
  * multiple retail listings, plus direct confirmation from her team,
@@ -96,6 +96,10 @@
  * outside her own story, not communication or connection within it) to
  * warrant its own "Empathy" category rather than stretching "Identity"
  * or "Connection" to cover it.
+ *
+ * A fourteenth, "Mailbox" — 1,000 pages, spanning 1,000 episodes and
+ * 3,000 questions. Its description and real cover art were supplied
+ * directly, and its confirmed paperback price is ₦100,000.
  */
 
 export type Category =
@@ -424,6 +428,26 @@ export const BOOKS: Book[] = [
     printSpecs: { pageCount: 321, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/people-we-never-meet-mockup.png",
   },
+  {
+    id: "mailbox",
+    order: "XIV",
+    title: "Mailbox",
+    category: "Wisdom",
+    tone: "indigo",
+    tagline: "Real life, love, wisdom & faith.",
+    description:
+      "A powerful collection of wisdom, healing, and truth drawn from everyday questions about real life, love, relationships, faith, family, friendship, purpose, and personal growth.",
+    accolades: ["1,000 pages.", "1,000 episodes. 3,000 questions."],
+    excerptHeading: "From the publisher's description",
+    excerpt: [
+      "MAILBOX is a powerful collection of wisdom, healing, and truth drawn from everyday questions about real life, love, relationships, faith, family, friendship, purpose, and personal growth.",
+      "Across 1,000 episodes and 3,000 questions, Adeseun Oyeneye offers thoughtful guidance, spiritual insight, moral clarity, and scripture-based responses for readers seeking direction in ordinary and difficult moments. Each entry speaks to a real concern, then gently points the reader toward reflection, wise choices, and a brighter tomorrow.",
+      "Practical, compassionate, and faith-centered, MAILBOX helps readers pause, think deeply, and respond to life with courage, grace, and wisdom.",
+    ],
+    price: 100000,
+    printSpecs: { pageCount: 1000, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
+    coverImage: "/images/mailbox-cover.png",
+  },
 ];
 
-export const PAGE_INTRO = "Thirteen books, browsed the way they were written — one at a time, with room to sit with each.";
+export const PAGE_INTRO = "Fourteen books, browsed the way they were written — one at a time, with room to sit with each.";

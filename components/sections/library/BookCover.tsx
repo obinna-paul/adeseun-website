@@ -3,7 +3,7 @@ import type { Book } from "./library-content";
 import { cn } from "@/lib/utils";
 
 /**
- * Renders real cover art (`book.coverImage`) when it exists — all four
+ * Renders real cover art (`book.coverImage`) when it exists — all
  * of her current books have it. Kept as a fallback for any future title
  * added without cover art yet, rather than a fake photo: per taste-skill
  * 4.8 ("use placeholders for now" is the brief's own instruction here),

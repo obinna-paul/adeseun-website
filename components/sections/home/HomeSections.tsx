@@ -27,19 +27,19 @@ import {
   CTA_BODY,
 } from "./home-content";
 
-const FEATURED_BOOK = BOOKS.find((book) => book.id === "tranquility")!;
+const FEATURED_BOOK = BOOKS.find((book) => book.id === "mailbox")!;
 const FEATURED_VENTURES = VENTURES.slice(0, 5);
 const FEATURED_VIDEOS = SCREENING_ROOM_VIDEOS.slice(0, 2);
 const RECOGNITION_ITEMS = (CREDENTIAL_GROUPS.find((group) => group.label === "Recognition")?.items ?? []).slice(0, 4);
 
 /**
  * Every one of `book.excerpt`'s paragraphs, flattened across all
- * thirteen books — the same real, already-disclosed copy BookModal
- * shows under "About the book" (or, for Black Is Beautiful, the actual
- * publisher's description), not new writing invented for this section.
+ * fourteen books — the same real, already-disclosed copy BookModal
+ * shows under "About the book" (or, for Black Is Beautiful and Mailbox,
+ * the actual publisher descriptions), not new writing invented for this section.
  * Each card is captioned by book title only, never phrased as something
  * she said — library-content.ts's own doc comment is explicit that
- * twelve of these thirteen books' excerpt text is site-original
+ * twelve of these fourteen books' excerpt text is site-original
  * summary, not a verbatim passage from inside the book, so presenting
  * these as quotations from her would misattribute site copy as her own
  * words. "A line from each book," not "in her own words."
