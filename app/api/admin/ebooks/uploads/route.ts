@@ -57,7 +57,8 @@ function safeErrorCode(error: unknown): string {
     NoSuchBucket: "R2_BUCKET_NOT_FOUND",
     SignatureDoesNotMatch: "R2_SECRET_INVALID",
   };
-  if (knownCodes[error.name]) return knownCodes[error.name];
+  const knownCode = knownCodes[error.name];
+  if (knownCode) return knownCode;
   if (error.message.startsWith("GitHub processor returned 401")) return "GITHUB_TOKEN_INVALID";
   if (error.message.startsWith("GitHub processor returned 403")) return "GITHUB_ACTIONS_FORBIDDEN";
   if (error.message.startsWith("GitHub processor returned 404")) return "GITHUB_WORKFLOW_NOT_FOUND";
