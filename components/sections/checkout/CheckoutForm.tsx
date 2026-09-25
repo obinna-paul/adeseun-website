@@ -3,6 +3,12 @@
 import { useState, type FormEvent } from "react";
 import { FloatingField } from "@/components/sections/invitation/FloatingField";
 import { MagneticButton } from "@/components/ui/MagneticButton";
+import {
+  calculateOrderTotal,
+  MAX_PAPERBACK_QUANTITY,
+  MIN_PAPERBACK_QUANTITY,
+  PAPERBACK_QUANTITIES,
+} from "@/lib/checkout-quantity";
 import { formatNaira } from "@/lib/utils";
 import type { BookFormat } from "@/lib/ebook-types";
 
@@ -37,6 +43,9 @@ export function CheckoutForm({
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [format, setFormat] = useState<BookFormat>(initialFormat);
+  const [quantity, setQuantity] = useState(1);
+  const selectedUnitPrice = format === "ebook" ? ebookPrice : paperbackPrice;
+  const orderTotal = calculateOrderTotal(selectedUnitPrice ?? 0, format === "paperback" ? quantity : 1);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -52,6 +61,7 @@ export function CheckoutForm({
         body: JSON.stringify({
           bookId,
           format,
+          quantity: format === "paperback" ? quantity : 1,
           name: formData.get("name"),
           email: formData.get("email"),
           phone: formData.get("phone"),
@@ -127,6 +137,53 @@ export function CheckoutForm({
         </div>
       </fieldset>
 
+      {format === "paperback" && paperbackPrice !== null && (
+        <fieldset className="rounded-frame border border-line bg-surface-elevated p-5">
+          <legend className="px-1 font-display text-xl font-semibold text-text">Paperback quantity</legend>
+          <div className="mt-2 grid items-end gap-5 sm:grid-cols-[minmax(0,11rem)_1fr]">
+            <div>
+              <label
+                htmlFor="quantity"
+                className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-text-faint"
+              >
+                Number of copies
+              </label>
+              <select
+                id="quantity"
+                name="quantity"
+                value={quantity}
+                disabled={status === "submitting"}
+                onChange={(event) => setQuantity(Number(event.target.value))}
+                className="mt-2 w-full rounded-control border border-line-strong bg-surface px-4 py-3 text-base text-text shadow-sm transition-colors duration-150 ease-gallery-standard focus-visible:border-emerald focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {PAPERBACK_QUANTITIES.map((option) => (
+                  <option key={option} value={option}>
+                    {option} {option === 1 ? "copy" : "copies"}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-2 text-xs leading-relaxed text-text-faint">
+                Choose between {MIN_PAPERBACK_QUANTITY} and {MAX_PAPERBACK_QUANTITY} copies.
+              </p>
+            </div>
+            <div className="border-t border-line-whisper pt-4 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
+              <p className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-text-faint">Order total</p>
+              <output
+                htmlFor="quantity"
+                aria-live="polite"
+                aria-atomic="true"
+                className="mt-2 block font-display text-2xl font-semibold text-text"
+              >
+                {formatNaira(orderTotal)}
+              </output>
+              <p className="mt-1 text-sm text-text-subdued">
+                {quantity} × {formatNaira(paperbackPrice)}
+              </p>
+            </div>
+          </div>
+        </fieldset>
+      )}
+
       <div className="grid gap-9 sm:grid-cols-2">
         <FloatingField label="Full name" name="name" required autoComplete="name" />
         <FloatingField label="Email" name="email" type="email" required autoComplete="email" />
@@ -148,7 +205,7 @@ export function CheckoutForm({
       )}
       <div>
         <MagneticButton type="submit" variant="primary" disabled={status === "submitting"} className="w-full sm:w-auto">
-          {status === "submitting" ? "Redirecting to Paystack…" : "Proceed to payment"}
+          {status === "submitting" ? "Redirecting to Paystack…" : `Proceed to pay ${formatNaira(orderTotal)}`}
         </MagneticButton>
         {status === "error" && errorMessage && <p className="mt-3 text-sm text-garnet">{errorMessage}</p>}
       </div>

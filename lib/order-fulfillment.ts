@@ -10,6 +10,7 @@ import { verifyTransaction } from "@/lib/paystack";
 import { EmailNotConfiguredError, FROM_ADDRESS, sendEmail } from "@/lib/resend";
 import { customerOrderEmail, ownerOrderEmail, printerOrderEmail } from "@/lib/email-templates";
 import type { BookFormat } from "@/lib/ebook-types";
+import { calculateOrderTotal, parsePaperbackQuantity } from "@/lib/checkout-quantity";
 import { formatNaira } from "@/lib/utils";
 
 type ChargeMetadata = {
@@ -17,6 +18,7 @@ type ChargeMetadata = {
   bookTitle?: string;
   format?: BookFormat;
   priceNaira?: number;
+  quantity?: unknown;
   customerName?: string;
   customerPhone?: string;
   address?: { line1?: string; city?: string; state?: string };
@@ -27,7 +29,10 @@ export type ConfirmedOrder = {
   bookId: string;
   bookTitle: string;
   format: BookFormat;
+  /** Paperback unit price; for e-books this is also the complete order price. */
   priceNaira: number;
+  quantity: number;
+  totalNaira: number;
   currency: string;
   customerName: string;
   customerEmail: string;
@@ -140,7 +145,17 @@ export async function fulfillOrder(referenceInput: string): Promise<OrderFulfill
   const metadataPrice = Number(metadata.priceNaira);
   const currentPrice = format === "ebook" ? ebookPublication!.priceNaira : book!.price;
   const priceNaira = Number.isFinite(metadataPrice) && metadataPrice > 0 ? metadataPrice : currentPrice;
-  const expectedAmountKobo = Math.round(priceNaira * 100);
+  const quantityWasOmitted =
+    metadata.quantity === undefined || metadata.quantity === null || metadata.quantity === "";
+  const parsedQuantity = parsePaperbackQuantity(metadata.quantity);
+  if (format === "paperback" && !quantityWasOmitted && parsedQuantity === null) {
+    throw new OrderConfirmationError("invalid_order", "This payment has an invalid paperback quantity.", 422);
+  }
+  // Transactions created before quantity support represent one copy and do
+  // not have this metadata field. E-books always remain one purchase.
+  const quantity = format === "paperback" ? (parsedQuantity ?? 1) : 1;
+  const totalNaira = calculateOrderTotal(priceNaira, quantity);
+  const expectedAmountKobo = Math.round(totalNaira * 100);
   if (verified.amount !== expectedAmountKobo || verified.currency !== CURRENCY) {
     throw new OrderConfirmationError(
       "amount_mismatch",
@@ -160,6 +175,8 @@ export async function fulfillOrder(referenceInput: string): Promise<OrderFulfill
     bookTitle: metadata.bookTitle?.trim() || ebookPublication?.title?.trim() || book?.title || "Untitled e-book",
     format,
     priceNaira,
+    quantity,
+    totalNaira,
     currency: CURRENCY,
     customerName: metadata.customerName?.trim() ?? "",
     customerEmail,
@@ -218,7 +235,9 @@ export async function fulfillOrder(referenceInput: string): Promise<OrderFulfill
   const customerEmailContent = customerOrderEmail({
     bookTitle: order.bookTitle,
     customerName: order.customerName,
-    amount: formatNaira(order.priceNaira),
+    amount: formatNaira(order.totalNaira),
+    unitPrice: formatNaira(order.priceNaira),
+    quantity: order.quantity,
     reference: order.reference,
     format,
     readerAccessUrl: readerAccessUrl ?? undefined,
@@ -242,7 +261,9 @@ export async function fulfillOrder(referenceInput: string): Promise<OrderFulfill
     customerName: order.customerName,
     customerEmail: order.customerEmail,
     customerPhone: order.customerPhone,
-    amount: formatNaira(order.priceNaira),
+    amount: formatNaira(order.totalNaira),
+    unitPrice: formatNaira(order.priceNaira),
+    quantity: order.quantity,
     reference: order.reference,
     format,
     libraryUrl: `${siteUrl()}/read`,
@@ -262,6 +283,7 @@ export async function fulfillOrder(referenceInput: string): Promise<OrderFulfill
     } else {
       const printerEmailContent = printerOrderEmail({
         bookTitle: order.bookTitle,
+        quantity: order.quantity,
         reference: order.reference,
         customerName: order.customerName,
         customerPhone: order.customerPhone,
@@ -284,7 +306,7 @@ export async function fulfillOrder(referenceInput: string): Promise<OrderFulfill
 
   if (format === "paperback" && printer !== "sent") {
     console.error(
-      `ACTION REQUIRED: order ${reference} (${order.bookTitle}, ${formatNaira(order.priceNaira)}) was paid for but the printer was not notified (${printer}).`,
+      `ACTION REQUIRED: order ${reference} (${order.bookTitle}, quantity ${order.quantity}, ${formatNaira(order.totalNaira)}) was paid for but the printer was not notified (${printer}).`,
     );
   }
 

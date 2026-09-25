@@ -41,7 +41,11 @@ export type OrderRecord = {
   bookId: string;
   bookTitle: string;
   format: BookFormat;
+  /** Paperback unit price; for e-books this is also the complete order price. */
   priceNaira: number;
+  /** Always 1 for e-books. */
+  quantity: number;
+  totalNaira: number;
   currency: string;
   customerName: string;
   customerEmail: string;

@@ -53,6 +53,8 @@ export async function POST(request: Request) {
         bookTitle: result.order.bookTitle,
         format: result.order.format,
         priceNaira: result.order.priceNaira,
+        quantity: result.order.quantity,
+        totalNaira: result.order.totalNaira,
         currency: result.order.currency,
         maskedEmail: maskReaderEmail(result.order.customerEmail),
       },

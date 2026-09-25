@@ -4,6 +4,11 @@ import { CHECKOUT_INTENT_COOKIE, CHECKOUT_INTENT_SECONDS } from "@/lib/checkout-
 import { initializeTransaction, PaystackNotConfiguredError } from "@/lib/paystack";
 import { createPendingOrder } from "@/lib/orders";
 import { getEbookPublication } from "@/lib/ebooks";
+import {
+  calculateOrderTotal,
+  MAX_PAPERBACK_QUANTITY,
+  parsePaperbackQuantity,
+} from "@/lib/checkout-quantity";
 import type { BookFormat } from "@/lib/ebook-types";
 
 /**
@@ -19,6 +24,7 @@ import type { BookFormat } from "@/lib/ebook-types";
 type CheckoutPayload = {
   bookId?: unknown;
   format?: unknown;
+  quantity?: unknown;
   name?: unknown;
   email?: unknown;
   phone?: unknown;
@@ -66,6 +72,17 @@ export async function POST(request: Request) {
   const bookId = asTrimmedString(body.bookId);
   const requestedFormat = asTrimmedString(body.format);
   const format: BookFormat = requestedFormat === "ebook" ? "ebook" : "paperback";
+  let quantity = 1;
+  if (format === "paperback") {
+    const parsedQuantity = body.quantity === undefined ? 1 : parsePaperbackQuantity(body.quantity);
+    if (parsedQuantity === null) {
+      return NextResponse.json(
+        { error: `Choose a paperback quantity between 1 and ${MAX_PAPERBACK_QUANTITY}.` },
+        { status: 400 },
+      );
+    }
+    quantity = parsedQuantity;
+  }
   const name = asTrimmedString(body.name);
   const email = asTrimmedString(body.email);
   const phone = asTrimmedString(body.phone);
@@ -102,13 +119,14 @@ export async function POST(request: Request) {
 
   const title = ebookPublication?.title?.trim() || book?.title || "Untitled e-book";
   const priceNaira = format === "ebook" ? ebookPublication!.priceNaira : book!.price;
+  const totalNaira = calculateOrderTotal(priceNaira, quantity);
 
   const origin = resolveOrigin(request);
 
   try {
     const transaction = await initializeTransaction({
       email,
-      amountNaira: priceNaira,
+      amountNaira: totalNaira,
       currency: CURRENCY,
       callbackUrl: `${origin}/checkout/thank-you?format=${format}`,
       metadata: {
@@ -116,6 +134,7 @@ export async function POST(request: Request) {
         bookTitle: title,
         format,
         priceNaira,
+        quantity,
         customerName: name,
         customerPhone: phone,
         address,
@@ -129,6 +148,8 @@ export async function POST(request: Request) {
       bookTitle: title,
       format,
       priceNaira,
+      quantity,
+      totalNaira,
       currency: CURRENCY,
       customerName: name,
       customerEmail: email,

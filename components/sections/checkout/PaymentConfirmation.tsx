@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { formatCopyCount } from "@/lib/checkout-quantity";
 import { formatNaira } from "@/lib/utils";
 
 type ConfirmedOrder = {
@@ -10,6 +11,8 @@ type ConfirmedOrder = {
   bookTitle: string;
   format: "ebook" | "paperback";
   priceNaira: number;
+  quantity: number;
+  totalNaira: number;
   currency: string;
   maskedEmail: string;
 };
@@ -122,6 +125,7 @@ export function PaymentConfirmation({ initialReference }: { initialReference: st
 
   if (state.status === "confirmed") {
     const isEbook = state.order.format === "ebook";
+    const copyCount = formatCopyCount(state.order.quantity);
     return (
       <ConfirmationShell>
         <p className="font-mono text-xs uppercase tracking-[0.12em] text-emerald-ink">Payment confirmed</p>
@@ -133,14 +137,25 @@ export function PaymentConfirmation({ initialReference }: { initialReference: st
             ? `${state.order.bookTitle} is now in your private reading room. This device has been signed in for you.`
             : isEbook
               ? `${state.order.bookTitle} is now in your private reading room. Use the private email link to sign in.`
-            : `${state.order.bookTitle} is being prepared for delivery.`}
+              : state.order.quantity === 1
+                ? `${state.order.bookTitle} is being prepared for delivery.`
+                : `${copyCount} of ${state.order.bookTitle} are being prepared for delivery.`}
         </p>
 
-        <dl className="mt-9 grid gap-6 border-t border-line pt-7 sm:grid-cols-2">
+        <dl
+          className={`mt-9 grid gap-6 border-t border-line pt-7 ${isEbook ? "sm:grid-cols-2" : "sm:grid-cols-3"}`}
+        >
+          {!isEbook && (
+            <div>
+              <dt className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-text-faint">Quantity</dt>
+              <dd className="mt-2 font-display text-2xl font-semibold text-text">{copyCount}</dd>
+              <p className="mt-1 text-sm text-text-subdued">{formatNaira(state.order.priceNaira)} each</p>
+            </div>
+          )}
           <div>
             <dt className="font-mono text-[0.65rem] uppercase tracking-[0.12em] text-text-faint">Amount paid</dt>
             <dd className="mt-2 font-display text-2xl font-semibold text-text">
-              {formatNaira(state.order.priceNaira)}
+              {formatNaira(state.order.totalNaira)}
             </dd>
           </div>
           <div className="min-w-0">

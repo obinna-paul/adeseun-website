@@ -1,3 +1,5 @@
+import { formatCopyCount } from "@/lib/checkout-quantity";
+
 type EmailTemplate = {
   subject: string;
   text: string;
@@ -8,6 +10,8 @@ type OrderEmailInput = {
   bookTitle: string;
   customerName: string;
   amount: string;
+  unitPrice: string;
+  quantity: number;
   reference: string;
   format: "ebook" | "paperback";
   readerAccessUrl?: string;
@@ -23,6 +27,7 @@ type OwnerOrderEmailInput = OrderEmailInput & {
 
 type PrinterEmailInput = {
   bookTitle: string;
+  quantity: number;
   reference: string;
   customerName: string;
   customerPhone: string;
@@ -179,6 +184,12 @@ function orderSummary(input: OrderEmailInput): string {
     ? `<td width="116" class="cover-cell" style="width:116px;padding:0 22px 0 0;vertical-align:top;"><img src="${escapeHtml(input.coverUrl)}" width="94" alt="Cover of ${escapeHtml(input.bookTitle)}" style="width:94px;max-width:94px;border:1px solid ${COLORS.line};box-shadow:0 8px 18px rgba(41,31,25,.12);"></td>`
     : "";
 
+  const rows: Array<[string, string]> = [];
+  if (input.format === "paperback") {
+    rows.push(["Quantity", formatCopyCount(input.quantity)], ["Unit price", input.unitPrice]);
+  }
+  rows.push(["Amount paid", input.amount], ["Reference", input.reference]);
+
   return `
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:28px 0 0;padding:20px;background:${COLORS.brassTint};border:1px solid ${COLORS.line};">
       <tr>
@@ -187,10 +198,7 @@ function orderSummary(input: OrderEmailInput): string {
           <p style="margin:0 0 4px;font-family:Arial,sans-serif;font-size:10px;line-height:15px;font-weight:bold;letter-spacing:1.2px;text-transform:uppercase;color:${COLORS.brass};">Your ${input.format === "ebook" ? "e-book" : "paperback"}</p>
           <p style="margin:0 0 14px;font-family:Georgia,'Times New Roman',serif;font-size:21px;line-height:25px;color:${COLORS.text};">${escapeHtml(input.bookTitle)}</p>
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-            ${detailRows([
-              ["Amount paid", input.amount],
-              ["Reference", input.reference],
-            ])}
+            ${detailRows(rows)}
           </table>
         </td>
       </tr>
@@ -253,13 +261,16 @@ export function customerOrderEmail(input: OrderEmailInput): EmailTemplate {
     return { subject, text, html };
   }
 
-  const subject = `Your copy is being prepared — ${input.bookTitle}`;
+  const subject = `${input.quantity === 1 ? "Your copy is" : "Your copies are"} being prepared — ${input.bookTitle}`;
   const address = input.address ?? "Address supplied at checkout";
+  const copyCount = formatCopyCount(input.quantity);
   const text = [
     `Hello ${name},`,
     "",
-    "Your order is confirmed, and your book is being prepared.",
+    `Your order is confirmed, and ${copyCount} ${input.quantity === 1 ? "is" : "are"} being prepared.`,
     `Book: ${input.bookTitle}`,
+    `Quantity: ${copyCount}`,
+    `Unit price: ${input.unitPrice}`,
     `Amount paid: ${input.amount}`,
     `Payment reference: ${input.reference}`,
     "",
@@ -270,10 +281,10 @@ export function customerOrderEmail(input: OrderEmailInput): EmailTemplate {
   ].join("\n");
 
   const html = emailShell({
-    preheader: `Order confirmed. Your copy of ${input.bookTitle} is being prepared.`,
-    eyebrow: "Order confirmed · Your copy is in motion",
-    title: "A new book is on its way.",
-    body: `<p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:29px;color:${COLORS.textSubdued};">Hello ${escapeHtml(name)},</p><p style="margin:12px 0 0;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:29px;color:${COLORS.textSubdued};">Thank you for choosing <em>${escapeHtml(input.bookTitle)}</em>. Your order is confirmed, and your copy is now being prepared with care.</p>${orderSummary(input)}${callout("What happens next", "Please allow 7–10 business days for delivery. Your copy will be sent to the address shown below.")}<div style="margin-top:24px;padding:18px;border:1px solid ${COLORS.line};"><p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:10px;line-height:15px;font-weight:bold;letter-spacing:1.2px;text-transform:uppercase;color:${COLORS.brass};">Delivery address</p><p style="margin:0;white-space:pre-line;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:24px;color:${COLORS.text};">${escapeHtml(address)}</p></div>`,
+    preheader: `Order confirmed. ${copyCount} of ${input.bookTitle} ${input.quantity === 1 ? "is" : "are"} being prepared.`,
+    eyebrow: `Order confirmed · ${input.quantity === 1 ? "Your copy is" : "Your copies are"} in motion`,
+    title: input.quantity === 1 ? "A new book is on its way." : "Your new books are on their way.",
+    body: `<p style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:29px;color:${COLORS.textSubdued};">Hello ${escapeHtml(name)},</p><p style="margin:12px 0 0;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:29px;color:${COLORS.textSubdued};">Thank you for choosing <em>${escapeHtml(input.bookTitle)}</em>. Your order is confirmed, and ${escapeHtml(copyCount)} ${input.quantity === 1 ? "is" : "are"} now being prepared with care.</p>${orderSummary(input)}${callout("What happens next", `Please allow 7–10 business days for delivery. Your ${input.quantity === 1 ? "copy" : "copies"} will be sent to the address shown below.`)}<div style="margin-top:24px;padding:18px;border:1px solid ${COLORS.line};"><p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:10px;line-height:15px;font-weight:bold;letter-spacing:1.2px;text-transform:uppercase;color:${COLORS.brass};">Delivery address</p><p style="margin:0;white-space:pre-line;font-family:Georgia,'Times New Roman',serif;font-size:16px;line-height:24px;color:${COLORS.text};">${escapeHtml(address)}</p></div>`,
     action: { label: "Visit The Library", url: input.libraryUrl },
   });
 
@@ -286,11 +297,16 @@ export function ownerOrderEmail(input: OwnerOrderEmailInput): EmailTemplate {
   const rows: Array<[string, string]> = [
     ["Book", input.bookTitle],
     ["Format", formatLabel],
+  ];
+  if (input.format === "paperback") {
+    rows.push(["Quantity", formatCopyCount(input.quantity)], ["Unit price", input.unitPrice]);
+  }
+  rows.push(
     ["Amount", input.amount],
     ["Reference", input.reference],
     ["Customer", input.customerName || "Not supplied"],
     ["Email", input.customerEmail],
-  ];
+  );
   if (input.format === "paperback") {
     rows.push(["Phone", input.customerPhone || "Not supplied"], ["Delivery address", input.address ?? "Not supplied"]);
   }
@@ -311,10 +327,11 @@ export function ownerOrderEmail(input: OwnerOrderEmailInput): EmailTemplate {
 }
 
 export function printerOrderEmail(input: PrinterEmailInput): EmailTemplate {
-  const subject = `New print job: ${input.bookTitle} (Qty: 1)`;
+  const copyCount = formatCopyCount(input.quantity);
+  const subject = `New print job: ${input.bookTitle} (Qty: ${input.quantity})`;
   const specificationRows: Array<[string, string]> = [
     ["Book", input.bookTitle],
-    ["Quantity", "1"],
+    ["Quantity", String(input.quantity)],
     ["Page count", input.pageCount],
     ["Trim size", input.trimSize],
     ["Binding", input.binding],
@@ -333,10 +350,10 @@ export function printerOrderEmail(input: PrinterEmailInput): EmailTemplate {
     `Phone: ${input.customerPhone}`,
   ].join("\n");
   const html = emailShell({
-    preheader: `Print and ship one copy of ${input.bookTitle}.`,
+    preheader: `Print and ship ${copyCount} of ${input.bookTitle}.`,
     eyebrow: "Paid order · Print instruction",
-    title: "A new copy is ready for production.",
-    body: `<p style="margin:0 0 24px;font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:27px;color:${COLORS.textSubdued};">Please print one copy using the specifications below, then ship it to the supplied delivery address.</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">${detailRows([["Payment reference", input.reference], ...specificationRows])}</table><div style="margin-top:26px;padding:20px;background:${COLORS.brassTint};border:1px solid ${COLORS.line};"><p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:10px;line-height:15px;font-weight:bold;letter-spacing:1.2px;text-transform:uppercase;color:${COLORS.brass};">Ship to</p><p style="margin:0 0 4px;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:25px;color:${COLORS.text};">${escapeHtml(input.customerName)}</p><p style="margin:0;white-space:pre-line;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:23px;color:${COLORS.textSubdued};">${escapeHtml(input.address)}<br>${escapeHtml(input.customerPhone)}</p></div>`,
+    title: input.quantity === 1 ? "A new copy is ready for production." : "New copies are ready for production.",
+    body: `<p style="margin:0 0 24px;font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:27px;color:${COLORS.textSubdued};">Please print ${escapeHtml(copyCount)} using the specifications below, then ship the order to the supplied delivery address.</p><table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">${detailRows([["Payment reference", input.reference], ...specificationRows])}</table><div style="margin-top:26px;padding:20px;background:${COLORS.brassTint};border:1px solid ${COLORS.line};"><p style="margin:0 0 8px;font-family:Arial,sans-serif;font-size:10px;line-height:15px;font-weight:bold;letter-spacing:1.2px;text-transform:uppercase;color:${COLORS.brass};">Ship to</p><p style="margin:0 0 4px;font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:25px;color:${COLORS.text};">${escapeHtml(input.customerName)}</p><p style="margin:0;white-space:pre-line;font-family:Georgia,'Times New Roman',serif;font-size:15px;line-height:23px;color:${COLORS.textSubdued};">${escapeHtml(input.address)}<br>${escapeHtml(input.customerPhone)}</p></div>`,
   });
 
   return { subject, text, html };
