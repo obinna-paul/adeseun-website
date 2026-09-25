@@ -5,7 +5,10 @@ import { hasAdminSession } from "@/lib/admin-auth";
 import { getEbookPublication, getEbookPublications, saveEbookPublication } from "@/lib/ebooks";
 import {
   EbookStorageNotConfiguredError,
+  EbookSourceMissingError,
+  EbookSourceSizeMismatchError,
   abortSourceMultipartUpload,
+  assertSourceObject,
   completeSourceMultipartUpload,
   createSourceMultipartUpload,
   signSourceUploadPart,
@@ -86,6 +89,8 @@ async function createStandaloneBookId(title: string): Promise<string> {
 
 function safeErrorCode(error: unknown): string {
   if (error instanceof EbookStorageNotConfiguredError) return "R2_NOT_CONFIGURED";
+  if (error instanceof EbookSourceMissingError) return "SOURCE_PDF_MISSING";
+  if (error instanceof EbookSourceSizeMismatchError) return "SOURCE_PDF_SIZE_MISMATCH";
   if (error instanceof RedisNotConfiguredError) return "REDIS_NOT_CONFIGURED";
   if (!(error instanceof Error)) return "UNKNOWN_ERROR";
 
@@ -241,6 +246,7 @@ export async function POST(request: Request) {
         createdAt: existing?.createdAt ?? now,
         updatedAt: now,
         error: undefined,
+        errorCode: undefined,
         processingStage: undefined,
         processingProgress: undefined,
         processedPages: undefined,
@@ -290,7 +296,29 @@ export async function POST(request: Request) {
         .sort((a, b) => a.PartNumber - b.PartNumber);
       if (parts.length === 0) return NextResponse.json({ error: "No uploaded parts were provided." }, { status: 400 });
 
-      await completeSourceMultipartUpload({ key: body.key, uploadId: body.uploadId, parts });
+      try {
+        await completeSourceMultipartUpload({
+          key: body.key,
+          uploadId: body.uploadId,
+          parts,
+          expectedBytes: publication.sourceBytes,
+        });
+      } catch (error) {
+        if (error instanceof EbookSourceMissingError || error instanceof EbookSourceSizeMismatchError) {
+          const failed: EbookPublication = {
+            ...publication,
+            status: "failed",
+            uploadId: undefined,
+            updatedAt: new Date().toISOString(),
+            error: error.message,
+            errorCode: safeErrorCode(error),
+            processingStage: "Upload verification failed",
+          };
+          await saveEbookPublication(failed);
+          return NextResponse.json({ error: error.message, code: failed.errorCode }, { status: 409 });
+        }
+        throw error;
+      }
       const now = new Date().toISOString();
       const processing: EbookPublication = {
         ...publication,
@@ -298,6 +326,7 @@ export async function POST(request: Request) {
         uploadId: undefined,
         updatedAt: now,
         error: undefined,
+        errorCode: undefined,
         processingStage: "Queued for processing",
         processingProgress: 0,
         processedPages: 0,
@@ -327,6 +356,7 @@ export async function POST(request: Request) {
           uploadId: undefined,
           updatedAt: new Date().toISOString(),
           error: "Upload cancelled or failed.",
+          errorCode: "UPLOAD_FAILED",
           processingStage: "Upload failed",
         });
       }
@@ -336,12 +366,30 @@ export async function POST(request: Request) {
     if (body.action === "process") {
       const publication = await getEbookPublication(body.bookId);
       if (!publication?.sourceKey) return NextResponse.json({ error: "No source PDF is available." }, { status: 404 });
+      try {
+        await assertSourceObject(publication.sourceKey, publication.sourceBytes);
+      } catch (error) {
+        if (error instanceof EbookSourceMissingError || error instanceof EbookSourceSizeMismatchError) {
+          const failed: EbookPublication = {
+            ...publication,
+            status: "failed",
+            updatedAt: new Date().toISOString(),
+            error: error.message,
+            errorCode: safeErrorCode(error),
+            processingStage: "Source PDF unavailable",
+          };
+          await saveEbookPublication(failed);
+          return NextResponse.json({ error: error.message, code: failed.errorCode }, { status: 409 });
+        }
+        throw error;
+      }
       const now = new Date().toISOString();
       const processing = {
         ...publication,
         status: "processing" as const,
         updatedAt: now,
         error: undefined,
+        errorCode: undefined,
         processingStage: "Queued for processing",
         processingProgress: 0,
         processedPages: 0,

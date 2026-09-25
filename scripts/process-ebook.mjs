@@ -162,7 +162,17 @@ async function main() {
       processingStartedAt,
     });
     console.log(`[ebook] downloading ${sourceKey}`);
-    const source = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: sourceKey }));
+    let source;
+    try {
+      source = await s3.send(new GetObjectCommand({ Bucket: bucket, Key: sourceKey }));
+    } catch (error) {
+      if (error instanceof Error && (error.name === "NoSuchKey" || error.name === "NotFound")) {
+        const missing = new Error("The uploaded source PDF is missing from storage. Upload the PDF again.");
+        missing.code = "SOURCE_PDF_MISSING";
+        throw missing;
+      }
+      throw error;
+    }
     if (!source.Body) throw new Error("The source PDF has no body.");
     await pipeline(source.Body, createWriteStream(pdfPath));
 
@@ -288,7 +298,8 @@ async function main() {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error(`[ebook] processing failed for ${bookId}:`, error);
-    await updatePublication({ status: "failed", error: message }).catch(() => undefined);
+    const errorCode = error instanceof Error && "code" in error && typeof error.code === "string" ? error.code : undefined;
+    await updatePublication({ status: "failed", error: message, errorCode }).catch(() => undefined);
     process.exitCode = 1;
   } finally {
     await rm(workDir, { recursive: true, force: true });

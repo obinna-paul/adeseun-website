@@ -12,6 +12,7 @@ type ProcessorPayload = {
     manifestKey?: unknown;
     publishedAt?: unknown;
     error?: unknown;
+    errorCode?: unknown;
     processingStage?: unknown;
     processingProgress?: unknown;
     processedPages?: unknown;
@@ -88,6 +89,7 @@ export async function POST(request: Request) {
         processingStartedAt,
         updatedAt: new Date().toISOString(),
         error: undefined,
+        errorCode: undefined,
       });
       return NextResponse.json({ ok: true });
     }
@@ -112,18 +114,21 @@ export async function POST(request: Request) {
         pageCount,
         updatedAt: new Date().toISOString(),
         error: undefined,
+        errorCode: undefined,
       });
       return NextResponse.json({ ok: true });
     }
 
     if (body.update.status === "failed") {
       const error = typeof body.update.error === "string" ? body.update.error.slice(0, 1000) : "Processing failed.";
+      const errorCode = typeof body.update.errorCode === "string" ? body.update.errorCode.slice(0, 80) : undefined;
       await saveEbookPublication({
         ...publication,
         status: "failed",
         processingStage: "Processing failed",
         updatedAt: new Date().toISOString(),
         error,
+        errorCode,
       });
       return NextResponse.json({ ok: true });
     }

@@ -3,6 +3,7 @@ import {
   CompleteMultipartUploadCommand,
   CreateMultipartUploadCommand,
   GetObjectCommand,
+  HeadObjectCommand,
   S3Client,
   UploadPartCommand,
   type CompletedPart,
@@ -14,6 +15,20 @@ export class EbookStorageNotConfiguredError extends Error {
   constructor() {
     super("R2 storage is not configured.");
     this.name = "EbookStorageNotConfiguredError";
+  }
+}
+
+export class EbookSourceMissingError extends Error {
+  constructor(message = "The uploaded source PDF is missing from storage. Upload the PDF again.") {
+    super(message);
+    this.name = "EbookSourceMissingError";
+  }
+}
+
+export class EbookSourceSizeMismatchError extends Error {
+  constructor() {
+    super("The stored source PDF does not match the completed upload. Upload the PDF again.");
+    this.name = "EbookSourceSizeMismatchError";
   }
 }
 
@@ -82,6 +97,7 @@ export async function completeSourceMultipartUpload(input: {
   key: string;
   uploadId: string;
   parts: CompletedPart[];
+  expectedBytes: number;
 }) {
   const { client, bucket } = getClient();
   await client.send(
@@ -92,6 +108,27 @@ export async function completeSourceMultipartUpload(input: {
       MultipartUpload: { Parts: input.parts },
     }),
   );
+
+  await assertSourceObject(input.key, input.expectedBytes);
+}
+
+export async function assertSourceObject(key: string, expectedBytes: number) {
+  const { client, bucket } = getClient();
+  try {
+    const result = await client.send(new HeadObjectCommand({ Bucket: bucket, Key: key }));
+    if (result.ContentLength !== expectedBytes) throw new EbookSourceSizeMismatchError();
+  } catch (error) {
+    if (
+      error instanceof EbookSourceSizeMismatchError ||
+      (error instanceof Error && (error.name === "NoSuchKey" || error.name === "NotFound")) ||
+      (typeof error === "object" && error !== null && "$metadata" in error && error.$metadata &&
+        typeof error.$metadata === "object" && "httpStatusCode" in error.$metadata && error.$metadata.httpStatusCode === 404)
+    ) {
+      if (error instanceof EbookSourceSizeMismatchError) throw error;
+      throw new EbookSourceMissingError();
+    }
+    throw error;
+  }
 }
 
 export async function abortSourceMultipartUpload(key: string, uploadId: string) {

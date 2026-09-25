@@ -19,6 +19,7 @@ export type EbookPublication = {
   updatedAt: string;
   publishedAt?: string;
   error?: string;
+  errorCode?: string;
   processingStage?: string;
   processingProgress?: number;
   processedPages?: number;

@@ -14,6 +14,16 @@ function publicationTitle(book: AdminBook | undefined, publication: EbookPublica
   return publication?.title?.trim() || book?.title || "Untitled e-book";
 }
 
+function sourceUploadRequired(publication: EbookPublication | null | undefined) {
+  return Boolean(
+    publication &&
+      (publication.errorCode === "SOURCE_PDF_MISSING" ||
+        publication.errorCode === "SOURCE_PDF_SIZE_MISMATCH" ||
+        publication.error?.toLowerCase().includes("specified key does not exist") ||
+        publication.error?.toLowerCase().includes("source pdf is missing")),
+  );
+}
+
 function initialActiveBookId(books: AdminBook[], publications: Record<string, EbookPublication | null>) {
   const candidates = books
     .map((book) => publications[book.id])
@@ -531,17 +541,23 @@ export function EbookAdminDashboard({
 
           {activeBook && activePublication?.status === "failed" && (
             <div className="mt-6 rounded-frame border border-garnet/25 bg-surface px-5 py-4" role="alert">
-              <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-garnet">Processing failed</p>
-              <p className="mt-2 text-sm leading-relaxed text-text">
-                {activePublication.error ?? `${publicationTitle(activeBook, activePublication)} could not be processed.`}
+              <p className="font-mono text-[0.65rem] uppercase tracking-[0.14em] text-garnet">
+                {sourceUploadRequired(activePublication) ? "PDF upload required" : "Processing failed"}
               </p>
-              <button
-                type="button"
-                onClick={() => processAgain(activeBook.id)}
-                className="mt-3 min-h-11 font-mono text-xs text-emerald-ink underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"
-              >
-                Resume processing
-              </button>
+              <p className="mt-2 text-sm leading-relaxed text-text">
+                {sourceUploadRequired(activePublication)
+                  ? "The source PDF is no longer in storage. Select it above and click Upload new edition."
+                  : activePublication.error ?? `${publicationTitle(activeBook, activePublication)} could not be processed.`}
+              </p>
+              {!sourceUploadRequired(activePublication) && (
+                <button
+                  type="button"
+                  onClick={() => processAgain(activeBook.id)}
+                  className="mt-3 min-h-11 font-mono text-xs text-emerald-ink underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"
+                >
+                  Resume processing
+                </button>
+              )}
             </div>
           )}
         </form>
@@ -597,7 +613,8 @@ export function EbookAdminDashboard({
                     <PencilSimple size={15} /> {publication ? "Edit" : "Set up"}
                   </button>
                 </div>
-                {(publication?.status === "failed" || publication?.status === "processing") && (
+                {(publication?.status === "processing" ||
+                  (publication?.status === "failed" && !sourceUploadRequired(publication))) && (
                   <button
                     type="button"
                     onClick={() => processAgain(book.id)}
@@ -605,6 +622,9 @@ export function EbookAdminDashboard({
                   >
                     {publication.status === "processing" ? "Restart processing" : "Process again"}
                   </button>
+                )}
+                {publication?.status === "failed" && sourceUploadRequired(publication) && (
+                  <p className="mt-3 font-mono text-xs text-garnet">Re-upload the source PDF to continue.</p>
                 )}
                 {publication?.status === "processing" && (
                   <ProcessingProgress
