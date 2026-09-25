@@ -2,7 +2,7 @@ import type { Book } from "./library-content";
 import { BookCover } from "./BookCover";
 
 /**
- * Hover lift + glow is a plain CSS transition, not Motion — per the
+ * Hover lift is a plain CSS transition, not Motion — per the
  * vendored pick-ui-library skill, "a simple hover or fade doesn't need
  * [Motion] — plain CSS transitions are the right tool there." Tailwind
  * v4's `hover:` variant already compiles to `@media (hover: hover)`, so
@@ -27,8 +27,8 @@ export function BookCard({
       aria-haspopup="dialog"
     >
       <span
-        className="block aspect-[2/3] rounded-frame shadow-elevation-card transition-[transform,box-shadow] duration-300 ease-gallery-out will-change-transform
-          group-hover:-translate-y-2 group-hover:shadow-glow-gold group-active:translate-y-0 group-active:scale-[0.98]"
+        className="block aspect-[2/3] transition-transform duration-300 ease-gallery-out will-change-transform
+          group-hover:-translate-y-2 group-active:translate-y-0 group-active:scale-[0.98]"
       >
         {/* Order, category, and title all live on the cover mockup itself
             (BookCover) — real HTML text, not a photo, so repeating them

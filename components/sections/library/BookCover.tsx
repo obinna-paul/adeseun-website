@@ -22,8 +22,8 @@ import { cn } from "@/lib/utils";
  * Architectural Soul's supplied image is a landscape marketing banner,
  * not a portrait book-jacket photo — `object-cover` in a 2:3 cover slot
  * sliced its own title text off both sides instead of just cropping
- * empty margin. `contain` letterboxes it against `bg-surface-sunken`
- * instead, so the whole graphic (and its text) stays legible. Every
+ * empty margin. `contain` keeps the whole graphic (and its text) legible
+ * against the Library's own background. Every
  * other cover is already jacket-shaped, so the default stays `cover`.
  */
 const TONE_CLASSES: Record<Book["tone"], string> = {
@@ -50,7 +50,6 @@ export function BookCover({
       <div
         className={cn(
           "relative h-full w-full overflow-hidden rounded-frame",
-          contain && "bg-surface-sunken",
           className,
         )}
       >

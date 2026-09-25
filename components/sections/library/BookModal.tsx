@@ -1,8 +1,16 @@
 "use client";
 
-import { useEffect, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { Dialog } from "@base-ui/react/dialog";
-import { AnimatePresence, motion, useDragControls, useMotionValue, useSpring, type PanInfo } from "motion/react";
+import {
+  AnimatePresence,
+  motion,
+  useDragControls,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  type PanInfo,
+} from "motion/react";
 import { X, BookOpenText } from "@phosphor-icons/react/dist/ssr";
 import { BookCover } from "./BookCover";
 import type { Book } from "./library-content";
@@ -43,8 +51,11 @@ const MotionDialogPopup = motion.create(Dialog.Popup);
  * nookExpand keyframe — a modal that scales up from its own center reads
  * fine floating in the middle of a desktop viewport; a sheet that's
  * meant to feel anchored to the bottom edge should slide, not zoom).
- * Cover and details stack in a plain column (the shared `flex-col`
- * base) instead of the desktop `flex-row` split.
+ * Cover and details stack in one shared native scroll surface instead
+ * of the desktop `flex-row` split. The cover remains in normal document
+ * flow, so it moves off-screen rather than occupying a fixed portion of
+ * a phone's viewport. Its opacity follows the first part of that scroll,
+ * gently clearing the way for the information beneath it.
  *
  * The cover container's `w-full`/`w-2/5` split is written as fully
  * mutually-exclusive branches, not a shared `w-full` base with `w-2/5`
@@ -59,13 +70,9 @@ const MotionDialogPopup = motion.create(Dialog.Popup);
  * make the conditional branches independently complete instead.
  *
  * The compact cover is capped much smaller (`max-w-[150px]`, down from
- * the same 280px cap the desktop split column uses) — real feedback:
- * on a short phone viewport, the fixed-height cover block was eating so
- * much of the sheet's `max-h-[92dvh]` budget that BookDetails' own
- * `overflow-y-auto` region below it was left too short to comfortably
- * read or scroll. `shrink-0` on the cover container keeps it from
- * collapsing further as flex content, so the height budget it gives up
- * goes entirely to `flex-1` BookDetails instead.
+ * the same 280px cap the desktop split column uses). Because the shared
+ * scroll surface owns the height budget, BookDetails no longer needs a
+ * competing nested scroller on mobile.
  *
  * `data-lenis-prevent` on the backdrop and popup — without it, Lenis's
  * global wheel listener (SmoothScroll) keeps driving the *background*
@@ -75,15 +82,12 @@ const MotionDialogPopup = motion.create(Dialog.Popup);
  * elements, so native scroll behavior — including BookDetails' own
  * internal scrolling — takes over normally instead.
  *
- * Swipe-to-close only arms from the drag handle and the cover image —
- * deliberately NOT the whole sheet surface. `BookDetails` below has its
- * own `overflow-y-auto` scroll region for the description/excerpt; if
- * the entire sheet were one Motion drag target, a finger trying to
- * scroll that text would fight the sheet's own y-drag for the gesture.
- * `useDragControls` + `dragListener={false}` is Motion's documented
- * pattern for exactly this: the sheet is still the element that
- * physically translates, but a drag can only *start* from an element
- * that explicitly calls `dragControls.start(event)` on pointerdown.
+ * Swipe-to-close only arms from the drag handle, deliberately not the
+ * cover or information surface. A finger can therefore begin a normal
+ * vertical scroll anywhere in the book content without fighting the
+ * sheet's y-drag gesture. `useDragControls` + `dragListener={false}` is
+ * Motion's documented pattern for this: the sheet still physically
+ * translates, but a drag can only start from the explicit handle.
  * `dragConstraints={{ top: 0 }}` blocks dragging the sheet up past its
  * resting position (only closing is a gesture here, not "drag to see
  * more"); `dragSnapToOrigin` springs it back whenever a release doesn't
@@ -117,6 +121,9 @@ export function BookModal({
 
   const isCompact = useMediaQuery("(max-width: 1023px)");
   const dragControls = useDragControls();
+  const compactScrollRef = useRef<HTMLDivElement>(null);
+  const compactScrollY = useMotionValue(0);
+  const compactCoverOpacity = useTransform(compactScrollY, [0, 40, 180], [1, 0.92, 0]);
 
   // Resetting a motion value isn't React state — this is the legitimate
   // "synchronize with an external system" effect use, not the setState
@@ -125,6 +132,11 @@ export function BookModal({
     rotateX.set(0);
     rotateY.set(0);
   }, [displayBook, rotateX, rotateY]);
+
+  useEffect(() => {
+    compactScrollRef.current?.scrollTo({ top: 0 });
+    compactScrollY.set(0);
+  }, [compactScrollY, displayBook]);
 
   function startSheetDrag(e: ReactPointerEvent) {
     if (isCompact) dragControls.start(e);
@@ -149,6 +161,30 @@ export function BookModal({
     rotateX.set(0);
     rotateY.set(0);
   }
+
+  const coverPanel = displayBook ? (
+    <motion.div
+      data-testid="book-cover-tilt-zone"
+      className={cn(
+        "flex shrink-0 items-center justify-center bg-surface-sunken [perspective:1200px]",
+        isCompact ? "w-full touch-pan-y p-4" : "w-2/5 touch-none p-10",
+      )}
+      style={{ opacity: isCompact && !reducedMotion ? compactCoverOpacity : 1 }}
+      onPointerMove={handleCoverPointerMove}
+      onPointerLeave={handleCoverPointerLeave}
+    >
+      <motion.div
+        className={cn("aspect-[2/3] w-full", isCompact ? "max-w-[150px]" : "max-w-[280px]")}
+        style={{
+          rotateX: reducedMotion ? 0 : springRotateX,
+          rotateY: reducedMotion ? 0 : springRotateY,
+          transformStyle: "preserve-3d",
+        }}
+      >
+        <BookCover book={displayBook} size="modal" className="h-full" />
+      </motion.div>
+    </motion.div>
+  ) : null;
 
   return (
     <Dialog.Root open={book !== null} onOpenChange={(open) => !open && onClose()}>
@@ -192,29 +228,21 @@ export function BookModal({
                 <X size={18} weight="light" />
               </Dialog.Close>
 
-              <div
-                data-testid="book-cover-tilt-zone"
-                className={cn(
-                  "flex shrink-0 touch-none items-center justify-center bg-surface-sunken [perspective:1200px]",
-                  isCompact ? "w-full p-4" : "w-2/5 p-10",
-                )}
-                onPointerDown={startSheetDrag}
-                onPointerMove={handleCoverPointerMove}
-                onPointerLeave={handleCoverPointerLeave}
-              >
-                <motion.div
-                  className={cn("aspect-[2/3] w-full", isCompact ? "max-w-[150px]" : "max-w-[280px]")}
-                  style={{
-                    rotateX: reducedMotion ? 0 : springRotateX,
-                    rotateY: reducedMotion ? 0 : springRotateY,
-                    transformStyle: "preserve-3d",
-                  }}
+              {isCompact ? (
+                <div
+                  ref={compactScrollRef}
+                  onScroll={(event) => compactScrollY.set(event.currentTarget.scrollTop)}
+                  className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
                 >
-                  <BookCover book={displayBook} size="modal" className="h-full shadow-elevation-card" />
-                </motion.div>
-              </div>
-
-              <BookDetails key={displayBook.id} book={displayBook} ebook={ebook} />
+                  {coverPanel}
+                  <BookDetails key={displayBook.id} book={displayBook} ebook={ebook} scrollsInternally={false} />
+                </div>
+              ) : (
+                <>
+                  {coverPanel}
+                  <BookDetails key={displayBook.id} book={displayBook} ebook={ebook} scrollsInternally />
+                </>
+              )}
             </>
           )}
         </MotionDialogPopup>
@@ -229,11 +257,19 @@ export function BookModal({
  * resets `showExcerpt` for free — no effect needed to "reset state when
  * a prop changes."
  */
-function BookDetails({ book, ebook }: { book: Book; ebook: EbookCatalogItem | null }) {
+function BookDetails({
+  book,
+  ebook,
+  scrollsInternally,
+}: {
+  book: Book;
+  ebook: EbookCatalogItem | null;
+  scrollsInternally: boolean;
+}) {
   const [showExcerpt, setShowExcerpt] = useState(false);
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 sm:p-8 lg:p-10">
+    <div className={cn("p-6 sm:p-8 lg:p-10", scrollsInternally ? "flex-1 overflow-y-auto" : "w-full")}>
       <span className="font-mono text-[0.65rem] uppercase tracking-[0.15em] text-gold-ink">
         {book.paperbackAvailable === false ? "Digital-only edition" : `Book ${book.order} · ${book.category}`}
       </span>

@@ -244,7 +244,7 @@ export const BOOKS: Book[] = [
     ],
     price: 25000,
     printSpecs: { pageCount: 197, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
-    coverImage: "/images/think-before-you-speak-mockup.png",
+    coverImage: "/images/think-before-you-speak-mockup-transparent.png",
   },
   {
     id: "beyond-the-mundane",
@@ -263,7 +263,7 @@ export const BOOKS: Book[] = [
     ],
     price: 35000,
     printSpecs: { trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
-    coverImage: "/images/beyond-the-mundane-mockup.png",
+    coverImage: "/images/beyond-the-mundane-mockup-transparent.png",
   },
   {
     id: "tranquility",
@@ -282,7 +282,7 @@ export const BOOKS: Book[] = [
     ],
     price: 30000,
     printSpecs: { trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
-    coverImage: "/images/tranquility-mockup.png",
+    coverImage: "/images/tranquility-mockup-transparent.png",
   },
   {
     id: "black-is-beautiful",
@@ -301,7 +301,7 @@ export const BOOKS: Book[] = [
     ],
     price: 30000,
     printSpecs: { trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
-    coverImage: "/images/black-is-beautiful-mockup.png",
+    coverImage: "/images/black-is-beautiful-mockup-transparent.png",
   },
   {
     id: "the-future-is-now",
@@ -320,7 +320,7 @@ export const BOOKS: Book[] = [
     ],
     price: 40000,
     printSpecs: { pageCount: 109, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
-    coverImage: "/images/the-future-is-now-mockup.png",
+    coverImage: "/images/the-future-is-now-mockup-transparent.png",
   },
   {
     id: "architectural-soul",
@@ -339,7 +339,7 @@ export const BOOKS: Book[] = [
     ],
     price: 100000,
     printSpecs: { pageCount: 403, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
-    coverImage: "/images/architectural-soul-mockup.png",
+    coverImage: "/images/architectural-soul-mockup-transparent.png",
   },
   {
     id: "positive-negative",
@@ -358,7 +358,7 @@ export const BOOKS: Book[] = [
     ],
     price: 35000,
     printSpecs: { pageCount: 220, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
-    coverImage: "/images/positive-negative-mockup.png",
+    coverImage: "/images/positive-negative-mockup-transparent.png",
   },
   {
     id: "the-assignment",
@@ -377,7 +377,7 @@ export const BOOKS: Book[] = [
     ],
     price: 35000,
     printSpecs: { pageCount: 270, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
-    coverImage: "/images/the-assignment-mockup.png",
+    coverImage: "/images/the-assignment-mockup-transparent.png",
   },
   {
     id: "together-yet-distinct",
@@ -396,7 +396,7 @@ export const BOOKS: Book[] = [
     ],
     price: 35000,
     printSpecs: { pageCount: 115, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
-    coverImage: "/images/together-yet-distinct-mockup.png",
+    coverImage: "/images/together-yet-distinct-mockup-transparent.png",
   },
   {
     id: "young-able-unshakable",
@@ -415,7 +415,7 @@ export const BOOKS: Book[] = [
     ],
     price: 20000,
     printSpecs: { pageCount: 219, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
-    coverImage: "/images/young-able-unshakable-mockup.png",
+    coverImage: "/images/young-able-unshakable-mockup-transparent.png",
   },
   {
     id: "the-relationship-repair-room",
@@ -434,7 +434,7 @@ export const BOOKS: Book[] = [
     ],
     price: 50000,
     printSpecs: { pageCount: 201, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
-    coverImage: "/images/the-relationship-repair-room-mockup.png",
+    coverImage: "/images/the-relationship-repair-room-mockup-transparent.png",
   },
   {
     id: "the-red-chair-talk",
@@ -453,7 +453,7 @@ export const BOOKS: Book[] = [
     ],
     price: 35000,
     printSpecs: { pageCount: 253, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
-    coverImage: "/images/the-red-chair-talk-mockup.png",
+    coverImage: "/images/the-red-chair-talk-mockup-transparent.png",
   },
   {
     id: "people-we-never-meet",
@@ -472,7 +472,7 @@ export const BOOKS: Book[] = [
     ],
     price: 30000,
     printSpecs: { pageCount: 321, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
-    coverImage: "/images/people-we-never-meet-mockup.png",
+    coverImage: "/images/people-we-never-meet-mockup-transparent.png",
   },
   {
     id: "mailbox",
@@ -492,7 +492,7 @@ export const BOOKS: Book[] = [
     ],
     price: 100000,
     printSpecs: { pageCount: 1000, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
-    coverImage: "/images/mailbox-cover.png",
+    coverImage: "/images/mailbox-mockup-transparent-v2.png",
   },
 ];
 
