@@ -25,7 +25,8 @@ type LoadState = "loading" | "ready" | "error";
 type ViewMode = "width" | "page" | "actual" | "custom";
 type ViewportSize = { width: number; height: number };
 type PageSize = { width: number; height: number };
-type CachedPage = { url?: string; promise?: Promise<string> };
+type LoadedPage = { url: string; size: PageSize };
+type CachedPage = { loaded?: LoadedPage; promise?: Promise<LoadedPage> };
 type DisplayedPage = { page: number; retryVersion: number; url: string };
 
 const MIN_ZOOM = 50;
@@ -51,6 +52,36 @@ function isInteractiveTarget(target: EventTarget | null): boolean {
     (target.isContentEditable || Boolean(target.closest("input, button, a, textarea, select")));
 }
 
+async function decodePageImage(url: string): Promise<PageSize> {
+  const image = new Image();
+  image.src = url;
+
+  try {
+    await image.decode();
+  } catch {
+    await new Promise<void>((resolve, reject) => {
+      if (image.complete) {
+        if (image.naturalWidth > 0 && image.naturalHeight > 0) resolve();
+        else reject(new Error("The protected page image could not be decoded."));
+        return;
+      }
+
+      image.addEventListener("load", () => resolve(), { once: true });
+      image.addEventListener(
+        "error",
+        () => reject(new Error("The protected page image could not be decoded.")),
+        { once: true },
+      );
+    });
+  }
+
+  if (image.naturalWidth <= 0 || image.naturalHeight <= 0) {
+    throw new Error("The protected page image has invalid dimensions.");
+  }
+
+  return { width: image.naturalWidth, height: image.naturalHeight };
+}
+
 export function EbookReader({
   bookId,
   title,
@@ -65,6 +96,7 @@ export function EbookReader({
   const shellRef = useRef<HTMLElement>(null);
   const scrollerRef = useRef<HTMLElement>(null);
   const pageCacheRef = useRef<Map<number, CachedPage>>(new Map());
+  const frameSizeLockedRef = useRef(false);
   const [page, setPage] = useState(initialPage);
   const [draftPage, setDraftPage] = useState(initialPage);
   const [viewMode, setViewMode] = useState<ViewMode>("width");
@@ -88,10 +120,16 @@ export function EbookReader({
   const fitPage = Math.min(availableWidth, availableHeight * naturalRatio, pageSize.width);
 
   const pageWidth = useMemo(() => {
-    if (viewMode === "page") return fitPage;
-    if (viewMode === "actual") return pageSize.width;
-    if (viewMode === "custom") return fitWidth * (zoom / 100);
-    return fitWidth;
+    const width =
+      viewMode === "page"
+        ? fitPage
+        : viewMode === "actual"
+          ? pageSize.width
+          : viewMode === "custom"
+            ? fitWidth * (zoom / 100)
+            : fitWidth;
+
+    return Math.max(1, Math.floor(width));
   }, [fitPage, fitWidth, pageSize.width, viewMode, zoom]);
   const pageHeight = pageWidth / naturalRatio;
   const equivalentZoom = clamp(
@@ -144,22 +182,39 @@ export function EbookReader({
     const scroller = scrollerRef.current;
     if (!scroller) return;
 
-    const updateSize = () => setViewport({ width: scroller.clientWidth, height: scroller.clientHeight });
+    let resizeFrame = 0;
+    const updateSize = () => {
+      const width = Math.max(1, Math.round(scroller.clientWidth));
+      const height = Math.max(1, Math.round(scroller.clientHeight));
+      setViewport((current) =>
+        current.width === width && current.height === height ? current : { width, height },
+      );
+    };
+    const queueSizeUpdate = () => {
+      window.cancelAnimationFrame(resizeFrame);
+      resizeFrame = window.requestAnimationFrame(updateSize);
+    };
     updateSize();
 
-    const observer = new ResizeObserver(updateSize);
+    const observer = new ResizeObserver(queueSizeUpdate);
     observer.observe(scroller);
-    return () => observer.disconnect();
-  }, [focusMode]);
+    return () => {
+      window.cancelAnimationFrame(resizeFrame);
+      observer.disconnect();
+    };
+  }, []);
 
-  const getPageUrl = useCallback(
-    async (targetPage: number, force = false): Promise<string> => {
+  const getPage = useCallback(
+    async (targetPage: number, force = false): Promise<LoadedPage> => {
       const cache = pageCacheRef.current;
       const existing = cache.get(targetPage);
 
-      if (!force && existing?.url) return existing.url;
-      if (!force && existing?.promise) return existing.promise;
-      if (force && existing?.url) URL.revokeObjectURL(existing.url);
+      if (!force && existing?.loaded) return existing.loaded;
+      // Reuse an in-flight retry as well. React's development checks can
+      // restart an effect, but the protected image should still be fetched
+      // and decoded only once for that attempt.
+      if (existing?.promise) return existing.promise;
+      if (force && existing?.loaded) URL.revokeObjectURL(existing.loaded.url);
       if (force) cache.delete(targetPage);
 
       const request = fetch(
@@ -172,8 +227,14 @@ export function EbookReader({
             throw new Error(detail?.error || "This page could not be loaded.");
           }
           const url = URL.createObjectURL(await response.blob());
-          cache.set(targetPage, { url });
-          return url;
+          try {
+            const loaded = { url, size: await decodePageImage(url) };
+            cache.set(targetPage, { loaded });
+            return loaded;
+          } catch (error) {
+            URL.revokeObjectURL(url);
+            throw error;
+          }
         })
         .catch((error) => {
           if (cache.get(targetPage)?.promise === request) cache.delete(targetPage);
@@ -189,9 +250,16 @@ export function EbookReader({
   useEffect(() => {
     let active = true;
 
-    getPageUrl(page, retryVersion > 0)
-      .then((url) => {
-        if (active) setPageSource({ page, retryVersion, url });
+    getPage(page, retryVersion > 0)
+      .then((loaded) => {
+        if (!active) return;
+
+        if (!frameSizeLockedRef.current) {
+          frameSizeLockedRef.current = true;
+          setPageSize(loaded.size);
+        }
+        setPageSource({ page, retryVersion, url: loaded.url });
+        setLoadState("ready");
       })
       .catch((error: unknown) => {
         if (!active) return;
@@ -202,34 +270,32 @@ export function EbookReader({
     return () => {
       active = false;
     };
-  }, [getPageUrl, page, retryVersion]);
+  }, [getPage, page, retryVersion]);
 
   useEffect(() => {
     if (loadState !== "ready") return;
 
     const neighbors = [page + 1, page - 1].filter((candidate) => candidate >= 1 && candidate <= pageCount);
     neighbors.forEach((candidate) => {
-      void getPageUrl(candidate)
-        .then((url) => {
-          const image = new Image();
-          image.src = url;
-          void image.decode().catch(() => undefined);
-        })
-        .catch(() => undefined);
+      void getPage(candidate).catch(() => undefined);
     });
 
     for (const [cachedPage, entry] of pageCacheRef.current) {
       if (Math.abs(cachedPage - page) <= 2) continue;
-      if (entry.url) URL.revokeObjectURL(entry.url);
+      // Let an in-flight fetch finish before it becomes eligible for cleanup.
+      // Deleting its promise here would allow the same large page to be
+      // requested twice during quick navigation.
+      if (!entry.loaded) continue;
+      URL.revokeObjectURL(entry.loaded.url);
       pageCacheRef.current.delete(cachedPage);
     }
-  }, [getPageUrl, loadState, page, pageCount]);
+  }, [getPage, loadState, page, pageCount]);
 
   useEffect(() => {
     const cache = pageCacheRef.current;
     return () => {
       for (const entry of cache.values()) {
-        if (entry.url) URL.revokeObjectURL(entry.url);
+        if (entry.loaded) URL.revokeObjectURL(entry.loaded.url);
       }
       cache.clear();
     };
@@ -241,8 +307,10 @@ export function EbookReader({
       const target = Math.max(1, Math.min(pageCount, Math.floor(next)));
       setDraftPage(target);
       if (page === target) return;
+      const cached = pageCacheRef.current.get(target)?.loaded;
       setRetryVersion(0);
-      setLoadState("loading");
+      setLoadState(cached ? "ready" : "loading");
+      if (cached) setPageSource({ page: target, retryVersion: 0, url: cached.url });
       setSaveState("saving");
       setPage(target);
 
@@ -380,7 +448,7 @@ export function EbookReader({
   }
 
   const stageWidth = Math.max(viewport.width, pageWidth + horizontalGutter * 2);
-  const stageHeight = Math.max(viewport.height, pageHeight + verticalGutter * 2);
+  const stageHeight = Math.max(viewport.height, Math.ceil(pageHeight + verticalGutter * 2));
   const currentPageSource =
     pageSource?.page === page && pageSource.retryVersion === retryVersion ? pageSource.url : null;
 
@@ -458,13 +526,22 @@ export function EbookReader({
         data-lenis-prevent
         aria-label={`${title} reader`}
         aria-busy={loadState === "loading"}
-        className="relative overflow-auto overscroll-contain [background:radial-gradient(circle_at_50%_10%,var(--color-surface)_0%,var(--color-surface-sunken)_72%)]"
+        className="relative overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] [background:radial-gradient(circle_at_50%_10%,var(--color-surface)_0%,var(--color-surface-sunken)_72%)]"
         onContextMenu={(event) => event.preventDefault()}
       >
         <div className="grid place-items-center" style={{ width: stageWidth, minHeight: stageHeight }}>
-          <div className="relative overflow-hidden rounded-frame bg-surface shadow-elevation-modal" style={{ width: pageWidth, aspectRatio: `${pageSize.width} / ${pageSize.height}` }}>
+          <div
+            className="relative overflow-hidden rounded-frame bg-surface shadow-elevation-modal"
+            style={{
+              width: pageWidth,
+              aspectRatio: `${pageSize.width} / ${pageSize.height}`,
+              contain: "layout paint",
+            }}
+          >
             {loadState === "loading" && (
-              <div aria-label="Loading page" className="absolute inset-0 motion-safe:animate-pulse bg-[linear-gradient(110deg,var(--color-surface)_20%,var(--color-surface-elevated)_45%,var(--color-surface)_70%)] bg-[length:200%_100%]" />
+              <div className="absolute inset-0 grid place-items-center bg-surface-elevated">
+                <span className="font-mono text-[0.65rem] text-text-faint">Preparing page {page}</span>
+              </div>
             )}
 
             {loadState === "error" ? (
@@ -492,16 +569,11 @@ export function EbookReader({
                 alt={`Page ${page} of ${title}`}
                 draggable={false}
                 onDragStart={(event) => event.preventDefault()}
-                onLoad={(event) => {
-                  const image = event.currentTarget;
-                  if (image.naturalWidth > 0 && image.naturalHeight > 0) setPageSize({ width: image.naturalWidth, height: image.naturalHeight });
-                  setLoadState("ready");
-                }}
                 onError={() => {
                   setLoadError("The protected page image could not be displayed.");
                   setLoadState("error");
                 }}
-                className={`absolute inset-0 h-full w-full select-none object-contain transition-opacity duration-150 ease-gallery-out ${loadState === "ready" ? "opacity-100" : "opacity-0"}`}
+                className="absolute inset-0 h-full w-full select-none object-contain"
               />
             ) : null}
           </div>
