@@ -4,6 +4,8 @@ import {
   CreateMultipartUploadCommand,
   GetObjectCommand,
   HeadObjectCommand,
+  ListMultipartUploadsCommand,
+  ListPartsCommand,
   S3Client,
   UploadPartCommand,
   type CompletedPart,
@@ -91,6 +93,46 @@ export async function signSourceUploadPart(input: {
     }),
     { expiresIn: 60 * 60 },
   );
+}
+
+export async function findSourceMultipartUpload(key: string, preferredUploadId?: string) {
+  const { client, bucket } = getClient();
+  const listed = await client.send(new ListMultipartUploadsCommand({ Bucket: bucket, Prefix: key }));
+  const candidates = (listed.Uploads ?? []).filter(
+    (upload): upload is typeof upload & { UploadId: string } => upload.Key === key && Boolean(upload.UploadId),
+  );
+  if (candidates.length === 0) return null;
+
+  const sessions = await Promise.all(
+    candidates.map(async (upload) => {
+      const parts = [] as Array<{ ETag: string; PartNumber: number; Size: number }>;
+      let partNumberMarker: string | undefined;
+      do {
+        const listedParts = await client.send(
+          new ListPartsCommand({
+            Bucket: bucket,
+            Key: key,
+            UploadId: upload.UploadId,
+            PartNumberMarker: partNumberMarker,
+          }),
+        );
+        for (const part of listedParts.Parts ?? []) {
+          if (part.ETag && part.PartNumber && part.Size !== undefined) {
+            parts.push({ ETag: part.ETag, PartNumber: part.PartNumber, Size: part.Size });
+          }
+        }
+        partNumberMarker = listedParts.IsTruncated ? listedParts.NextPartNumberMarker : undefined;
+      } while (partNumberMarker);
+      return { uploadId: upload.UploadId, parts };
+    }),
+  );
+
+  return sessions.sort((a, b) => {
+    if (a.parts.length !== b.parts.length) return b.parts.length - a.parts.length;
+    if (a.uploadId === preferredUploadId) return -1;
+    if (b.uploadId === preferredUploadId) return 1;
+    return 0;
+  })[0];
 }
 
 export async function completeSourceMultipartUpload(input: {

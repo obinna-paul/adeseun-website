@@ -11,6 +11,7 @@ import {
   assertSourceObject,
   completeSourceMultipartUpload,
   createSourceMultipartUpload,
+  findSourceMultipartUpload,
   signSourceUploadPart,
 } from "@/lib/ebook-storage";
 import { RedisNotConfiguredError } from "@/lib/redis";
@@ -227,6 +228,39 @@ export async function POST(request: Request) {
       if (!title) return NextResponse.json({ error: "Enter a title for the e-book." }, { status: 400 });
       const description = cleanDescription(body.description) || existing?.description;
       const standalone = existing?.standalone ?? isNewStandalone;
+
+      if (
+        existing?.status === "uploading" &&
+        existing.sourceKey &&
+        existing.originalFilename === body.filename &&
+        existing.sourceBytes === body.size
+      ) {
+        const resumable = await findSourceMultipartUpload(existing.sourceKey, existing.uploadId);
+        if (resumable) {
+          const now = new Date().toISOString();
+          const publication: EbookPublication = {
+            ...existing,
+            title,
+            description,
+            standalone,
+            priceNaira,
+            uploadId: resumable.uploadId,
+            updatedAt: now,
+            error: undefined,
+            errorCode: undefined,
+          };
+          await saveEbookPublication(publication);
+          return NextResponse.json({
+            bookId,
+            uploadId: resumable.uploadId,
+            key: existing.sourceKey,
+            publication,
+            resumed: true,
+            parts: resumable.parts,
+          });
+        }
+      }
+
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
       const key = `${sourcePrefix()}/sources/${bookId}/${timestamp}-${cleanFilename(body.filename)}`;
       const uploadId = await createSourceMultipartUpload(key, "application/pdf");
@@ -259,7 +293,7 @@ export async function POST(request: Request) {
         await abortSourceMultipartUpload(key, uploadId).catch(() => undefined);
         throw error;
       }
-      return NextResponse.json({ bookId, uploadId, key, publication });
+      return NextResponse.json({ bookId, uploadId, key, publication, resumed: false, parts: [] });
     }
 
     if (body.action === "diagnose") {

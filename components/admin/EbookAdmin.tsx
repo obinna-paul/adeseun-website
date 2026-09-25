@@ -8,7 +8,12 @@ import { formatNaira } from "@/lib/utils";
 
 type AdminBook = { id: string; title: string; standalone: boolean };
 type UploadSession = { bookId: string; uploadId: string; key: string };
+type UploadedPart = { ETag: string; PartNumber: number; Size?: number };
 type ActionState = "idle" | "saving" | "uploading" | "success" | "error";
+
+const UPLOAD_PART_BYTES = 10 * 1024 * 1024;
+const UPLOAD_PART_TIMEOUT_MS = 4 * 60 * 1000;
+const UPLOAD_PART_ATTEMPTS = 4;
 
 function publicationTitle(book: AdminBook | undefined, publication: EbookPublication | null | undefined) {
   return publication?.title?.trim() || book?.title || "Untitled e-book";
@@ -160,6 +165,7 @@ export function EbookAdminDashboard({
   const initialBook = books.find((book) => book.id === initialBookId);
   const initialPublication = publications[initialBookId];
   const editorRef = useRef<HTMLDivElement>(null);
+  const uploadInFlightRef = useRef(false);
 
   const [livePublications, setLivePublications] = useState(publications);
   const [selectedBookId, setSelectedBookId] = useState(initialBookId);
@@ -281,8 +287,10 @@ export function EbookAdminDashboard({
 
   async function publish(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!file || !title.trim() || !price || (!isNewStandalone && !selectedBookId)) return;
+    if (uploadInFlightRef.current || !file || !title.trim() || !price || (!isNewStandalone && !selectedBookId)) return;
 
+    uploadInFlightRef.current = true;
+    const uploadFile = file;
     const uploadTitle = title.trim();
     setStatus("uploading");
     setMessage("Preparing resumable upload…");
@@ -295,15 +303,17 @@ export function EbookAdminDashboard({
         uploadId: string;
         key: string;
         publication: EbookPublication;
+        resumed: boolean;
+        parts: UploadedPart[];
       }>({
         action: "create",
         bookId: isNewStandalone ? undefined : selectedBookId,
         standalone: isNewStandalone,
         title: uploadTitle,
         description,
-        filename: file.name,
-        size: file.size,
-        contentType: file.type || "application/pdf",
+        filename: uploadFile.name,
+        size: uploadFile.size,
+        contentType: uploadFile.type || "application/pdf",
         priceNaira: Number(price),
       });
       session = { bookId: created.bookId, uploadId: created.uploadId, key: created.key };
@@ -312,37 +322,75 @@ export function EbookAdminDashboard({
       setActiveBookId(created.bookId);
       setLivePublications((current) => ({ ...current, [created.bookId]: created.publication }));
 
-      const partSize = 10 * 1024 * 1024;
-      const partCount = Math.ceil(file.size / partSize);
+      const partCount = Math.ceil(uploadFile.size / UPLOAD_PART_BYTES);
       const parts: Array<{ ETag: string; PartNumber: number }> = new Array(partCount);
-      let nextIndex = 0;
       let uploadedBytes = 0;
 
+      for (const part of created.parts ?? []) {
+        const index = part.PartNumber - 1;
+        if (index < 0 || index >= partCount || !part.ETag) continue;
+        parts[index] = { ETag: part.ETag, PartNumber: part.PartNumber };
+        uploadedBytes +=
+          part.Size ?? Math.min(UPLOAD_PART_BYTES, uploadFile.size - index * UPLOAD_PART_BYTES);
+      }
+
+      const pendingIndexes = Array.from({ length: partCount }, (_, index) => index).filter((index) => !parts[index]);
+      let nextPendingIndex = 0;
+      const startingPercent = Math.round((uploadedBytes / uploadFile.size) * 100);
+      setProgress(startingPercent);
+      if (created.resumed && startingPercent > 0) {
+        setMessage(`Resuming ${uploadTitle} from ${startingPercent}%…`);
+      }
+
+      async function uploadPart(index: number) {
+        const partNumber = index + 1;
+        const start = index * UPLOAD_PART_BYTES;
+        const end = Math.min(uploadFile.size, start + UPLOAD_PART_BYTES);
+
+        for (let attempt = 1; attempt <= UPLOAD_PART_ATTEMPTS; attempt += 1) {
+          const controller = new AbortController();
+          const timeout = window.setTimeout(() => controller.abort(), UPLOAD_PART_TIMEOUT_MS);
+          try {
+            const signed = await uploadAction<{ url: string }>({
+              action: "sign-part",
+              ...session,
+              partNumber,
+            });
+            const response = await fetch(signed.url, {
+              method: "PUT",
+              body: uploadFile.slice(start, end),
+              signal: controller.signal,
+            });
+            if (!response.ok) throw new Error(`Part ${partNumber} returned status ${response.status}.`);
+            const etag = response.headers.get("ETag");
+            if (!etag) throw new Error("Storage did not confirm the upload part. Check the bucket CORS policy.");
+            return { ETag: etag, PartNumber: partNumber, bytes: end - start };
+          } catch (error) {
+            if (attempt === UPLOAD_PART_ATTEMPTS) throw error;
+            setMessage(`Part ${partNumber} stalled. Retrying (${attempt}/${UPLOAD_PART_ATTEMPTS})…`);
+            await new Promise((resolve) => window.setTimeout(resolve, 1_000 * 2 ** (attempt - 1)));
+          } finally {
+            window.clearTimeout(timeout);
+          }
+        }
+        throw new Error(`Upload part ${partNumber} failed.`);
+      }
+
       async function worker() {
-        while (nextIndex < partCount) {
-          const index = nextIndex;
-          nextIndex += 1;
-          const partNumber = index + 1;
-          const start = index * partSize;
-          const end = Math.min(file!.size, start + partSize);
-          const signed = await uploadAction<{ url: string }>({
-            action: "sign-part",
-            ...session,
-            partNumber,
-          });
-          const response = await fetch(signed.url, { method: "PUT", body: file!.slice(start, end) });
-          if (!response.ok) throw new Error(`Upload part ${partNumber} failed with status ${response.status}.`);
-          const etag = response.headers.get("ETag");
-          if (!etag) throw new Error("Storage did not confirm the upload part. Check the bucket CORS policy.");
-          parts[index] = { ETag: etag, PartNumber: partNumber };
-          uploadedBytes += end - start;
-          const percent = Math.round((uploadedBytes / file!.size) * 100);
+        while (nextPendingIndex < pendingIndexes.length) {
+          const index = pendingIndexes[nextPendingIndex];
+          nextPendingIndex += 1;
+          if (index === undefined) return;
+          const uploaded = await uploadPart(index);
+          parts[index] = { ETag: uploaded.ETag, PartNumber: uploaded.PartNumber };
+          uploadedBytes += uploaded.bytes;
+          const percent = Math.round((uploadedBytes / uploadFile.size) * 100);
           setProgress(percent);
           setMessage(`Uploading ${uploadTitle}: ${percent}%`);
         }
       }
 
-      await Promise.all(Array.from({ length: Math.min(3, partCount) }, () => worker()));
+      await Promise.all(Array.from({ length: Math.min(3, pendingIndexes.length) }, () => worker()));
       setMessage("Finalizing upload…");
       const completed = await uploadAction<{ message: string; publication: EbookPublication }>({
         action: "complete",
@@ -355,9 +403,11 @@ export function EbookAdminDashboard({
       setMessage(completed.message);
       resetFile();
     } catch (error) {
-      if (session) await uploadAction({ action: "abort", ...session }).catch(() => undefined);
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "The upload failed.");
+      const detail = error instanceof Error ? error.message : "The upload paused.";
+      setMessage(`${detail} Completed parts were preserved. Select the same PDF and click Resume upload.`);
+    } finally {
+      uploadInFlightRef.current = false;
     }
   }
 
@@ -471,10 +521,16 @@ export function EbookAdminDashboard({
           <label className="mt-6 flex min-h-40 cursor-pointer flex-col items-center justify-center rounded-frame border border-dashed border-line-strong bg-surface px-6 py-8 text-center transition-colors duration-150 ease-gallery-standard hover:border-emerald hover:bg-emerald-tint">
             <CloudArrowUp size={30} weight="light" className="text-emerald-ink" />
             <span className="mt-3 font-display text-lg font-semibold text-text">
-              {selectedPublication ? "Choose a replacement PDF" : "Choose the source PDF"}
+              {selectedPublication?.status === "uploading"
+                ? "Choose the same PDF to resume"
+                : selectedPublication
+                  ? "Choose a replacement PDF"
+                  : "Choose the source PDF"}
             </span>
             <span className="mt-1 text-sm text-text-subdued">
-              {selectedPublication
+              {selectedPublication?.status === "uploading"
+                ? "Completed parts are preserved. Re-select the same file to continue."
+                : selectedPublication
                 ? "Leave this empty when you only want to save the details above."
                 : "Large full-color files are supported up to 2 GB."}
             </span>
@@ -513,7 +569,9 @@ export function EbookAdminDashboard({
             <MagneticButton type="submit" disabled={!file || !title.trim() || !price || busy}>
               {status === "uploading"
                 ? "Uploading…"
-                : selectedPublication
+                : selectedPublication?.status === "uploading"
+                  ? "Resume upload"
+                  : selectedPublication
                   ? "Upload new edition"
                   : isNewStandalone
                     ? "Create and publish"
