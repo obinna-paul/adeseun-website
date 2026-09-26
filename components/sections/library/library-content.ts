@@ -1,5 +1,5 @@
 /**
- * Content for The Library (/library) — her fifteen published books.
+ * Content for The Library (/library) — her sixteen published books.
  *
  * Grounded in real, verified research (web search, checked against
  * multiple retail listings, plus direct confirmation from her team,
@@ -104,6 +104,11 @@
  * A fifteenth, "The Bible in a Year" — a 634-page, 52-week devotional
  * Bible study. Its description, author, page count, real cover art, and
  * confirmed paperback price of ₦45,000 were supplied directly.
+ *
+ * A sixteenth, "The Teenager’s 365-Day Devotional" — a 369-page daily
+ * devotional for teenagers. Its description, author, page count, real
+ * cover art, and confirmed paperback price of ₦35,000 were supplied
+ * directly.
  */
 
 export type Category =
@@ -518,6 +523,27 @@ export const BOOKS: Book[] = [
     price: 45000,
     printSpecs: { pageCount: 634, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/the-bible-in-a-year-mockup-transparent.png",
+  },
+  {
+    id: "the-teenagers-365-day-devotional",
+    order: "XVI",
+    title: "The Teenager’s 365-Day Devotional",
+    category: "Faith",
+    tone: "garnet",
+    tagline: "Faith, confidence, character, and purpose. One day at a time.",
+    description:
+      "A year-long devotional by Adeseun Oyeneye, created to help teenagers grow closer to God while building courage, wisdom, identity, and confidence for everyday life.",
+    accolades: ["369 pages.", "365 daily readings."],
+    excerptHeading: "From the publisher's description",
+    excerpt: [
+      "The Teenager’s 365-Day Devotional is a year-long devotional created to help teenagers grow closer to God while building courage, wisdom, identity, and confidence for everyday life.",
+      "With 365 daily readings, each devotion gives young readers a simple and practical way to reflect, pray, take action, and grow. Through Scripture, Bible reading, thoughtful reflection, prayer, and notes space, this devotional helps teens navigate school, friendships, pressure, purpose, emotions, choices, and faith with hope and clarity.",
+      "Written in an encouraging and relatable style, this book reminds every teenager that God is present, their story matters, and their life can make a difference. Inside, teens will find daily Scripture and Bible reading, faith-building reflections, practical action steps, prayer prompts, space for personal notes, and encouragement for confidence, character, and purpose.",
+      "A daily companion for teenagers who want to grow in faith, live with courage, and become who God created them to be.",
+    ],
+    price: 35000,
+    printSpecs: { pageCount: 369, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
+    coverImage: "/images/the-teenagers-365-day-devotional-mockup-transparent.png",
   },
 ];
 
