@@ -517,7 +517,7 @@ export const BOOKS: Book[] = [
     ],
     price: 45000,
     printSpecs: { pageCount: 634, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
-    coverImage: "/images/the-bible-in-a-year-cover.png",
+    coverImage: "/images/the-bible-in-a-year-mockup-transparent.png",
   },
 ];
 
