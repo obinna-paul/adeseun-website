@@ -1,5 +1,5 @@
 /**
- * Content for The Library (/library) — her fourteen published books.
+ * Content for The Library (/library) — her fifteen published books.
  *
  * Grounded in real, verified research (web search, checked against
  * multiple retail listings, plus direct confirmation from her team,
@@ -100,6 +100,10 @@
  * A fourteenth, "Mailbox" — 1,000 pages, spanning 1,000 episodes and
  * 3,000 questions. Its description and real cover art were supplied
  * directly, and its confirmed paperback price is ₦100,000.
+ *
+ * A fifteenth, "The Bible in a Year" — a 634-page, 52-week devotional
+ * Bible study. Its description, author, page count, real cover art, and
+ * confirmed paperback price of ₦45,000 were supplied directly.
  */
 
 export type Category =
@@ -116,6 +120,7 @@ export type Category =
   | "Healing"
   | "Wisdom"
   | "Empathy"
+  | "Faith"
   | "Digital";
 
 export const CATEGORIES: Category[] = [
@@ -132,6 +137,7 @@ export const CATEGORIES: Category[] = [
   "Healing",
   "Wisdom",
   "Empathy",
+  "Faith",
   "Digital",
 ];
 
@@ -493,6 +499,25 @@ export const BOOKS: Book[] = [
     price: 100000,
     printSpecs: { pageCount: 1000, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/mailbox-mockup-transparent-v2.png",
+  },
+  {
+    id: "the-bible-in-a-year",
+    order: "XV",
+    title: "The Bible in a Year",
+    category: "Faith",
+    tone: "gold",
+    tagline: "A 52-week journey through God’s Word.",
+    description:
+      "A structured devotional Bible study by Adeseun Oyeneye, designed to guide readers through Scripture with clarity, consistency, and spiritual depth. Across weekly themes and daily study pages, readers are invited to reflect on key verses, respond through prayer, journal their insights, and build a steady rhythm of faith.",
+    accolades: ["634 pages."],
+    excerptHeading: "From the publisher's description",
+    excerpt: [
+      "The Bible in a Year: A 52-Week Journey Through God’s Word is a structured devotional Bible study designed to guide readers through Scripture with clarity, consistency, and spiritual depth. Across weekly themes and daily study pages, readers are invited to reflect on key verses, respond through prayer, journal their insights, and build a steady rhythm of faith.",
+      "With reflection prompts, prayer points, worship guidance, intercessory prayer, and space for personal notes, this devotional helps believers grow in understanding, discipline, and intimacy with God throughout the year.",
+    ],
+    price: 45000,
+    printSpecs: { pageCount: 634, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
+    coverImage: "/images/the-bible-in-a-year-cover.png",
   },
 ];
 

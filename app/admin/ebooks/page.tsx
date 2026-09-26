@@ -26,7 +26,12 @@ export default async function EbookAdminPage() {
   const publications = await getEbookPublications(BOOKS.map((book) => book.id)).catch(() => ({}));
   const standaloneBooks = Object.values(publications)
     .filter((publication) => publication.standalone)
-    .map((publication) => ({ id: publication.bookId, title: publication.title || "Untitled e-book", standalone: true }));
+    .map((publication) => ({
+      id: publication.bookId,
+      title: publication.title || "Untitled e-book",
+      description: publication.description,
+      standalone: true,
+    }));
 
   return (
     <main id="main-content" tabIndex={-1} className="min-h-[78dvh] bg-surface px-gutter py-room">
@@ -37,7 +42,12 @@ export default async function EbookAdminPage() {
         </p>
         <EbookAdminDashboard
           books={[
-            ...BOOKS.map((book) => ({ id: book.id, title: book.title, standalone: false })),
+            ...BOOKS.map((book) => ({
+              id: book.id,
+              title: book.title,
+              description: book.description,
+              standalone: false,
+            })),
             ...standaloneBooks,
           ]}
           publications={publications}

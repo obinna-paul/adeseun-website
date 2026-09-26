@@ -6,7 +6,7 @@ import { MagneticButton } from "@/components/ui/MagneticButton";
 import type { EbookPublication } from "@/lib/ebook-types";
 import { formatNaira } from "@/lib/utils";
 
-type AdminBook = { id: string; title: string; standalone: boolean };
+type AdminBook = { id: string; title: string; description?: string; standalone: boolean };
 type UploadSession = { bookId: string; uploadId: string; key: string };
 type UploadedPart = { ETag: string; PartNumber: number; Size?: number };
 type ActionState = "idle" | "saving" | "uploading" | "success" | "error";
@@ -171,7 +171,7 @@ export function EbookAdminDashboard({
   const [selectedBookId, setSelectedBookId] = useState(initialBookId);
   const [isNewStandalone, setIsNewStandalone] = useState(false);
   const [title, setTitle] = useState(() => publicationTitle(initialBook, initialPublication));
-  const [description, setDescription] = useState(initialPublication?.description ?? "");
+  const [description, setDescription] = useState(initialPublication?.description ?? initialBook?.description ?? "");
   const [price, setPrice] = useState(initialPublication ? String(initialPublication.priceNaira) : "");
   const [file, setFile] = useState<File | null>(null);
   const [fileInputKey, setFileInputKey] = useState(0);
@@ -244,7 +244,7 @@ export function EbookAdminDashboard({
     setSelectedBookId(bookId);
     setIsNewStandalone(false);
     setTitle(publicationTitle(book, publication));
-    setDescription(publication?.description ?? "");
+    setDescription(publication?.description ?? book?.description ?? "");
     setPrice(publication ? String(publication.priceNaira) : "");
     setStatus("idle");
     setMessage(null);
