@@ -182,6 +182,14 @@ export type Book = {
   /** Real cover art, when it exists — falls back to the BookCover mockup when absent. */
   coverImage?: string;
   /**
+   * Visual correction for transparent product mockups whose canvas includes
+   * more empty space than neighboring covers. Applied around the image's
+   * center; omitted when the artwork already fills its canvas normally.
+   */
+  coverScale?: number;
+  /** Optional origin for a scaled cover, used to protect important edge-aligned artwork from cropping. */
+  coverTransformOrigin?: string;
+  /**
    * "cover" (default) fills the portrait cover slot, cropping to fit —
    * right for an image that's already shaped like a book jacket. "contain"
    * letterboxes instead, for a supplied image that isn't actually
@@ -351,6 +359,8 @@ export const BOOKS: Book[] = [
     price: 100000,
     printSpecs: { pageCount: 403, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/architectural-soul-mockup-transparent.png",
+    coverScale: 1.32,
+    coverTransformOrigin: "left center",
   },
   {
     id: "positive-negative",
@@ -504,6 +514,7 @@ export const BOOKS: Book[] = [
     price: 100000,
     printSpecs: { pageCount: 1000, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/mailbox-mockup-transparent-v2.png",
+    coverScale: 1.24,
   },
   {
     id: "the-bible-in-a-year",

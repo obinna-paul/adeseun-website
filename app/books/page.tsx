@@ -41,14 +41,29 @@ export const metadata = pageMetadata({
 const PAPER_TEXTURE =
   "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
+const FEATURED_PRINT_BOOK_IDS = [
+  "the-teenagers-365-day-devotional",
+  "the-bible-in-a-year",
+  "mailbox",
+  "architectural-soul",
+] as const;
+
 export default async function BooksPage() {
   const ebookCatalog = await getPublishedEbookCatalog(BOOKS.map((book) => book.id)).catch((error) => {
     console.error("Could not load the e-book catalog:", error);
     return {} as Record<string, EbookCatalogItem>;
   });
-  // BOOKS stays in publication order for stable numbering and admin use;
-  // the public library presents the newest paperback first.
-  const printBooksNewestFirst = [...BOOKS].reverse();
+  // BOOKS stays in publication order for stable numbering and admin use.
+  // The public library presents the newest paperbacks first, with selected
+  // featured titles pinned into the opening row.
+  const featuredIds = new Set<string>(FEATURED_PRINT_BOOK_IDS);
+  const printBooksNewestFirst = [
+    ...FEATURED_PRINT_BOOK_IDS.flatMap((id) => {
+      const book = BOOKS.find((candidate) => candidate.id === id);
+      return book ? [book] : [];
+    }),
+    ...[...BOOKS].reverse().filter((book) => !featuredIds.has(book.id)),
+  ];
   const catalogBooks = [
     ...printBooksNewestFirst.map((book) => applyEbookMetadata(book, ebookCatalog[book.id])),
     ...Object.values(ebookCatalog)

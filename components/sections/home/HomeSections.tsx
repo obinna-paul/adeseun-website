@@ -133,6 +133,8 @@ export function HomeFeaturedBookSection() {
             src={FEATURED_BOOK.coverImage}
             alt={FEATURED_BOOK.title}
             fit="contain"
+            imageScale={FEATURED_BOOK.coverScale}
+            imageTransformOrigin={FEATURED_BOOK.coverTransformOrigin}
             className="aspect-[2/3]"
             sizes="(min-width: 1024px) 30vw, 70vw"
           />

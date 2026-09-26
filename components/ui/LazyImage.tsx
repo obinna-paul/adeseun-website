@@ -40,6 +40,8 @@ type LazyImageProps = {
   className?: string;
   sizes?: string;
   fit?: "cover" | "contain";
+  imageScale?: number;
+  imageTransformOrigin?: string;
   shape?: "frame" | "arch";
 };
 
@@ -56,6 +58,8 @@ export function LazyImage({
   className,
   sizes = "(min-width: 1024px) 33vw, 100vw",
   fit = "cover",
+  imageScale,
+  imageTransformOrigin,
   shape = "frame",
 }: LazyImageProps) {
   const [loaded, setLoaded] = useState(false);
@@ -101,6 +105,7 @@ export function LazyImage({
             fill
             sizes={sizes}
             className={fit === "contain" ? "object-contain" : "object-cover"}
+            style={imageScale ? { transform: `scale(${imageScale})`, transformOrigin: imageTransformOrigin } : undefined}
             onLoad={() => setLoaded(true)}
           />
         </motion.div>

@@ -60,6 +60,11 @@ export function BookCover({
           priority={priority}
           sizes={size === "modal" ? "(min-width: 640px) 280px, 60vw" : "(min-width: 1024px) 25vw, 45vw"}
           className={contain ? "object-contain" : "object-cover"}
+          style={
+            book.coverScale
+              ? { transform: `scale(${book.coverScale})`, transformOrigin: book.coverTransformOrigin }
+              : undefined
+          }
         />
       </div>
     );
