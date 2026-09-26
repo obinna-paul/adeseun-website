@@ -46,8 +46,11 @@ export default async function BooksPage() {
     console.error("Could not load the e-book catalog:", error);
     return {} as Record<string, EbookCatalogItem>;
   });
+  // BOOKS stays in publication order for stable numbering and admin use;
+  // the public library presents the newest paperback first.
+  const printBooksNewestFirst = [...BOOKS].reverse();
   const catalogBooks = [
-    ...BOOKS.map((book) => applyEbookMetadata(book, ebookCatalog[book.id])),
+    ...printBooksNewestFirst.map((book) => applyEbookMetadata(book, ebookCatalog[book.id])),
     ...Object.values(ebookCatalog)
       .filter((publication) => publication.standalone && !BOOKS.some((book) => book.id === publication.bookId))
       .map(ebookOnlyBook),
