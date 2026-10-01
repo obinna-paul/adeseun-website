@@ -174,7 +174,17 @@ export function BookModal({
       onPointerLeave={handleCoverPointerLeave}
     >
       <motion.div
-        className={cn("aspect-[2/3] w-full", isCompact ? "max-w-[150px]" : "max-w-[280px]")}
+        className={cn(
+          "w-full",
+          displayBook.coverAspect === "landscape" ? "aspect-[3/2]" : "aspect-[2/3]",
+          isCompact
+            ? displayBook.coverAspect === "landscape"
+              ? "max-w-[280px]"
+              : "max-w-[150px]"
+            : displayBook.coverAspect === "landscape"
+              ? "max-w-[360px]"
+              : "max-w-[280px]",
+        )}
         style={{
           rotateX: reducedMotion ? 0 : springRotateX,
           rotateY: reducedMotion ? 0 : springRotateY,

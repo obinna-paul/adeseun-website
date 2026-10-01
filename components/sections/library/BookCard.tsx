@@ -1,5 +1,6 @@
 import type { Book } from "./library-content";
 import { BookCover } from "./BookCover";
+import { cn } from "@/lib/utils";
 
 /**
  * Hover lift is a plain CSS transition, not Motion — per the
@@ -27,8 +28,10 @@ export function BookCard({
       aria-haspopup="dialog"
     >
       <span
-        className="block aspect-[2/3] transition-transform duration-300 ease-gallery-out will-change-transform
-          group-hover:-translate-y-2 group-active:translate-y-0 group-active:scale-[0.98]"
+        className={cn(
+          "block transition-transform duration-300 ease-gallery-out will-change-transform group-hover:-translate-y-2 group-active:translate-y-0 group-active:scale-[0.98]",
+          book.coverAspect === "landscape" ? "aspect-[3/2]" : "aspect-[2/3]",
+        )}
       >
         {/* Order, category, and title all live on the cover mockup itself
             (BookCover) — real HTML text, not a photo, so repeating them

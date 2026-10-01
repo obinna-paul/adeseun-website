@@ -190,6 +190,12 @@ export type Book = {
   /** Optional origin for a scaled cover, used to protect important edge-aligned artwork from cropping. */
   coverTransformOrigin?: string;
   /**
+   * Product mockups are portrait by default. A landscape mockup gets a
+   * landscape frame so the physical book can be shown edge to edge instead
+   * of being enlarged and clipped inside a portrait slot.
+   */
+  coverAspect?: "portrait" | "landscape";
+  /**
    * "cover" (default) fills the portrait cover slot, cropping to fit —
    * right for an image that's already shaped like a book jacket. "contain"
    * letterboxes instead, for a supplied image that isn't actually
@@ -359,8 +365,7 @@ export const BOOKS: Book[] = [
     price: 100000,
     printSpecs: { pageCount: 403, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/architectural-soul-mockup-transparent.png",
-    coverScale: 1.32,
-    coverTransformOrigin: "left center",
+    coverAspect: "landscape",
   },
   {
     id: "positive-negative",
