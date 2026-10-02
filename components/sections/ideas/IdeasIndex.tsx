@@ -35,9 +35,9 @@ export function IdeasIndex() {
         <div className="mx-auto max-w-frame">
           <div className="grid gap-10 border-b border-line pb-12 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.58fr)] lg:items-end">
             <div className="max-w-4xl">
-              <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-gold-ink">The Study</p>
+              <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-gold-ink">Blog</p>
               <h1 id="ideas-title" className="mt-5 max-w-4xl text-balance font-display text-5xl font-semibold text-text sm:text-6xl lg:text-7xl">
-                Adeseun&apos;s Blog
+                Ideas for building what matters.
               </h1>
             </div>
             <p className="max-w-xl text-lg text-text-subdued sm:text-xl">
@@ -79,7 +79,7 @@ export function IdeasIndex() {
           </Link>
 
           <article>
-            <p className="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-gold-ink">Sample article</p>
+            <p className="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-gold-ink">Featured article</p>
             <p className="mt-5 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-emerald-ink">{featuredPillar.label}</p>
             <h2 id="featured-idea-title" className="mt-3 text-balance font-display text-4xl font-semibold text-text sm:text-5xl">
               <Link href={`/ideas/${featured.slug}`} className="decoration-gold/60 underline-offset-[0.14em] hover:underline focus-visible:outline-none focus-visible:underline">
@@ -98,7 +98,7 @@ export function IdeasIndex() {
               href={`/ideas/${featured.slug}`}
               className="mt-8 inline-flex min-h-11 items-center gap-3 rounded-control bg-emerald-fill px-6 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-text-on-dark transition-colors hover:bg-emerald-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-4"
             >
-              View the article layout
+              Read the article
               <ArrowRight aria-hidden="true" size={17} weight="light" />
             </Link>
           </article>
@@ -110,7 +110,7 @@ export function IdeasIndex() {
           <div className="mx-auto max-w-frame">
             <div className="flex items-end justify-between gap-8 border-b border-line pb-6">
               <div>
-                <p className="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-gold-ink">Recently in The Study</p>
+                <p className="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-gold-ink">Recently on the blog</p>
                 <h2 id="latest-ideas-title" className="mt-3 font-display text-4xl font-semibold text-text sm:text-5xl">Latest ideas</h2>
               </div>
               <span className="hidden font-mono text-xs uppercase tracking-[0.1em] text-text-faint sm:block">{IDEA_ARTICLES.length} essays</span>

@@ -1,8 +1,8 @@
-# The Study: Blog UX, Content, and Advanced SEO Plan
+# Blog UX, Content, and Advanced SEO Plan
 
 **Site:** Adeseun Oyeneye
 
-**Recommended section name:** The Study
+**Section name:** Blog
 
 **Recommended route:** `/ideas`
 
@@ -14,7 +14,7 @@
 
 ## 1. Executive recommendation
 
-Build the blog as **The Study**, described in navigation as **Ideas & Essays**, at `/ideas`. It should feel like the editorial wing of Adeseun Oyeneye's existing personal headquarters: quiet, authoritative, warm, and spacious rather than like a generic magazine or news feed.
+Build the **Blog** at `/ideas` as the editorial wing of Adeseun Oyeneye's existing personal headquarters: quiet, authoritative, warm, and spacious rather than like a generic magazine or news feed.
 
 The experience should have two primary templates:
 
@@ -33,7 +33,7 @@ This plan is based on the repository, not a generic blog template.
 | --- | --- |
 | “Ivory Atrium & Emerald Brass” tokens in `app/styles/tokens.css` | Reuse warm ivory, deep emerald, terracotta, brass, thin rules, near-square frames, and the single dark chrome register. Do not create a separate blog theme or dark mode. |
 | Cormorant Garamond, EB Garamond, and IBM Plex Mono are self-hosted in `lib/fonts.ts` | Use Cormorant for editorial display, EB Garamond for long reading, and IBM Plex Mono for metadata and controls. No new font is needed. |
-| The site uses a “personal headquarters”/building metaphor | “The Study” is the natural room for essays and ideas. It also restores a name already anticipated in the content architecture without conflicting with “The Blueprint” about page. |
+| The site uses a “personal headquarters”/building metaphor | The direct label “Blog” makes the section immediately understandable while the visual design preserves the site's architectural character. |
 | `content/README.md` already reserves `content/journal/*.mdx` | Use MDX plus a validated content schema for launch. This preserves editorial review, history, and server-rendered output. |
 | `lib/seo.ts` already centralizes canonical, Open Graph, and Twitter metadata | Extend it with article metadata and stable entity IDs instead of hand-writing head tags in each article. |
 | `app/sitemap.ts` currently gives every URL `lastModified: new Date()` | Replace synthetic “now” dates with real modification dates. A sitemap must not imply every page changes on every build. |
@@ -45,10 +45,10 @@ This plan is based on the repository, not a generic blog template.
 
 ### Recommended public naming
 
-- **Navigation label:** The Study
+- **Navigation label:** Blog
 - **Navigation note:** Ideas & essays
 - **Page H1:** Ideas for building what matters.
-- **Page eyebrow:** The Study
+- **Page eyebrow:** Blog
 - **Route:** `/ideas`
 - **Article route:** `/ideas/[slug]`
 - **Topic route when justified:** `/ideas/topic/[topic]`
@@ -156,7 +156,7 @@ Each card contains:
 ┌──────────────────────────────────────────────────────────────────────┐
 │ Fixed dark global header                                            │
 ├──────────────────────────────────────────────────────────────────────┤
-│ Home / The Study / Leadership & Enterprise                          │
+│ Home / Blog / Leadership & Enterprise                               │
 │ PILLAR LABEL                                                        │
 │ H1: Article title across a generous editorial measure               │
 │ Dek: what the reader will understand or be able to do               │
@@ -376,7 +376,7 @@ Use durable `@id` values so the site refers to the same entities on every page:
 | --- | --- |
 | Home | `WebSite` and `Person`; add a preferred site name and verified `sameAs` profiles |
 | About | `ProfilePage` with `mainEntity` referencing the same `Person` ID |
-| The Study index | `CollectionPage` with an `ItemList` containing only the visible article cards |
+| Blog index | `CollectionPage` with an `ItemList` containing only the visible article cards |
 | Article | `BlogPosting`, `WebPage`, `ImageObject`, and `BreadcrumbList`, connected with `@id` references |
 
 ### `BlogPosting` fields
@@ -493,7 +493,7 @@ Launch with 6–8 substantive articles so the page feels intentionally establish
 5. One communication essay connected naturally to a book.
 6. One purpose/mentorship essay.
 7. One shorter field note.
-8. One personal “why this Study exists” editorial.
+8. One personal “why this blog exists” editorial.
 
 These are formats, not final keyword titles. Confirm topics through query research and SERP analysis before commissioning them.
 
@@ -658,7 +658,7 @@ Avoid vanity reporting based only on page views or the number of published posts
 ### Phase 0 — decisions and evidence (1 week)
 
 - Confirm the production domain.
-- Confirm “The Study” and `/ideas`.
+- Confirm “Blog” and `/ideas`.
 - Select the four initial pillars and first 6–8 real articles.
 - Confirm author biography, headshot, roles, profile URLs, and editorial ownership.
 - Decide whether MDX publishing is acceptable for the team.

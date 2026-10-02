@@ -10,7 +10,7 @@ export default async function OpengraphImage({ params }: { params: Promise<{ slu
   const article = getIdeaArticle(slug);
 
   if (!article) {
-    return renderArticleOgImage({ title: "The Study", pillar: "Ideas & Essays" });
+    return renderArticleOgImage({ title: "Blog", pillar: "Ideas & Essays" });
   }
 
   return renderArticleOgImage({ title: article.title, pillar: getIdeaPillar(article.pillar).label });

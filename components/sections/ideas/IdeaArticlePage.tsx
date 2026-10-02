@@ -28,16 +28,14 @@ export function IdeaArticlePage({ article }: { article: IdeaArticle }) {
             <ol className="flex flex-wrap items-center gap-2">
               <li><Link href="/" className="hover:text-emerald-ink focus-visible:outline-none focus-visible:underline">Home</Link></li>
               <li aria-hidden="true">/</li>
-              <li><Link href="/ideas" className="hover:text-emerald-ink focus-visible:outline-none focus-visible:underline">The Study</Link></li>
+              <li><Link href="/ideas" className="hover:text-emerald-ink focus-visible:outline-none focus-visible:underline">Blog</Link></li>
               <li aria-hidden="true">/</li>
               <li className="text-text-subdued" aria-current="page">{pillar.label}</li>
             </ol>
           </nav>
 
           <div className="mt-12 max-w-5xl">
-            <p className="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-emerald-ink">
-              {article.sample ? `Sample article · ${pillar.label}` : pillar.label}
-            </p>
+            <p className="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-emerald-ink">{pillar.label}</p>
             <h1 className="mt-5 max-w-5xl text-balance font-display text-5xl font-semibold text-text sm:text-6xl lg:text-7xl">{article.title}</h1>
             <p className="mt-7 max-w-3xl text-xl leading-relaxed text-text-subdued sm:text-2xl">{article.dek}</p>
 
@@ -118,6 +116,7 @@ export function IdeaArticlePage({ article }: { article: IdeaArticle }) {
                 <p>On this page</p>
                 <ol>
                   {article.sections.map((section) => <li key={section.id}><a href={`#${section.id}`}>{section.title}</a></li>)}
+                  {article.references.length ? <li><a href="#sources-and-reading">Sources and further reading</a></li> : null}
                 </ol>
               </nav>
 
@@ -125,6 +124,21 @@ export function IdeaArticlePage({ article }: { article: IdeaArticle }) {
                 <section key={section.id} aria-labelledby={section.id}>
                   <h2 id={section.id}>{section.title}</h2>
                   {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+                  {section.image ? (
+                    <figure className="my-10">
+                      <div className="overflow-hidden rounded-frame bg-surface-sunken">
+                        <Image
+                          src={section.image.src}
+                          alt={section.image.alt}
+                          width={section.image.width}
+                          height={section.image.height}
+                          sizes="(min-width: 1280px) 704px, 92vw"
+                          className="h-auto w-full"
+                        />
+                      </div>
+                      <figcaption className="mt-3 font-body text-sm italic leading-relaxed text-text-faint">{section.image.caption}</figcaption>
+                    </figure>
+                  ) : null}
                   {section.list ? <ul>{section.list.map((item) => <li key={item}>{item}</li>)}</ul> : null}
                   {section.quote ? <blockquote><p>{section.quote}</p></blockquote> : null}
                 </section>
@@ -132,6 +146,24 @@ export function IdeaArticlePage({ article }: { article: IdeaArticle }) {
 
               <h2 id="a-final-thought">A final thought</h2>
               <p>{article.conclusion}</p>
+
+              {article.references.length ? (
+                <section aria-labelledby="sources-and-reading">
+                  <h2 id="sources-and-reading">Sources and further reading</h2>
+                  <ol className="mt-6 space-y-5 pl-5 text-base leading-relaxed text-text-subdued">
+                    {article.references.map((reference) => (
+                      <li key={reference.url}>
+                        <a href={reference.url} target="_blank" rel="noreferrer" className="font-semibold text-text">
+                          {reference.title}
+                        </a>
+                        <span className="block text-sm text-text-faint">
+                          {reference.authors}. {reference.publication}, {reference.year}.
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                </section>
+              ) : null}
             </div>
 
             <div className="mt-14 flex items-center justify-between gap-6 border-y border-line py-5 xl:hidden">
@@ -155,6 +187,14 @@ export function IdeaArticlePage({ article }: { article: IdeaArticle }) {
                     </a>
                   </li>
                 ))}
+                {article.references.length ? (
+                  <li>
+                    <a href="#sources-and-reading" className="group flex gap-3 hover:text-emerald-ink focus-visible:outline-none focus-visible:underline">
+                      <span className="font-mono text-[0.65rem] text-gold-ink">{String(article.sections.length + 1).padStart(2, "0")}</span>
+                      <span>Sources and further reading</span>
+                    </a>
+                  </li>
+                ) : null}
               </ol>
             </div>
           </aside>
@@ -183,7 +223,7 @@ export function IdeaArticlePage({ article }: { article: IdeaArticle }) {
           <div className="mx-auto max-w-frame">
             <div className="flex items-end justify-between gap-8 border-b border-line pb-6">
               <div>
-                <p className="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-gold-ink">Continue through The Study</p>
+                <p className="font-mono text-xs font-semibold uppercase tracking-[0.16em] text-gold-ink">Continue through the blog</p>
                 <h2 id="related-ideas-title" className="mt-3 font-display text-4xl font-semibold text-text sm:text-5xl">Related ideas</h2>
               </div>
               <Link href="/ideas" className="hidden min-h-11 items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-emerald-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald sm:inline-flex">
@@ -203,7 +243,7 @@ export function IdeaArticlePage({ article }: { article: IdeaArticle }) {
           <p className="mx-auto mt-4 max-w-xl text-lg text-text-on-dark/75">For a speaking invitation, advisory conversation, publishing enquiry, or considered note.</p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link href="/contact" className="inline-flex min-h-12 items-center rounded-control bg-emerald px-7 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-text-on-dark hover:bg-emerald-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-4 focus-visible:ring-offset-hero-ground">Visit The Reception</Link>
-            <Link href="/ideas" className="inline-flex min-h-12 items-center gap-2 rounded-control border border-text-on-dark/30 px-7 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-text-on-dark hover:border-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-4 focus-visible:ring-offset-hero-ground"><ArrowLeft aria-hidden="true" size={16} /> Back to The Study</Link>
+            <Link href="/ideas" className="inline-flex min-h-12 items-center gap-2 rounded-control border border-text-on-dark/30 px-7 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-text-on-dark hover:border-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-4 focus-visible:ring-offset-hero-ground"><ArrowLeft aria-hidden="true" size={16} /> Back to the blog</Link>
           </div>
         </div>
       </section>

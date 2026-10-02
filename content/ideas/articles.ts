@@ -4,12 +4,30 @@ export type IdeaPillar = {
   description: string;
 };
 
+export type IdeaImage = {
+  src: string;
+  alt: string;
+  caption: string;
+  width: number;
+  height: number;
+  objectPosition?: string;
+};
+
 export type IdeaSection = {
   id: string;
   title: string;
   paragraphs: string[];
   list?: string[];
   quote?: string;
+  image?: IdeaImage;
+};
+
+export type IdeaReference = {
+  title: string;
+  authors: string;
+  publication: string;
+  year: string;
+  url: string;
 };
 
 export type IdeaArticle = {
@@ -22,19 +40,12 @@ export type IdeaArticle = {
   pillar: IdeaPillar["slug"];
   topics: string[];
   featured?: boolean;
-  sample?: boolean;
-  hero: {
-    src: string;
-    alt: string;
-    caption: string;
-    width: number;
-    height: number;
-    objectPosition?: string;
-  };
+  hero: IdeaImage;
   keyIdea: string;
   introduction: string[];
   sections: IdeaSection[];
   conclusion: string;
+  references: IdeaReference[];
   related: string[];
 };
 
@@ -70,498 +81,189 @@ export const AUTHOR = {
   bio: "Adeseun Oyeneye works across enterprise, media, architecture, publishing, and social impact. Her writing examines how ideas become institutions, how environments shape people, and how thoughtful communication can create more durable work and relationships.",
 } as const;
 
-const ALL_IDEA_ARTICLES: readonly IdeaArticle[] = [
+export const IDEA_ARTICLES: readonly IdeaArticle[] = [
   {
     slug: "ideas-need-structure",
     title: "Ideas Need Structure Before They Need Scale",
-    dek: "The leap from inspiration to institution is rarely a matter of enthusiasm. It is a matter of giving an idea a shape that can carry responsibility.",
+    dek: "Growth does not repair an organisation. It magnifies what is already there—its clarity, its confusion, its discipline, and its dependence on a few people.",
     seoDescription:
-      "A practical essay on turning promising ideas into durable organisations through clarity, systems, ownership, and patient execution.",
-    publishedAt: "2026-09-26T09:00:00+01:00",
-    modifiedAt: "2026-09-26T09:00:00+01:00",
+      "A research-backed guide to building the decision rights, management systems, operating rhythms, and learning culture an idea needs before it scales.",
+    publishedAt: "2026-10-02T21:30:00+01:00",
+    modifiedAt: "2026-10-02T21:30:00+01:00",
     pillar: "leadership-enterprise",
-    topics: ["creative leadership", "institution building", "execution"],
+    topics: ["organisational structure", "business scaling", "decision rights", "management systems", "leadership"],
     featured: true,
-    sample: true,
     hero: {
-      src: "/images/adeseun-architecture-drafting.jpg",
-      alt: "Architectural drawings and working materials arranged on a drafting surface",
-      caption: "A useful idea becomes durable when its structure is visible enough to test.",
-      width: 456,
-      height: 230,
+      src: "/images/ideas/ideas-need-structure-hero.webp",
+      alt: "Architectural plans and a modular wooden structure expanding from a small central block",
+      caption: "Structure turns growth from a leap of faith into a sequence of choices that can be understood, tested, and improved.",
+      width: 1920,
+      height: 1080,
       objectPosition: "50% 50%",
     },
     keyIdea:
-      "Scale magnifies whatever already exists. Before asking how an idea can grow, ask whether its purpose, decisions, ownership, and standards are clear enough to survive growth.",
+      "Scale is an amplifier, not a cure. Before an idea grows, its purpose, decision rights, information flows, standards, and learning rhythm must be clear enough for other people to carry the work responsibly.",
     introduction: [
-      "Ideas often arrive whole in the imagination and incomplete in the world. We can see the finished company, platform, programme, or movement long before we can explain how a decision will be made on an ordinary Tuesday. That distance between vision and operation is where many promising ideas become fragile.",
-      "Structure is not the enemy of creativity. It is the form that allows creativity to keep its promise after the excitement of the beginning has passed. A well-structured idea can be shared, questioned, improved, and carried by people other than its originator.",
+      "A promising idea can feel complete in the imagination long before it is ready to survive contact with growth. The founder can see the destination, make the judgement calls, correct the work, and explain the intention in real time. At a small scale, that personal attention can hold the whole enterprise together. It is also easy to mistake that closeness for an operating system.",
+      "Then demand increases. More people join. Projects overlap. Clients expect consistency. Decisions that once happened across a desk begin to travel through several hands. The organisation becomes busy, but busyness conceals an important question: has the idea become clear enough to be carried by people who were not present at its beginning?",
+      "That is why structure must come before scale. Structure is not bureaucracy for its own sake. It is the practical architecture of responsibility: what the organisation is promising, who may decide, what information must move, which standards cannot be traded away, and how the team learns when reality challenges the plan.",
     ],
     sections: [
       {
-        id: "name-the-problem",
-        title: "Name the problem before naming the brand",
+        id: "scale-is-an-amplifier",
+        title: "Scale is an amplifier, not a cure",
         paragraphs: [
-          "A name, logo, launch date, and social account can make an idea feel real very quickly. None of them answers the harder question: what useful change will exist because this work exists? When the problem is vague, every opportunity appears relevant and the organisation begins to move in several directions at once.",
-          "A clear problem statement creates a boundary. It identifies who the work serves, what is presently insufficient, and what a meaningful improvement looks like. That boundary helps a team say no without losing imagination. It also gives future decisions a standard more reliable than taste or urgency.",
+          "Growth increases volume, but it also increases distance. There is more distance between the founder and the customer, between a decision and its consequences, and between the original intention and the person executing it. Every ambiguity that one person once resolved instinctively becomes a question that several people can answer differently.",
+          "Research on management practices helps explain why this matters. A large study of more than 11,000 firms across 34 countries found that differences in management practices account for a meaningful share of productivity differences both within and between countries. Another US Census-linked study of roughly 32,000 manufacturing plants found that structured management practices explained about one-fifth of the variation in productivity—comparable to the contribution associated with research and development and greater than that associated with information technology in the study.",
+          "These findings do not mean every organisation should look the same. They show that management itself is productive work. Monitoring what matters, setting usable targets, developing people, and acting on evidence are not administrative extras added after the ‘real’ work. They are part of how the real work becomes reliable.",
+        ],
+        quote: "When an organisation grows, every unwritten rule becomes a potential point of friction.",
+      },
+      {
+        id: "define-the-promise",
+        title: "Define the promise before designing the organisation",
+        paragraphs: [
+          "Structure should begin with purpose, not an organisational chart. A chart can distribute titles while leaving the central promise untouched. The more useful starting point is to describe the change the organisation exists to create, the people it exists to serve, and the boundaries of what it will not attempt.",
+          "A clear promise is an operating constraint. It allows a team to distinguish an attractive opportunity from a relevant one. It gives product decisions, hiring choices, partnerships, and budgets a common reference point. Without that constraint, scale often becomes a collection of unrelated yeses: more offers, more platforms, more activity, and less coherence.",
+          "The promise must be specific enough to guide an ordinary week. If it appears only in a vision statement, it is too distant from the work. Teams should be able to use it when deciding what to prioritise, what quality looks like, and when a request falls outside the organisation's responsibility.",
         ],
         list: [
-          "Who is experiencing the problem?",
-          "What is the cost of leaving it unresolved?",
-          "What change can this organisation credibly produce?",
-          "What work is outside the promise?",
+          "Who is the work for, and what problem are they trusting us to solve?",
+          "What observable change should exist because we did the work well?",
+          "Which standards are part of the promise rather than optional preferences?",
+          "What will we deliberately refuse, even when it could produce short-term revenue or attention?",
         ],
       },
       {
-        id: "design-the-decisions",
-        title: "Design the decisions, not only the departments",
+        id: "design-decision-rights",
+        title: "Design decision rights before adding departments",
         paragraphs: [
-          "An organisational chart can show reporting lines while leaving authority completely unclear. The more useful design question is where decisions live. Who can commit money? Who protects quality? Who speaks for the audience? Which choices need consultation, and which choices need one accountable owner?",
-          "Good structure reduces the number of decisions that must travel to the founder. It does not remove leadership; it makes leadership more deliberate. When routine judgement is distributed well, senior attention can return to direction, people, risk, and the few decisions that genuinely cannot be delegated.",
+          "An organisational chart shows where people sit. It does not necessarily show where judgement lives. Two people can share a reporting line and still disagree about who may approve a spend, change a deadline, speak for the brand, accept a client, or stop work that does not meet the standard.",
+          "Decision rights make responsibility visible. For each recurring decision, the organisation should identify the person who owns the final call, the people whose knowledge must be consulted, the information required, and the conditions that trigger escalation. Consultation can be broad; final accountability should be clear.",
+          "This is also how a founder protects attention. If every choice must return to one person, the organisation has not scaled—it has lengthened the queue around that person. The goal is not to remove the founder from the work. It is to reserve senior judgement for direction, talent, risk, capital, and the decisions whose consequences genuinely justify it.",
+        ],
+        image: {
+          src: "/images/ideas/decision-rights-structure.webp",
+          alt: "Wooden blocks connected by brass paths from one decision point to three clear endpoints",
+          caption: "Clear decision rights give each recurring choice an owner, an information path, and an escalation point.",
+          width: 1200,
+          height: 900,
+        },
+        list: [
+          "Name the decision, not only the role.",
+          "Give one person final accountability for routine choices.",
+          "State who contributes evidence and who must be informed.",
+          "Define the threshold at which the decision moves upward.",
         ],
       },
       {
-        id: "turn-values-into-behaviour",
-        title: "Turn values into observable behaviour",
+        id: "information-enables-delegation",
+        title: "Build the information that makes delegation safe",
         paragraphs: [
-          "Values become useful when they change what people do. “Excellence” is too broad until a team can describe what it means for a proposal, a programme, a client conversation, or a deadline. “Respect” becomes operational when it determines how quickly people respond, how disagreement is handled, and whose knowledge is invited into the room.",
-          "A short set of behaviour-based standards is more powerful than a long declaration. It allows people to recognise quality, coach one another, and repair inconsistency without turning every correction into a debate about personality.",
-        ],
-      },
-      {
-        id: "build-a-rhythm",
-        title: "Build a rhythm that makes progress visible",
-        paragraphs: [
-          "Institutions are built through repeated cycles of attention. A simple rhythm—weekly operating decisions, monthly learning reviews, quarterly strategic choices—creates places for different kinds of thinking. Without that rhythm, urgent work occupies every meeting and the important work remains permanently postponed.",
-          "The goal is not administrative theatre. Every recurring meeting, report, and approval should help someone make a better decision. If a ritual no longer does that, redesign it. Structure earns its place by making responsibility clearer and useful work easier.",
-        ],
-        quote: "A durable organisation is an idea with enough structure to be trusted by other people.",
-      },
-    ],
-    conclusion:
-      "The right time to think about structure is not after growth has created confusion. It is while the idea is still small enough to examine honestly. Clarify the promise, locate decisions, translate values into behaviour, and establish a learning rhythm. Then scale has something sound to multiply.",
-    related: ["building-an-ecosystem-not-just-a-brand", "the-quiet-work-of-creative-leadership"],
-  },
-  {
-    slug: "designing-spaces-that-shape-behaviour",
-    title: "Designing Spaces That Shape Behaviour",
-    dek: "A room is never only a container. Its proportions, thresholds, light, and sequence quietly tell people what kind of behaviour belongs there.",
-    seoDescription:
-      "Explore how architecture and interior design influence behaviour through thresholds, circulation, light, material, and human-centred observation.",
-    publishedAt: "2026-09-18T09:00:00+01:00",
-    modifiedAt: "2026-09-18T09:00:00+01:00",
-    pillar: "architecture-design",
-    topics: ["architecture", "interior design", "human-centred design"],
-    hero: {
-      src: "/images/adeseun-architecture-site.jpg",
-      alt: "An architectural project under construction with structural lines visible",
-      caption: "The life of a space is shaped long before the finishing layer arrives.",
-      width: 534,
-      height: 386,
-      objectPosition: "50% 48%",
-    },
-    keyIdea:
-      "Good spatial design begins with the life that must happen inside a place. Form, material, and beauty become stronger when they support attention, dignity, movement, and belonging.",
-    introduction: [
-      "Every environment teaches. A narrow entrance can slow the body. A long shared table can encourage exchange. A badly placed door can turn a simple journey into a daily irritation. People may never name these effects, but they experience them repeatedly.",
-      "This is why design cannot begin and end with appearance. The most convincing room is not the one with the most visual ideas. It is the one in which purpose, movement, light, sound, material, and maintenance have been considered together.",
-    ],
-    sections: [
-      {
-        id: "begin-with-life",
-        title: "Begin with the life of the place",
-        paragraphs: [
-          "A brief often lists rooms and dimensions. A richer brief describes moments: arriving with bags in hand, holding a confidential conversation, preparing food while remaining part of a gathering, finding quiet after a demanding day. These moments reveal needs that a room schedule alone cannot show.",
-          "Observe before drawing. Notice who uses the place, how their routines overlap, what they carry, what they avoid, and where friction already exists. The design becomes more precise when it responds to behaviour rather than an abstract picture of a user.",
-        ],
-      },
-      {
-        id: "thresholds-and-sequence",
-        title: "Use thresholds and sequence deliberately",
-        paragraphs: [
-          "A threshold prepares a person for what comes next. The transition from public to private, bright to quiet, compressed to open, can create orientation without a sign. When every room is revealed at once, a building may be easy to photograph but emotionally flat to inhabit.",
-          "Sequence creates meaning over time. A thoughtful arrival, a moment of pause, and a clear destination can make even a modest space feel composed. Architecture is experienced in movement, not as a single still image.",
-        ],
-      },
-      {
-        id: "light-material-maintenance",
-        title: "Let light, material, and maintenance agree",
-        paragraphs: [
-          "Material is not only a palette. It carries temperature, sound, weight, memory, and the evidence of use. The most appropriate finish is one whose beauty can survive the way the space will actually be occupied and maintained.",
-          "Light completes that material story. Daylight can support alertness and reveal texture, but glare can make a beautiful desk unusable. Warm evening light can invite rest, but poor task lighting creates strain. Design quality lives in those practical relationships.",
+          "Delegation is often discussed as a matter of trust. Trust matters, but information makes trust actionable. A manager cannot take responsibility for an outcome if the relevant costs, customer signals, quality measures, deadlines, or risks are invisible. In that condition, delegation becomes guesswork and centralisation begins to feel safer than it is.",
+          "A field experiment in Indian textile plants offers unusually concrete evidence. Plants that adopted a set of modern management practices raised productivity by an average of 11 percent through improvements in quality, efficiency, and inventory. The researchers also observed greater decentralisation: better information flows enabled owners to delegate more decisions to middle managers.",
+          "The lesson is not that every organisation needs a dense dashboard. It needs a small set of truthful signals tied to decisions. A useful measure has an owner, a review rhythm, and a consequence. If nobody acts when the number changes, the organisation is collecting data rather than creating information.",
         ],
         list: [
-          "Where does the eye rest on arrival?",
-          "Which movement should feel effortless?",
-          "Where are privacy and acoustic control essential?",
-          "How will the material age under real use?",
+          "What must the decision-maker know before acting?",
+          "Where does that information come from, and how current is it?",
+          "Which signal requires action rather than discussion?",
+          "Who checks whether the action produced the intended result?",
         ],
       },
       {
-        id: "design-for-belonging",
-        title: "Design for belonging, not spectacle",
+        id: "values-as-behaviour",
+        title: "Translate values into behaviour and trade-offs",
         paragraphs: [
-          "A memorable space does not have to demand attention at every moment. It can offer clarity, comfort, and enough restraint for people to bring their own life into it. This is especially important in workplaces, homes, cultural spaces, and places of worship, where identity should not be reduced to decoration.",
-          "Belonging grows when people understand how to use a place and recognise something of themselves within it. The designer's signature is strongest when it is expressed through coherence and care rather than constant display.",
-        ],
-      },
-    ],
-    conclusion:
-      "Design shapes behaviour most responsibly when it does so with humility. Begin with observation, compose the journey, choose materials for real life, and leave room for people to belong. The result is not merely a space that looks complete; it is a place capable of supporting the life entrusted to it.",
-    related: ["ideas-need-structure", "the-quiet-work-of-creative-leadership"],
-  },
-  {
-    slug: "african-stories-need-institutions",
-    title: "African Stories Need Institutions, Not Only Moments",
-    dek: "A powerful story can travel quickly. Keeping a culture's stories visible, searchable, and useful requires patient editorial and institutional work.",
-    seoDescription:
-      "Why African storytelling needs durable media institutions, archives, editorial standards, distribution systems, and investment beyond viral moments.",
-    publishedAt: "2026-09-09T09:00:00+01:00",
-    modifiedAt: "2026-09-09T09:00:00+01:00",
-    pillar: "media-african-stories",
-    topics: ["African media", "storytelling", "cultural preservation"],
-    hero: {
-      src: "/images/adeseun-portrait-media-bw.jpg",
-      alt: "Adeseun Oyeneye in a black-and-white media portrait",
-      caption: "Visibility is a moment. Cultural memory requires continuity.",
-      width: 388,
-      height: 763,
-      objectPosition: "50% 24%",
-    },
-    keyIdea:
-      "Representation becomes durable when stories are supported by institutions that can commission, edit, preserve, distribute, and revisit them over time.",
-    introduction: [
-      "A story may become visible because one clip travels, one event captures attention, or one person breaks through. That visibility matters, but it is not the same as continuity. When attention moves elsewhere, what remains accessible? Who can find the work, learn from it, challenge it, or build on it?",
-      "The long future of African storytelling depends not only on talented creators but on the systems around them: editorial judgement, archives, rights, training, financing, distribution, and leadership. These systems decide whether a moment becomes part of memory.",
-    ],
-    sections: [
-      {
-        id: "from-visibility-to-memory",
-        title: "Move from visibility to memory",
-        paragraphs: [
-          "Platforms are excellent at surfacing what is immediate. They are less reliable at preserving context. A creator may reach thousands of people and still lose access to the audience, the source files, or the economic value of the work. Cultural memory cannot depend entirely on a changing feed.",
-          "An institution preserves more than files. It preserves the relationships between a story, its maker, its moment, and the communities it describes. Useful archives need descriptions, dates, rights information, durable formats, and people responsible for their care.",
+          "Values become structural when they change a decision. ‘Excellence’ is not yet a standard until the team knows what must be checked before work is released. ‘Respect’ is not yet a practice until it shapes response times, disagreement, credit, and the treatment of people with less formal power. ‘Integrity’ becomes real when the organisation is willing to lose an opportunity rather than misrepresent what it can deliver.",
+          "This translation matters most under pressure. When time is short or revenue is uncertain, abstract values compete badly with immediate demands. Behaviour-based standards make the trade-off explicit before the crisis arrives. They also make coaching fairer: feedback can refer to an agreed practice instead of becoming a judgement about personality.",
+          "The strongest cultures do not rely on slogans to produce alignment. They connect purpose, expected behaviour, decision rights, and consequences. People understand not only what the organisation celebrates, but what it will correct and what it will never excuse.",
         ],
       },
       {
-        id: "editorial-standards",
-        title: "Treat editorial standards as infrastructure",
+        id: "build-an-operating-rhythm",
+        title: "Create an operating rhythm that separates urgency from importance",
         paragraphs: [
-          "Standards are sometimes mistaken for restrictions on creative freedom. At their best, they are a form of care. Verification protects the subject. Clear attribution protects the creator. Thoughtful editing protects the audience from confusion without erasing the texture of a voice.",
-          "A strong editorial institution can hold several truths at once: urgency and accuracy, reach and depth, local specificity and global intelligibility. That balance is learned through practice and passed from one generation of makers to another.",
+          "An organisation needs recurring places for different kinds of thought. Daily coordination should not consume the time intended for learning. A financial review should not become a substitute for a customer conversation. A strategy meeting should not be overtaken by tasks that could have been resolved by one accountable owner.",
+          "A simple rhythm can protect these distinctions: short weekly operating reviews for commitments and obstacles; monthly learning reviews for customers, quality, people, and cash; and quarterly choices about direction, investment, and what the organisation should stop doing. The precise cadence will vary, but each meeting should have a decision purpose, a prepared evidence set, and a named owner for the next action.",
+          "Rhythm is valuable because it makes reality harder to avoid. Assumptions meet evidence at a known time. Problems do not need to become emergencies before they receive attention. Progress becomes visible, and the team can adjust the system instead of repeatedly improvising around the same weakness.",
         ],
+        image: {
+          src: "/images/ideas/operating-rhythm-learning.webp",
+          alt: "A measured sequence of handmade paper circles and geometric markers linked by graphite arrows",
+          caption: "A useful operating rhythm repeats what works while leaving deliberate room to adjust what does not.",
+          width: 1200,
+          height: 900,
+        },
       },
       {
-        id: "own-the-path",
-        title: "Own more of the path from creation to audience",
+        id: "minimum-viable-management-system",
+        title: "Install a minimum viable management system",
         paragraphs: [
-          "Distribution determines which stories are repeatedly encountered. When creators and African media organisations own too little of that path, they remain vulnerable to priorities set elsewhere. Ownership does not require isolation; it requires enough control to negotiate partnerships without surrendering the work's future.",
-          "That control may include a direct audience relationship, clear rights agreements, reusable archives, multiple formats, and revenue that can fund the next commission. Each part makes creative independence more practical.",
+          "The fear that systems will suffocate entrepreneurial energy is understandable—and often overstated. Stanford researchers studying high-growth companies found that young firms commonly encounter an ‘entrepreneurial crisis’ as they move from a personal to a professional management style, often around 50 to 100 employees. In their research, earlier adoption of management systems was associated with faster growth, larger scale, and lower CEO turnover.",
+          "The answer is not to import the machinery of a large corporation into a small team. It is to build the minimum system the present level of complexity requires. Every process should solve a recurring coordination, quality, risk, or learning problem. If it cannot explain the decision it improves, it should be simplified or removed.",
+          "A minimum viable management system is light enough to use and strong enough to create continuity. It normally includes a clear strategic promise, explicit decision rights, a few operating measures, a planning and review rhythm, basic financial control, an intentional hiring and onboarding method, and a way to document the lessons the organisation cannot afford to relearn.",
+        ],
+        quote: "Structure earns its place when it makes good judgement easier to repeat.",
+      },
+      {
+        id: "structure-must-learn",
+        title: "Build a structure that can learn, not only comply",
+        paragraphs: [
+          "A system can be orderly and still be wrong. This is why structure must include a way for people to challenge assumptions, report errors, and surface weak signals without paying an unnecessary interpersonal price. Harvard professor Amy Edmondson's research on psychological safety links a climate of interpersonal safety with learning behaviours such as asking for help, experimenting, and discussing mistakes.",
+          "Psychological safety is not the absence of standards or accountability. It is the confidence that candour is welcome in service of the work. Leaders create it by responding constructively to unwelcome information, admitting what they do not know, and distinguishing an intelligent experiment from careless repetition.",
+          "As the organisation grows, this learning capacity becomes a form of risk control. Senior leaders will know less about the edge of the work than the people closest to customers, operations, and communities. A structure that moves information upward—and permits the plan to change—can remain coherent without becoming rigid.",
         ],
         list: [
-          "Commission with clear rights and responsibilities.",
-          "Preserve masters and complete metadata.",
-          "Build direct channels alongside third-party platforms.",
-          "Invest in editors, producers, researchers, and archivists as well as visible talent.",
-        ],
-      },
-      {
-        id: "measure-continuity",
-        title: "Measure continuity, not only reach",
-        paragraphs: [
-          "Reach answers how many people encountered a story. Continuity asks what the story made possible afterward. Was a new creator commissioned? Did an archive become easier to use? Did an audience return? Did the work enter a classroom, a policy conversation, or another body of creative work?",
-          "These outcomes are slower and harder to display, but they are closer to cultural impact. Institutions make them visible because institutions can observe change across years rather than campaigns.",
-        ],
-        quote: "A culture keeps what its institutions make possible to find again.",
-      },
-    ],
-    conclusion:
-      "African stories deserve the energy of the moment and the discipline of continuity. The work is to build institutions capable of holding talent, context, rights, memory, and audience together. That is how visibility becomes inheritance.",
-    related: ["building-an-ecosystem-not-just-a-brand", "purpose-that-survives-the-spotlight"],
-  },
-  {
-    slug: "the-discipline-of-thoughtful-communication",
-    title: "Thoughtful Communication Is a Discipline",
-    dek: "Speaking well is not simply choosing softer words. It is learning to notice what a moment requires before language makes the moment larger.",
-    seoDescription:
-      "A practical framework for thoughtful communication: pause, understand the real issue, choose proportionate language, and make repair possible.",
-    publishedAt: "2026-08-30T09:00:00+01:00",
-    modifiedAt: "2026-08-30T09:00:00+01:00",
-    pillar: "purpose-communication",
-    topics: ["communication", "relationships", "self-awareness"],
-    hero: {
-      src: "/images/adeseun-think-before-you-speak.jpg",
-      alt: "Adeseun Oyeneye with a copy of Think Before You Speak",
-      caption: "The quality of a response begins before the first word.",
-      width: 720,
-      height: 782,
-      objectPosition: "50% 25%",
-    },
-    keyIdea:
-      "The pause before speaking is not emptiness. It is the working space in which intention, fact, emotion, consequence, and care can be brought into the same decision.",
-    introduction: [
-      "Words can clarify a problem or multiply it. The difference is not always eloquence. Often it is whether the speaker has taken enough time to understand the real issue, the emotional temperature, and the outcome the conversation should make possible.",
-      "Thoughtful communication is therefore less about performing calmness and more about practising attention. It asks us to notice our own urgency, listen for what has not yet been said, and choose language proportionate to the moment.",
-    ],
-    sections: [
-      {
-        id: "pause-with-purpose",
-        title: "Pause with purpose",
-        paragraphs: [
-          "A pause is useful when it creates room for a better response. It gives the body time to settle and the mind time to separate what happened from what has been assumed. Even a few seconds can prevent a passing emotion from becoming a permanent sentence.",
-          "Pausing does not mean avoiding difficult conversations. Avoidance stores confusion. A purposeful pause prepares us to return with more accuracy, not to disappear from responsibility.",
-        ],
-      },
-      {
-        id: "separate-fact-story-need",
-        title: "Separate the fact, the story, and the need",
-        paragraphs: [
-          "In conflict, three layers often become entangled. There is what can be observed, the story we have formed about why it happened, and the need or fear underneath our reaction. When all three are presented as fact, the other person is forced to defend against conclusions they may not recognise.",
-          "Naming the layers separately creates a more workable conversation: what occurred, how it was interpreted, and what would help now. It also leaves room for information that may change the interpretation without denying the original impact.",
-        ],
-        list: [
-          "What do I know directly?",
-          "What meaning have I added?",
-          "What feeling is influencing my tone?",
-          "What useful outcome am I asking for?",
-        ],
-      },
-      {
-        id: "choose-proportion",
-        title: "Choose language in proportion to the problem",
-        paragraphs: [
-          "Absolute language makes ordinary problems feel final. Words such as always, never, everyone, and nothing can turn a specific behaviour into a judgement about a whole person. Precision is kinder because it gives the conversation something that can actually be examined and changed.",
-          "Proportion also applies to audience. Not every correction belongs in public, and not every disagreement needs a long written record. The medium should serve clarity, privacy, and the dignity of the people involved.",
-        ],
-      },
-      {
-        id: "leave-a-door-for-repair",
-        title: "Leave a door open for repair",
-        paragraphs: [
-          "Communication fails sometimes, even with good intentions. Trust grows not from perfect speech but from the ability to recognise harm, correct the record, apologise without qualification, and change the behaviour that made the apology necessary.",
-          "A conversation designed only to win leaves little room for repair. A conversation designed to understand and move forward can still be firm. It simply refuses to treat the other person's humiliation as evidence of success.",
+          "Can someone stop work when quality or safety is at risk?",
+          "Can a junior colleague question an assumption without being labelled difficult?",
+          "Are mistakes examined for system causes as well as individual responsibility?",
+          "Does evidence change the plan, or is feedback collected after the decision is already fixed?",
         ],
       },
     ],
     conclusion:
-      "Thoughtful speech begins with attention and ends with responsibility. Pause, separate fact from interpretation, use proportionate language, and leave a path for repair. Those practices do not make every conversation easy. They make more conversations useful.",
-    related: ["purpose-that-survives-the-spotlight", "ideas-need-structure"],
+      "The right time to design structure is before growth turns every ambiguity into a recurring cost. Define the promise. Make decisions and escalation paths visible. Build the information that permits responsible delegation. Translate values into behaviour. Establish a rhythm for operating and learning. Then review the system as the work changes. Scale will still bring complexity, but it will no longer be asked to solve problems it can only magnify. It will have something sound to multiply.",
+    references: [
+      {
+        title: "Building Sustainable High-Growth Startup Companies: Management Systems as an Accelerator",
+        authors: "Antonio Davila, George Foster, and Ning Jia",
+        publication: "California Management Review / Stanford Graduate School of Business",
+        year: "2010",
+        url: "https://www.gsb.stanford.edu/faculty-research/publications/building-sustainable-high-growth-startup-companies-management-systems",
+      },
+      {
+        title: "Does Management Matter? Evidence from India",
+        authors: "Nicholas Bloom, Benn Eifert, Aprajit Mahajan, David McKenzie, and John Roberts",
+        publication: "NBER Working Paper 16658",
+        year: "2011",
+        url: "https://www.nber.org/papers/w16658",
+      },
+      {
+        title: "Management as a Technology?",
+        authors: "Nicholas Bloom, Raffaella Sadun, and John Van Reenen",
+        publication: "NBER Working Paper 22327",
+        year: "2016, revised 2017",
+        url: "https://www.nber.org/papers/w22327",
+      },
+      {
+        title: "What Drives Differences in Management?",
+        authors: "Nicholas Bloom, Erik Brynjolfsson, Lucia Foster, Ron S. Jarmin, Megha Patnaik, Itay Saporta-Eksten, and John Van Reenen",
+        publication: "NBER Working Paper 23300",
+        year: "2017",
+        url: "https://www.nber.org/papers/w23300",
+      },
+      {
+        title: "Managing the Risk of Learning: Psychological Safety in Work Teams",
+        authors: "Amy C. Edmondson",
+        publication: "Harvard Business School Working Paper 02-062",
+        year: "2002",
+        url: "https://www.hbs.edu/ris/download.aspx?name=02-062.pdf",
+      },
+    ],
+    related: [],
   },
-  {
-    slug: "building-an-ecosystem-not-just-a-brand",
-    title: "Build an Ecosystem, Not a Collection of Brands",
-    dek: "Several ventures become an ecosystem only when each one has a clear role, a reason to connect, and enough independence to do its work well.",
-    seoDescription:
-      "How to design a coherent business ecosystem through shared purpose, distinct roles, reusable capabilities, and disciplined brand architecture.",
-    publishedAt: "2026-08-21T09:00:00+01:00",
-    modifiedAt: "2026-08-21T09:00:00+01:00",
-    pillar: "leadership-enterprise",
-    topics: ["brand architecture", "business ecosystems", "strategy"],
-    hero: {
-      src: "/images/adeseun-threesixty.jpg",
-      alt: "Adeseun Oyeneye pictured in a media and enterprise setting",
-      caption: "Coherence is created by relationships, not by making every venture look the same.",
-      width: 720,
-      height: 828,
-      objectPosition: "50% 24%",
-    },
-    keyIdea:
-      "An ecosystem is a portfolio of distinct promises supported by shared capabilities and a common direction. Similar ownership alone does not create strategic coherence.",
-    introduction: [
-      "Entrepreneurs often build in response to several real opportunities. One venture serves an audience, another develops a capability, and a third responds to a community need. Over time, the portfolio can become powerful—or confusing.",
-      "The answer is not to force every venture into one name or visual identity. The answer is to define the relationship between them. Coherence comes from purpose, roles, shared assets, and clear boundaries.",
-    ],
-    sections: [
-      {
-        id: "shared-purpose-distinct-promise",
-        title: "Share a purpose, keep each promise distinct",
-        paragraphs: [
-          "A portfolio needs a reason to belong together that is deeper than common ownership. That reason might be an audience, a capability, a geography, or a long-term social and commercial ambition. It should help explain why the group is better positioned because these ventures coexist.",
-          "Within that shared direction, each brand needs one understandable promise. When several ventures make the same claim to the same audience, they compete for attention and investment inside their own house.",
-        ],
-      },
-      {
-        id: "map-value-flow",
-        title: "Map how value moves between ventures",
-        paragraphs: [
-          "The useful connections in an ecosystem are specific. One company may create intellectual property, another may distribute it, and another may translate the audience knowledge into a service. Shared finance, legal, production, research, or technology can reduce duplication without erasing specialised judgement.",
-          "Draw those flows. If a connection cannot be described, it may be only a story the portfolio tells about itself. If every connection requires founder intervention, the ecosystem has not yet become a system.",
-        ],
-      },
-      {
-        id: "choose-architecture",
-        title: "Choose the right brand architecture",
-        paragraphs: [
-          "Some ventures benefit from a visible parent name. Others need distance because they serve different audiences or carry different kinds of risk. A branded house, house of brands, and endorsed model each make different promises about trust and independence.",
-          "Choose the architecture after clarifying strategy, not before. Visual similarity should express a real relationship; it should not be used to manufacture one.",
-        ],
-        list: [
-          "What trust should transfer from the parent?",
-          "Where does a venture need its own voice?",
-          "Which capabilities can be shared without slowing decisions?",
-          "What risk should remain contained?",
-        ],
-      },
-      {
-        id: "govern-the-whole",
-        title: "Govern the whole without suffocating the parts",
-        paragraphs: [
-          "Portfolio leadership needs two views at once: the health of each venture and the health of the whole. Shared capital and reputation require group-level discipline. Market knowledge and creative execution require authority close to the work.",
-          "A small set of group standards—financial visibility, risk, people, quality, and strategic fit—can coexist with freedom in product, audience, and expression. The purpose of governance is to make good independence possible.",
-        ],
-      },
-    ],
-    conclusion:
-      "A coherent ecosystem is not a row of logos. It is a designed relationship between purpose, promises, capabilities, and accountability. Make those relationships explicit, and the portfolio can create value that no single venture could create alone.",
-    related: ["ideas-need-structure", "african-stories-need-institutions"],
-  },
-  {
-    slug: "the-quiet-work-of-creative-leadership",
-    title: "The Quiet Work of Creative Leadership",
-    dek: "Creative leadership is visible in the final decision, but much of its value is created earlier—in the conditions that help other people think clearly.",
-    seoDescription:
-      "A thoughtful guide to creative leadership through better briefs, useful critique, decision clarity, constraints, and protection of the team's attention.",
-    publishedAt: "2026-08-12T09:00:00+01:00",
-    modifiedAt: "2026-08-12T09:00:00+01:00",
-    pillar: "leadership-enterprise",
-    topics: ["creative leadership", "teams", "decision making"],
-    hero: {
-      src: "/images/adeseun-about-hero.jpg",
-      alt: "Adeseun Oyeneye seated at a working table in a dark architectural interior",
-      caption: "Leadership creates the conditions in which considered work can emerge.",
-      width: 1448,
-      height: 1086,
-      objectPosition: "62% 30%",
-    },
-    keyIdea:
-      "A creative leader's most important output is not always an idea. It is often the clarity, trust, constraint, and decision rhythm that allow many people to produce their best work together.",
-    introduction: [
-      "The most visible creative leaders are often associated with taste: the ability to recognise the stronger direction and reject the weaker one. Taste matters, but it is only the final portion of the work. Before a team can present a meaningful choice, someone has to frame the problem well.",
-      "Creative leadership is the practice of improving that environment. It gives people enough direction to move, enough room to contribute, and enough honesty to revise the work without losing confidence or purpose.",
-    ],
-    sections: [
-      {
-        id: "write-better-briefs",
-        title: "Write briefs that create a useful field",
-        paragraphs: [
-          "A brief should define the problem, audience, desired change, constraints, and decision owner. It should not prescribe every expression of the answer. When a brief is too vague, the team guesses at strategy. When it is too controlling, the team decorates a conclusion that has already been made.",
-          "The best brief creates a field wide enough for discovery and narrow enough for relevance. It also distinguishes what is fixed from what can be challenged.",
-        ],
-      },
-      {
-        id: "critique-the-work",
-        title: "Critique the work without reducing the person",
-        paragraphs: [
-          "Useful critique is specific about the gap between the work and its purpose. “I do not like it” offers preference without direction. “The opening does not yet establish why this matters to the audience” gives the team a problem it can solve.",
-          "Directness and respect are not opposites. A clear critique can protect time and raise the standard while preserving the dignity of the maker. That distinction is essential in creative environments, where the work often carries a great deal of personal investment.",
-        ],
-      },
-      {
-        id: "make-decisions-visible",
-        title: "Make decisions and their reasons visible",
-        paragraphs: [
-          "Teams lose energy when decisions repeatedly reopen without new evidence. Record what was decided, who decided it, the reason, and what information would justify reconsideration. This creates continuity across meetings and helps people learn the judgement behind the direction.",
-          "Visible reasoning also makes leadership more teachable. The team begins to understand not only what the leader prefers, but how trade-offs are evaluated.",
-        ],
-        list: [
-          "What problem are we solving?",
-          "Which criterion matters most here?",
-          "What trade-off are we accepting?",
-          "What would cause us to revisit this decision?",
-        ],
-      },
-      {
-        id: "protect-attention",
-        title: "Protect the conditions for deep work",
-        paragraphs: [
-          "Creative work is damaged by constant partial attention. Leaders shape the environment through meeting culture, response expectations, planning quality, and the number of simultaneous priorities they permit.",
-          "Protecting attention does not mean removing urgency from real deadlines. It means refusing to manufacture urgency through indecision. A team that knows what matters can concentrate with greater confidence.",
-        ],
-        quote: "The leader does not need to occupy every idea. The leader needs to make good work more possible.",
-      },
-    ],
-    conclusion:
-      "Creative leadership becomes stronger when it is less dependent on performance and more committed to conditions. Frame the work well, critique precisely, make decisions visible, and protect attention. The final output will carry the intelligence of more than one person—and still feel coherent.",
-    related: ["ideas-need-structure", "designing-spaces-that-shape-behaviour"],
-  },
-  {
-    slug: "purpose-that-survives-the-spotlight",
-    title: "Purpose That Survives the Spotlight",
-    dek: "Public attention can amplify meaningful work, but it can also quietly replace the work with the performance of being seen to do it.",
-    seoDescription:
-      "An essay on protecting purpose through private practice, accountable measures, community proximity, and a definition of success that outlives attention.",
-    publishedAt: "2026-08-03T09:00:00+01:00",
-    modifiedAt: "2026-08-03T09:00:00+01:00",
-    pillar: "purpose-communication",
-    topics: ["purpose", "leadership", "social impact"],
-    hero: {
-      src: "/images/adeseun-invitation.jpg",
-      alt: "Adeseun Oyeneye standing in a composed portrait setting",
-      caption: "Purpose is clearest in the work that continues when attention moves elsewhere.",
-      width: 720,
-      height: 948,
-      objectPosition: "50% 22%",
-    },
-    keyIdea:
-      "A durable purpose is translated into repeated practice, accountable outcomes, and relationships close enough to correct the story an organisation tells about itself.",
-    introduction: [
-      "Attention is useful. It can attract partners, resources, and people who need the work. But attention has its own incentives: simplify the story, foreground the visible person, and favour the moment that can be shared over the process that creates lasting change.",
-      "Purpose survives when it has a life outside that spotlight. It is present in budgets, schedules, hiring, evaluation, and the ordinary choices that receive no public acknowledgement.",
-    ],
-    sections: [
-      {
-        id: "translate-purpose",
-        title: "Translate purpose into a repeated practice",
-        paragraphs: [
-          "A purpose statement explains why the work matters. A practice determines whether that belief changes behaviour. If an organisation claims to develop people, where is the time for teaching, feedback, and progression? If it exists to preserve culture, where are the resources for documentation and care?",
-          "The translation should be visible enough to examine. Repetition turns a noble intention into an institutional habit.",
-        ],
-      },
-      {
-        id: "measure-what-matters",
-        title: "Measure what changed, not only what happened",
-        paragraphs: [
-          "Events, campaigns, and publications are outputs. They are necessary, but they do not automatically describe an outcome. A more demanding question is what became possible for people because the output existed.",
-          "Good measures may include progress that is qualitative, slow, or shared with other organisations. The goal is not to force every human effect into a number. It is to prevent activity from becoming its own evidence of impact.",
-        ],
-      },
-      {
-        id: "stay-close",
-        title: "Stay close enough to be corrected",
-        paragraphs: [
-          "Distance allows an organisation to mistake its intention for another person's experience. Purpose-led work needs relationships close enough to reveal when a programme is inconvenient, a message is incomplete, or a solution is answering the wrong question.",
-          "Feedback is most useful when it can influence resources and decisions. Listening sessions without a path to change may create the appearance of participation while protecting the original plan from challenge.",
-        ],
-        list: [
-          "Who can challenge the organisation's account of its impact?",
-          "What evidence would change the plan?",
-          "Which outcomes matter after the campaign has ended?",
-          "What work continues if recognition disappears?",
-        ],
-      },
-      {
-        id: "share-the-credit",
-        title: "Share the credit and strengthen the continuity",
-        paragraphs: [
-          "Public narratives often compress collective work into one visible face. Responsible leadership names the people, communities, and institutions that made the outcome possible. This is not modesty as performance; it is an accurate account of how change happens.",
-          "Shared credit also strengthens succession. When knowledge, relationships, and recognition are distributed, the work becomes less dependent on one person's constant presence.",
-        ],
-      },
-    ],
-    conclusion:
-      "The spotlight can serve purpose, but it cannot define it. Anchor the work in repeated practice, measure change honestly, remain close enough to be corrected, and distribute credit. Purpose becomes durable when it can continue without needing to be watched.",
-    related: ["the-discipline-of-thoughtful-communication", "african-stories-need-institutions"],
-  },
-] as const;
-
-/**
- * Only explicitly approved entries are exposed by the public registry. The
- * remaining essays stay available as draft reference copy without generating
- * routes, cards, sitemap entries, or feed items.
- */
-export const IDEA_ARTICLES: readonly IdeaArticle[] = ALL_IDEA_ARTICLES.filter(
-  (article) => article.sample,
-);
+];
 
 export function getIdeaArticle(slug: string): IdeaArticle | undefined {
   return IDEA_ARTICLES.find((article) => article.slug === slug);
@@ -596,6 +298,7 @@ export function articleWordCount(article: IdeaArticle): number {
       ...section.paragraphs,
       ...(section.list ?? []),
       ...(section.quote ? [section.quote] : []),
+      ...(section.image ? [section.image.caption, section.image.alt] : []),
     ]),
     article.conclusion,
   ].join(" ");

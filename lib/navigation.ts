@@ -3,7 +3,7 @@
  * MobileNav so none of them drift out of sync.
  *
  * "The Blueprint" — a spatial metaphor replacing the old "rooms in a
- * house" (The Foyer, The Library, The Study, ...), which read as literary
+ * house" (The Foyer, The Library, the Blog, ...), which read as literary
  * and domestic. The site is Adeseun Oyeneye's executive/business
  * "personal headquarters," framed as a building she designed — she's a
  * real architect and interior designer — toured room by room, each
@@ -32,7 +32,7 @@ export type SitePage = {
 export const SITE_PAGES: SitePage[] = [
   { name: "The Blueprint", href: "/about", note: "Her story", primary: true },
   { name: "The Atrium", href: "/businesses", note: "Companies & ventures", primary: true },
-  { name: "The Study", href: "/ideas", note: "Ideas & essays", primary: true },
+  { name: "Blog", href: "/ideas", note: "Ideas & essays", primary: true },
   { name: "The Library", href: "/books", note: "Published books", primary: true },
   { name: "The Screening Room", href: "/media", note: "Appearances & video", primary: true },
   { name: "The Reception", href: "/contact", note: "Get in touch", primary: true },

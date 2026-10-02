@@ -2,7 +2,7 @@
 
 Two content sources, split by who edits them and how often:
 
-- **Typed, file-based articles** — The Study is live from
+- **Typed, file-based articles** — The blog is live from
   `content/ideas/articles.ts`. Each essay uses one validated TypeScript shape,
   stays Git-versioned and reviewable, and is server-rendered by the App Router.
   The shape intentionally mirrors MDX front matter so the bodies can move to
@@ -17,8 +17,7 @@ Two content sources, split by who edits them and how often:
   silently). `lib/cms.ts` is the intended integration seam once that
   project exists.
 
-`content/ideas/articles.ts` is the current source of truth for The Study. Only
-entries explicitly marked `sample: true` are exposed during layout review. The
-sample index and article are noindexed and excluded from the sitemap and RSS;
-editorial launch copy must be approved by the named author before those
-safeguards are removed.
+`content/ideas/articles.ts` is the current source of truth for the blog. Every
+published entry is server-rendered, included in the sitemap and RSS, and must
+carry reviewed authorship, dates, descriptive imagery, and traceable sources
+for factual claims.

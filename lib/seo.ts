@@ -219,6 +219,7 @@ type ArticleSchemaInput = ArticleMetadataInput & {
   dek: string;
   pillar: string;
   wordCount: number;
+  citations?: readonly string[];
 };
 
 export function articleJsonLd(input: ArticleSchemaInput) {
@@ -250,6 +251,7 @@ export function articleJsonLd(input: ArticleSchemaInput) {
         articleSection: input.pillar,
         keywords: input.topics.join(", "),
         wordCount: input.wordCount,
+        ...(input.citations?.length ? { citation: [...input.citations] } : {}),
         isPartOf: { "@id": WEBSITE_ID },
       },
       {
@@ -277,7 +279,7 @@ export function articleJsonLd(input: ArticleSchemaInput) {
         "@id": breadcrumbId,
         itemListElement: [
           { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
-          { "@type": "ListItem", position: 2, name: "The Study", item: `${SITE_URL}/ideas` },
+          { "@type": "ListItem", position: 2, name: "Blog", item: `${SITE_URL}/ideas` },
           { "@type": "ListItem", position: 3, name: input.title, item: articleUrl },
         ],
       },
@@ -294,7 +296,7 @@ export function ideasCollectionJsonLd(
     "@type": "CollectionPage",
     "@id": `${url}#collection`,
     url,
-    name: "The Study — Ideas & Essays",
+    name: "Blog — Ideas & Essays",
     description: "Essays on leadership, African media, architecture, purpose, and thoughtful communication.",
     isPartOf: { "@id": WEBSITE_ID },
     inLanguage: "en-NG",

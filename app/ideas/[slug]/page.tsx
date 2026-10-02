@@ -27,7 +27,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     modifiedAt: article.modifiedAt,
     image: article.hero.src,
     topics: article.topics,
-    noIndex: article.sample,
   });
 }
 
@@ -48,6 +47,7 @@ export default async function IdeaPage({ params }: { params: Promise<{ slug: str
     topics: article.topics,
     pillar: pillar.label,
     wordCount: articleWordCount(article),
+    citations: article.references.map((reference) => reference.url),
   });
 
   return (

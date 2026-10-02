@@ -3,9 +3,8 @@ import { IDEA_ARTICLES } from "@/content/ideas/articles";
 import { ideasCollectionJsonLd, pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "The Study — Ideas & Essays",
+  title: "Blog — Ideas & Essays",
   path: "/ideas",
-  noIndex: true,
   description: "Essays on leadership, African media, architecture, purpose, and the patient work of turning ideas into something other people can trust.",
 });
 

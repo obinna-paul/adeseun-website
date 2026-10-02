@@ -4,7 +4,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "Editorial Policy",
   path: "/editorial-policy",
-  description: "The authorship, sourcing, corrections, and editorial standards behind The Study by Adeseun Oyeneye.",
+  description: "The authorship, sourcing, corrections, and editorial standards behind the blog by Adeseun Oyeneye.",
 });
 
 const POLICIES = [
@@ -18,7 +18,7 @@ const POLICIES = [
   },
   {
     title: "Experience and opinion",
-    body: "First-hand experience is identified as such. Interpretation and opinion are presented clearly rather than disguised as universal fact. The Study does not invent quotations, projects, results, credentials, or personal experience.",
+    body: "First-hand experience is identified as such. Interpretation and opinion are presented clearly rather than disguised as universal fact. The blog does not invent quotations, projects, results, credentials, or personal experience.",
   },
   {
     title: "AI-assisted work",
@@ -39,10 +39,10 @@ export default function EditorialPolicyPage() {
     <main id="main-content" tabIndex={-1} className="bg-ground px-gutter pb-room pt-40 sm:pt-44">
       <div className="mx-auto max-w-frame">
         <div className="max-w-3xl border-b border-line pb-10">
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-gold-ink">The Study</p>
+          <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-gold-ink">Blog</p>
           <h1 className="mt-4 text-balance font-display text-5xl font-semibold text-text sm:text-6xl">Editorial policy</h1>
           <p className="mt-6 text-xl text-text-subdued">
-            The Study exists to publish considered, useful work. These standards explain how that work is authored, supported, reviewed, corrected, and disclosed.
+            The blog exists to publish considered, useful work. These standards explain how that work is authored, supported, reviewed, corrected, and disclosed.
           </p>
         </div>
 

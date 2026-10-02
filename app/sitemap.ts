@@ -21,6 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: "/awards", lastModified: "2026-08-25" },
     { path: "/impact", lastModified: "2026-08-25" },
     { path: "/contact", lastModified: "2026-09-30" },
+    { path: "/ideas", lastModified: IDEA_ARTICLES[0]!.modifiedAt },
     { path: "/editorial-policy", lastModified: "2026-10-02" },
   ];
 
@@ -29,7 +30,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date(lastModified),
   }));
 
-  const ideaPages: MetadataRoute.Sitemap = IDEA_ARTICLES.filter((article) => !article.sample).map((article) => ({
+  const ideaPages: MetadataRoute.Sitemap = IDEA_ARTICLES.map((article) => ({
     url: new URL(`/ideas/${article.slug}`, SITE_URL).toString(),
     lastModified: new Date(article.modifiedAt),
   }));

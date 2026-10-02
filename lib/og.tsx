@@ -79,7 +79,7 @@ export function renderArticleOgImage({ title, pillar }: { title: string; pillar:
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", color: EMERALD, fontSize: 25, letterSpacing: "0.24em", textTransform: "uppercase" }}>
-            The Study
+            Blog
           </div>
           <div style={{ display: "flex", color: ON_DARK_DIM, fontSize: 22, letterSpacing: "0.1em", textTransform: "uppercase" }}>
             {pillar}
