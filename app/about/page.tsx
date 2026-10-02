@@ -1,4 +1,4 @@
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata, profilePageJsonLd } from "@/lib/seo";
 import { StudyHero, StudyTimeline, BehindTheCurtain, BeyondThePage, StudyCTA } from "@/components/sections/study";
 
 export const metadata = pageMetadata({
@@ -21,8 +21,10 @@ export const metadata = pageMetadata({
  * that merge gets its own dedicated pass rather than being rushed here.
  */
 export default function AboutPage() {
+  const jsonLd = profilePageJsonLd();
   return (
     <main id="main-content" tabIndex={-1}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <StudyHero />
       <StudyTimeline />
       <BehindTheCurtain />

@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { IDEA_ARTICLES } from "@/content/ideas/articles";
 import { SITE_URL } from "@/lib/seo";
 
 /**
@@ -9,24 +10,29 @@ import { SITE_URL } from "@/lib/seo";
  * page to this list as it ships.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
-  const routes: Array<{ path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] }> = [
-    { path: "/", priority: 1, changeFrequency: "monthly" },
-    { path: "/about", priority: 0.9, changeFrequency: "yearly" },
-    { path: "/executive-profile", priority: 0.8, changeFrequency: "yearly" },
-    { path: "/businesses", priority: 0.8, changeFrequency: "monthly" },
-    { path: "/books", priority: 0.8, changeFrequency: "monthly" },
-    { path: "/media", priority: 0.7, changeFrequency: "monthly" },
-    { path: "/speaking", priority: 0.7, changeFrequency: "yearly" },
-    { path: "/awards", priority: 0.6, changeFrequency: "yearly" },
-    { path: "/impact", priority: 0.6, changeFrequency: "yearly" },
-    { path: "/contact", priority: 0.6, changeFrequency: "yearly" },
+  const routes: Array<{ path: string; lastModified: string }> = [
+    { path: "/", lastModified: "2026-09-30" },
+    { path: "/about", lastModified: "2026-09-30" },
+    { path: "/executive-profile", lastModified: "2026-08-25" },
+    { path: "/businesses", lastModified: "2026-08-25" },
+    { path: "/books", lastModified: "2026-09-30" },
+    { path: "/media", lastModified: "2026-08-25" },
+    { path: "/speaking", lastModified: "2026-08-25" },
+    { path: "/awards", lastModified: "2026-08-25" },
+    { path: "/impact", lastModified: "2026-08-25" },
+    { path: "/contact", lastModified: "2026-09-30" },
+    { path: "/editorial-policy", lastModified: "2026-10-02" },
   ];
 
-  return routes.map(({ path, priority, changeFrequency }) => ({
+  const staticPages: MetadataRoute.Sitemap = routes.map(({ path, lastModified }) => ({
     url: new URL(path, SITE_URL).toString(),
-    lastModified: now,
-    changeFrequency,
-    priority,
+    lastModified: new Date(lastModified),
   }));
+
+  const ideaPages: MetadataRoute.Sitemap = IDEA_ARTICLES.filter((article) => !article.sample).map((article) => ({
+    url: new URL(`/ideas/${article.slug}`, SITE_URL).toString(),
+    lastModified: new Date(article.modifiedAt),
+  }));
+
+  return [...staticPages, ...ideaPages];
 }

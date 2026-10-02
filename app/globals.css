@@ -285,3 +285,111 @@ a[href]:active,
 button:not(:disabled):active {
   transform: scale(0.97);
 }
+
+/* Editorial reading system for The Study. Kept as a deliberately narrow
+   component layer rather than installing a generic typography plugin: the
+   article should inherit the site's Garamond hierarchy and warm palette. */
+.idea-prose {
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: clamp(1.1875rem, 1.12rem + 0.22vw, 1.375rem);
+  line-height: 1.72;
+}
+
+.idea-prose > p,
+.idea-prose section > p {
+  margin-top: 1.35em;
+}
+
+.idea-prose > p:first-child {
+  margin-top: 0;
+  font-size: 1.08em;
+  color: var(--color-text-subdued);
+}
+
+.idea-prose h2 {
+  scroll-margin-top: 8rem;
+  margin-top: 2.35em;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 1.8rem + 0.8vw, 2.75rem);
+  font-weight: 600;
+  letter-spacing: -0.018em;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.idea-prose ul {
+  margin: 1.5em 0;
+  padding-left: 1.25em;
+}
+
+.idea-prose li {
+  position: relative;
+  margin-top: 0.65em;
+  padding-left: 0.7em;
+}
+
+.idea-prose li::marker {
+  color: var(--color-gold-ink);
+}
+
+.idea-prose blockquote {
+  margin: 2.3em 0;
+  border-block: 1px solid var(--color-line);
+  padding: 1.1em 0;
+  color: var(--color-emerald-ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.65rem, 1.5rem + 0.55vw, 2.15rem);
+  font-style: italic;
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+.idea-prose blockquote p {
+  margin: 0;
+}
+
+.idea-prose a {
+  color: var(--color-emerald-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--color-gold);
+  text-underline-offset: 0.2em;
+}
+
+.idea-prose a:focus-visible {
+  outline: 2px solid var(--color-emerald);
+  outline-offset: 4px;
+}
+
+.idea-mobile-toc {
+  margin: 2.2em 0;
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+  padding: 1.25em;
+  font-size: 0.9em;
+}
+
+.idea-mobile-toc > p {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+.idea-mobile-toc ol {
+  margin-top: 0.9em;
+  padding-left: 1.15em;
+}
+
+.idea-mobile-toc li {
+  margin-top: 0.5em;
+}
+
+@media (min-width: 80rem) {
+  .idea-mobile-toc {
+    display: none;
+  }
+}

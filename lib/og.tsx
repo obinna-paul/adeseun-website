@@ -61,3 +61,44 @@ export function renderOgImage() {
     { ...OG_SIZE },
   );
 }
+
+export function renderArticleOgImage({ title, pillar }: { title: string; pillar: string }) {
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          background: HERO_GROUND,
+          padding: "70px 84px",
+          fontFamily: "serif",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", color: EMERALD, fontSize: 25, letterSpacing: "0.24em", textTransform: "uppercase" }}>
+            The Study
+          </div>
+          <div style={{ display: "flex", color: ON_DARK_DIM, fontSize: 22, letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            {pillar}
+          </div>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", maxWidth: 1040 }}>
+          <div style={{ display: "flex", color: ON_DARK, fontSize: title.length > 60 ? 66 : 78, lineHeight: 1.06 }}>
+            {title}
+          </div>
+          <div style={{ display: "flex", width: 160, height: 4, background: EMERALD, marginTop: 36, marginBottom: 28 }} />
+          <div style={{ display: "flex", color: ON_DARK_DIM, fontSize: 26, letterSpacing: "0.04em" }}>{SITE_NAME}</div>
+        </div>
+
+        <div style={{ display: "flex", color: ON_DARK_DIM, fontSize: 20, letterSpacing: "0.09em", textTransform: "uppercase" }}>
+          Ideas for building what matters.
+        </div>
+      </div>
+    ),
+    { ...OG_SIZE },
+  );
+}

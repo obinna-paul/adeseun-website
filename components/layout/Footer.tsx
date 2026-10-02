@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Monogram } from "@/components/ui/Monogram";
 import { BackToTop } from "./BackToTop";
 import { NavLink } from "./NavLink";
@@ -45,6 +46,10 @@ export function Footer() {
           <span className="font-mono text-[0.65rem] uppercase tracking-[0.15em] text-text-on-dark/50">
             &copy; {year} Adeseun Oyeneye. All rights reserved.
           </span>
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 font-mono text-[0.65rem] uppercase tracking-[0.12em] text-text-on-dark/55">
+            <Link href="/editorial-policy" className="transition-colors hover:text-gold focus-visible:outline-none focus-visible:underline">Editorial policy</Link>
+            <Link href="/feed.xml" className="transition-colors hover:text-gold focus-visible:outline-none focus-visible:underline">RSS</Link>
+          </div>
           <BackToTop />
         </div>
       </div>

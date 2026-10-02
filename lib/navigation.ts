@@ -11,8 +11,8 @@
  *
  * Only rooms with a real, built page are listed here, per direct
  * instruction: no "Soon"/placeholder entries for pages that don't exist
- * yet. Work (case studies), Ideas (journal/essays), Architecture &
- * Design, Press, and Gallery were removed from this list rather than
+ * yet. Work (case studies), Architecture & Design, Press, and Gallery
+ * remain outside this list rather than
  * flagged unbuilt — add each back the same commit its real page ships,
  * once real assets/content exist for it (case-study depth, essays,
  * project photography, an approved press kit).
@@ -32,6 +32,7 @@ export type SitePage = {
 export const SITE_PAGES: SitePage[] = [
   { name: "The Blueprint", href: "/about", note: "Her story", primary: true },
   { name: "The Atrium", href: "/businesses", note: "Companies & ventures", primary: true },
+  { name: "The Study", href: "/ideas", note: "Ideas & essays", primary: true },
   { name: "The Library", href: "/books", note: "Published books", primary: true },
   { name: "The Screening Room", href: "/media", note: "Appearances & video", primary: true },
   { name: "The Reception", href: "/contact", note: "Get in touch", primary: true },
