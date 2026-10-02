@@ -37,7 +37,7 @@ export function IdeasIndex() {
             <div className="max-w-4xl">
               <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-gold-ink">The Study</p>
               <h1 id="ideas-title" className="mt-5 max-w-4xl text-balance font-display text-5xl font-semibold text-text sm:text-6xl lg:text-7xl">
-                Ideas for building what matters.
+                Adeseun&apos;s Blog
               </h1>
             </div>
             <p className="max-w-xl text-lg text-text-subdued sm:text-xl">
