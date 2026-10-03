@@ -207,6 +207,8 @@ export type Book = {
   coverFit?: "cover" | "contain";
   /** Omitted for the original catalog, whose paperback edition is available. */
   paperbackAvailable?: boolean;
+  /** Optional editorial companion that expands one of the book's central themes. */
+  relatedArticle?: { title: string; href: string };
 };
 
 type EbookBookMetadata = {
@@ -308,6 +310,10 @@ export const BOOKS: Book[] = [
     price: 30000,
     printSpecs: { trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/tranquility-mockup-transparent.png",
+    relatedArticle: {
+      title: "How to Find Peace in Chaos",
+      href: "/ideas/how-to-find-peace-in-chaos",
+    },
   },
   {
     id: "black-is-beautiful",

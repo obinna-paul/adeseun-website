@@ -8,6 +8,7 @@ import { FilterBar } from "./FilterBar";
 import { BookModal } from "./BookModal";
 import { ease } from "@/lib/design-tokens";
 import type { EbookCatalogItem } from "@/lib/ebook-types";
+import { cn } from "@/lib/utils";
 
 /**
  * Grid re-filtering uses AnimatePresence + `layout` (per the brief) —
@@ -45,16 +46,16 @@ export function LibraryGrid({
   const card = (book: Book, index: number, priorityOffset = 0) => (
     <motion.div
       key={book.id}
+      id={book.id}
       layout
       initial={{ opacity: 0, scale: 0.94 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.94 }}
       transition={{ duration: 0.35, ease: ease.out }}
-      className={
-        book.coverAspect === "landscape"
-          ? "col-span-2 self-center sm:col-span-1"
-          : undefined
-      }
+      className={cn(
+        "scroll-mt-32",
+        book.coverAspect === "landscape" && "col-span-2 self-center sm:col-span-1",
+      )}
     >
       <BookCard book={book} priority={index + priorityOffset < 4} onSelect={setSelected} />
     </motion.div>

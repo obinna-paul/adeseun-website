@@ -19,6 +19,7 @@ export function IdeaArticlePage({ article }: { article: IdeaArticle }) {
   const shareText = encodeURIComponent(article.title);
   const shareUrl = encodeURIComponent(articleUrl);
   const hasMeaningfulUpdate = article.modifiedAt !== article.publishedAt;
+  const sourceNumber = (url: string) => article.references.findIndex((reference) => reference.url === url) + 1;
 
   return (
     <article>
@@ -112,6 +113,20 @@ export function IdeaArticlePage({ article }: { article: IdeaArticle }) {
             <div className="idea-prose mt-12">
               {article.introduction.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
 
+              {article.inspiredBy ? (
+                <aside className="my-10 border-y border-gold/40 bg-gold-tint/40 px-6 py-7" aria-label={`Inspired by ${article.inspiredBy.title}`}>
+                  <p className="!m-0 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-gold-ink">In conversation with the book</p>
+                  <h2 className="!mb-0 !mt-3 !text-3xl">{article.inspiredBy.title}</h2>
+                  <p className="!mb-0 !mt-3">{article.inspiredBy.description}</p>
+                  <Link
+                    href={article.inspiredBy.href}
+                    className="mt-5 inline-flex min-h-11 items-center gap-2 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-emerald-ink hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-4"
+                  >
+                    Explore the book <ArrowRight aria-hidden="true" size={16} weight="light" />
+                  </Link>
+                </aside>
+              ) : null}
+
               <nav aria-label="On this page" className="idea-mobile-toc">
                 <p>On this page</p>
                 <ol>
@@ -141,11 +156,48 @@ export function IdeaArticlePage({ article }: { article: IdeaArticle }) {
                   ) : null}
                   {section.list ? <ul>{section.list.map((item) => <li key={item}>{item}</li>)}</ul> : null}
                   {section.quote ? <blockquote><p>{section.quote}</p></blockquote> : null}
+                  {section.sourceUrls?.length ? (
+                    <p className="!mt-6 border-t border-line-whisper pt-3 font-mono !text-xs uppercase tracking-[0.08em] text-text-faint">
+                      Evidence and further reading:{" "}
+                      {section.sourceUrls.map((url, index) => {
+                        const reference = article.references.find((candidate) => candidate.url === url);
+                        return (
+                          <span key={url}>
+                            {index ? ", " : ""}
+                            <a href={url} target="_blank" rel="noreferrer" aria-label={`Source ${sourceNumber(url)}: ${reference?.title ?? url}`}>
+                              [{sourceNumber(url)}]
+                            </a>
+                          </span>
+                        );
+                      })}
+                    </p>
+                  ) : null}
                 </section>
               ))}
 
               <h2 id="a-final-thought">A final thought</h2>
               <p>{article.conclusion}</p>
+
+              {article.internalLinks?.length ? (
+                <section aria-labelledby="continue-exploring">
+                  <h2 id="continue-exploring">Continue exploring</h2>
+                  <div className="mt-6 grid gap-4">
+                    {article.internalLinks.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="group block rounded-frame border border-line px-5 py-5 no-underline transition-colors hover:border-emerald focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald focus-visible:ring-offset-4"
+                      >
+                        <span className="flex items-center justify-between gap-4 font-display text-xl font-semibold text-text">
+                          {item.title}
+                          <ArrowRight aria-hidden="true" size={18} weight="light" className="shrink-0 text-emerald-ink transition-transform group-hover:translate-x-1" />
+                        </span>
+                        <span className="mt-2 block text-base leading-relaxed text-text-subdued">{item.description}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
 
               {article.references.length ? (
                 <section aria-labelledby="sources-and-reading">

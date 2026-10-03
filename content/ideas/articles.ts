@@ -20,6 +20,7 @@ export type IdeaSection = {
   list?: string[];
   quote?: string;
   image?: IdeaImage;
+  sourceUrls?: string[];
 };
 
 export type IdeaReference = {
@@ -28,6 +29,12 @@ export type IdeaReference = {
   publication: string;
   year: string;
   url: string;
+};
+
+export type IdeaInternalLink = {
+  title: string;
+  description: string;
+  href: string;
 };
 
 export type IdeaArticle = {
@@ -43,9 +50,11 @@ export type IdeaArticle = {
   hero: IdeaImage;
   keyIdea: string;
   introduction: string[];
+  inspiredBy?: IdeaInternalLink;
   sections: IdeaSection[];
   conclusion: string;
   references: IdeaReference[];
+  internalLinks?: IdeaInternalLink[];
   related: string[];
 };
 
@@ -81,184 +90,253 @@ export const AUTHOR = {
   bio: "Adeseun Oyeneye works across enterprise, media, architecture, publishing, and social impact. Her writing examines how ideas become institutions, how environments shape people, and how thoughtful communication can create more durable work and relationships.",
 } as const;
 
+const WHO_STRESS_GUIDE = "https://www.who.int/thailand/activities/doing-what-matters-in-times-of-stress";
+const WHO_STRESS_PLATFORM = "https://www.emro.who.int/mhps/dealing_with_stress.html";
+const SLOW_BREATHING_REVIEW = "https://pubmed.ncbi.nlm.nih.gov/30245619/";
+const NCCIH_MINDFULNESS = "https://www.nccih.nih.gov/health/meditation-and-mindfulness-effectiveness-and-safety";
+const HARVARD_CALM = "https://www.health.harvard.edu/mind-and-mood/staying-calm-in-turbulent-times";
+const GOTTMAN_BOUNDARIES = "https://www.gottman.com/blog/are-you-protecting-your-peace-or-just-avoiding-hard-situations/";
+
 export const IDEA_ARTICLES: readonly IdeaArticle[] = [
   {
-    slug: "ideas-need-structure",
-    title: "Ideas Need Structure Before They Need Scale",
-    dek: "Growth does not repair an organisation. It magnifies what is already there—its clarity, its confusion, its discipline, and its dependence on a few people.",
+    slug: "how-to-find-peace-in-chaos",
+    title: "How to Find Peace in Chaos: 7 Practices for Staying Steady",
+    dek: "Peace is not the reward waiting after life becomes quiet. It is the practiced ability to return to yourself, choose what matters, and take the next honest step while the noise is still present.",
     seoDescription:
-      "A research-backed guide to building the decision rights, management systems, operating rhythms, and learning culture an idea needs before it scales.",
-    publishedAt: "2026-10-02T21:30:00+01:00",
-    modifiedAt: "2026-10-02T21:30:00+01:00",
-    pillar: "leadership-enterprise",
-    topics: ["organisational structure", "business scaling", "decision rights", "management systems", "leadership"],
+      "Learn how to find peace in chaos with seven evidence-informed practices for grounding, calm, clear action, healthy boundaries, and everyday tranquility.",
+    publishedAt: "2026-10-03T18:00:00+01:00",
+    modifiedAt: "2026-10-03T18:00:00+01:00",
+    pillar: "purpose-communication",
+    topics: [
+      "how to find peace in chaos",
+      "how to stay calm in chaos",
+      "inner peace",
+      "grounding techniques",
+      "healthy boundaries",
+      "Tranquility",
+    ],
     featured: true,
     hero: {
-      src: "/images/ideas/ideas-need-structure-hero.webp",
-      alt: "Architectural plans and a modular wooden structure expanding from a small central block",
-      caption: "Structure turns growth from a leap of faith into a sequence of choices that can be understood, tested, and improved.",
+      src: "/images/ideas/how-to-find-peace-in-chaos-hero.webp",
+      alt: "Illustration of a composed Black woman standing steady while papers and abstract storm shapes swirl around her",
+      caption: "Tranquility is not a life without motion; it is the ability to keep your footing while life moves around you.",
       width: 1920,
       height: 1080,
-      objectPosition: "50% 50%",
+      objectPosition: "50% 48%",
     },
     keyIdea:
-      "Scale is an amplifier, not a cure. Before an idea grows, its purpose, decision rights, information flows, standards, and learning rhythm must be clear enough for other people to carry the work responsibly.",
+      "Peace in chaos is not the absence of noise, conflict, or uncertainty. It is the practiced ability to steady your attention, make room for difficult feelings, and choose the next right action without letting the storm make every decision for you.",
     introduction: [
-      "A promising idea can feel complete in the imagination long before it is ready to survive contact with growth. The founder can see the destination, make the judgement calls, correct the work, and explain the intention in real time. At a small scale, that personal attention can hold the whole enterprise together. It is also easy to mistake that closeness for an operating system.",
-      "Then demand increases. More people join. Projects overlap. Clients expect consistency. Decisions that once happened across a desk begin to travel through several hands. The organisation becomes busy, but busyness conceals an important question: has the idea become clear enough to be carried by people who were not present at its beginning?",
-      "That is why structure must come before scale. Structure is not bureaucracy for its own sake. It is the practical architecture of responsibility: what the organisation is promising, who may decide, what information must move, which standards cannot be traded away, and how the team learns when reality challenges the plan.",
+      "There are seasons when peace sounds like a luxury. The messages keep arriving. Work follows you home. Someone you love needs more than you know how to give. The news makes the future feel close and unstable. Even a quiet room can become crowded with rehearsed conversations, imagined outcomes, and decisions that have not yet found their shape.",
+      "In those seasons, waiting for life to become calm before you become steady gives the world complete control of your inner weather. Something will always be unfinished, uncertain, or outside your power. The more durable alternative is to learn how to return: to the body, to the present, to what you can influence, to the people who help you remember yourself, and to the values that can still guide the next choice.",
+      "That is the understanding of tranquility explored here. It does not ask you to deny pressure, perform serenity, or become untouched by difficulty. It asks whether you can meet reality without surrendering every part of your attention to it. The seven practices below are small enough to use in an ordinary day and sturdy enough to revisit when the day is not ordinary at all.",
     ],
+    inspiredBy: {
+      title: "Tranquility",
+      description:
+        "This essay continues the book’s central invitation: cultivate serenity as a repeatable practice inside the life you already have, rather than a destination reached after every storm has passed.",
+      href: "/books#tranquility",
+    },
     sections: [
       {
-        id: "scale-is-an-amplifier",
-        title: "Scale is an amplifier, not a cure",
+        id: "what-does-peace-in-chaos-mean",
+        title: "What does it mean to find peace in chaos?",
         paragraphs: [
-          "Growth increases volume, but it also increases distance. There is more distance between the founder and the customer, between a decision and its consequences, and between the original intention and the person executing it. Every ambiguity that one person once resolved instinctively becomes a question that several people can answer differently.",
-          "Research on management practices helps explain why this matters. A large study of more than 11,000 firms across 34 countries found that differences in management practices account for a meaningful share of productivity differences both within and between countries. Another US Census-linked study of roughly 32,000 manufacturing plants found that structured management practices explained about one-fifth of the variation in productivity—comparable to the contribution associated with research and development and greater than that associated with information technology in the study.",
-          "These findings do not mean every organisation should look the same. They show that management itself is productive work. Monitoring what matters, setting usable targets, developing people, and acting on evidence are not administrative extras added after the ‘real’ work. They are part of how the real work becomes reliable.",
+          "To find peace in chaos is to become less governable by the loudest thing in the room. The difficulty may remain real. Your body may still register strain. You may still need to make a hard call, hold a boundary, grieve a loss, or ask for help. Peace does not erase those facts. It gives you enough inner space to respond to them without becoming identical to them.",
+          "This is why calm and control are not the same. Control tries to force uncertainty into a shape it cannot always take. Calm notices what is here, separates the workable from the uncontrollable, and preserves the judgement needed for the next useful action. One demands that the world settle down; the other strengthens your ability to meet the world as it is.",
+          "The World Health Organization’s stress guidance uses a similar practical frame: ground yourself, unhook from difficult thoughts, make room for emotions, act on values, and engage with kindness. None of these practices requires you to pretend the storm has gone. They help you keep hold of choice while it passes through.",
         ],
-        quote: "When an organisation grows, every unwritten rule becomes a potential point of friction.",
+        quote: "Peace is not a performance of stillness. It is the capacity to return without abandoning reality.",
+        sourceUrls: [WHO_STRESS_GUIDE, WHO_STRESS_PLATFORM],
       },
       {
-        id: "define-the-promise",
-        title: "Define the promise before designing the organisation",
+        id: "return-to-the-body",
+        title: "1. Return to the body before solving the story",
         paragraphs: [
-          "Structure should begin with purpose, not an organisational chart. A chart can distribute titles while leaving the central promise untouched. The more useful starting point is to describe the change the organisation exists to create, the people it exists to serve, and the boundaries of what it will not attempt.",
-          "A clear promise is an operating constraint. It allows a team to distinguish an attractive opportunity from a relevant one. It gives product decisions, hiring choices, partnerships, and budgets a common reference point. Without that constraint, scale often becomes a collection of unrelated yeses: more offers, more platforms, more activity, and less coherence.",
-          "The promise must be specific enough to guide an ordinary week. If it appears only in a vision statement, it is too distant from the work. Teams should be able to use it when deciding what to prioritise, what quality looks like, and when a request falls outside the organisation's responsibility.",
-        ],
-        list: [
-          "Who is the work for, and what problem are they trusting us to solve?",
-          "What observable change should exist because we did the work well?",
-          "Which standards are part of the promise rather than optional preferences?",
-          "What will we deliberately refuse, even when it could produce short-term revenue or attention?",
-        ],
-      },
-      {
-        id: "design-decision-rights",
-        title: "Design decision rights before adding departments",
-        paragraphs: [
-          "An organisational chart shows where people sit. It does not necessarily show where judgement lives. Two people can share a reporting line and still disagree about who may approve a spend, change a deadline, speak for the brand, accept a client, or stop work that does not meet the standard.",
-          "Decision rights make responsibility visible. For each recurring decision, the organisation should identify the person who owns the final call, the people whose knowledge must be consulted, the information required, and the conditions that trigger escalation. Consultation can be broad; final accountability should be clear.",
-          "This is also how a founder protects attention. If every choice must return to one person, the organisation has not scaled—it has lengthened the queue around that person. The goal is not to remove the founder from the work. It is to reserve senior judgement for direction, talent, risk, capital, and the decisions whose consequences genuinely justify it.",
+          "When life feels overwhelming, the mind often races ahead of the moment. It writes an ending before the facts have arrived, replays what cannot be changed, or tries to solve five problems at once. Before asking the mind for a better story, give the body a clearer signal about where you are now.",
+          "Place both feet on the floor. Let your shoulders fall. Notice the support beneath you. Then breathe slowly and gently, without forcing an unusually deep breath. You might lengthen the exhale slightly, or simply count an even rhythm that feels comfortable. A systematic review of slow-breathing research found recurring associations with changes in autonomic and brain activity, alongside reports of increased comfort and relaxation, although the underlying studies varied in design and quality.",
+          "Grounding is not a trick for making every feeling disappear. It is a way of reducing the distance between your attention and the present. If focusing on breath feels uncomfortable, orient through the senses instead: name what you can see, feel the chair or floor supporting you, and listen for the nearest and farthest sounds. The method matters less than the return.",
         ],
         image: {
-          src: "/images/ideas/decision-rights-structure.webp",
-          alt: "Wooden blocks connected by brass paths from one decision point to three clear endpoints",
-          caption: "Clear decision rights give each recurring choice an owner, an information path, and an escalation point.",
+          src: "/images/ideas/grounding-in-the-present.webp",
+          alt: "Flat illustration of a Black woman’s feet rooted in earth with concentric rings and branching roots",
+          caption: "Grounding begins with what is already supporting you: the floor, the breath, the body, and this particular moment.",
           width: 1200,
           height: 900,
         },
         list: [
-          "Name the decision, not only the role.",
-          "Give one person final accountability for routine choices.",
-          "State who contributes evidence and who must be informed.",
-          "Define the threshold at which the decision moves upward.",
+          "Feel the weight of both feet or the support of the chair.",
+          "Relax one place you are bracing: the jaw, hands, shoulders, or stomach.",
+          "Take five slow, comfortable breaths; stop if you feel dizzy or strained.",
+          "Name three things you can see, two you can hear, and one you can physically feel.",
         ],
+        sourceUrls: [SLOW_BREATHING_REVIEW, WHO_STRESS_PLATFORM, HARVARD_CALM],
       },
       {
-        id: "information-enables-delegation",
-        title: "Build the information that makes delegation safe",
+        id: "name-what-is-happening",
+        title: "2. Name what is happening without becoming it",
         paragraphs: [
-          "Delegation is often discussed as a matter of trust. Trust matters, but information makes trust actionable. A manager cannot take responsibility for an outcome if the relevant costs, customer signals, quality measures, deadlines, or risks are invisible. In that condition, delegation becomes guesswork and centralisation begins to feel safer than it is.",
-          "A field experiment in Indian textile plants offers unusually concrete evidence. Plants that adopted a set of modern management practices raised productivity by an average of 11 percent through improvements in quality, efficiency, and inventory. The researchers also observed greater decentralisation: better information flows enabled owners to delegate more decisions to middle managers.",
-          "The lesson is not that every organisation needs a dense dashboard. It needs a small set of truthful signals tied to decisions. A useful measure has an owner, a review rhythm, and a consequence. If nobody acts when the number changes, the organisation is collecting data rather than creating information.",
+          "A feeling becomes harder to work with when it turns into an identity. There is a difference between ‘I am failing’ and ‘I am noticing the fear that I may fail.’ The second sentence does not deny the fear. It places a small, necessary space between the person and the thought.",
+          "Use plain language. ‘I am disappointed.’ ‘My chest feels tight.’ ‘I keep imagining the worst outcome.’ ‘I am angry because this mattered to me.’ Naming an experience can interrupt the blur in which sensation, prediction, memory, and fact all arrive as one unquestionable message.",
+          "The aim is not to argue yourself out of what you feel. It is to see the feeling clearly enough that it does not have to impersonate an instruction. You can be afraid and still make a careful phone call. You can be angry and wait before sending the message. You can be uncertain and choose one responsible step.",
+        ],
+        sourceUrls: [WHO_STRESS_PLATFORM, NCCIH_MINDFULNESS],
+      },
+      {
+        id: "sort-control-from-concern",
+        title: "3. Separate what you can influence from what you cannot",
+        paragraphs: [
+          "Chaos grows when every concern feels like an assignment. You may care deeply about an outcome that you cannot command: another person’s response, the pace of an institution, the past, the market, the weather, or the timing of an answer. Care is human. Carrying each uncertainty as though it were yours to control is exhausting.",
+          "Draw two columns. In the first, write what is within your influence today: the question you can ask, the document you can prepare, the apology you can make, the amount you can spend, the rest you can protect, the professional advice you can seek. In the second, place what is not yours to direct. The second column is not a list of things that do not matter. It is a list of things that cannot receive today’s labour in the same way.",
+          "Then choose one action from the first column. Peace often returns through specificity. ‘Fix my life’ has no edge and no beginning. ‘Send the honest email by noon’ does. A small action cannot guarantee an outcome, but it can restore your relationship with your own agency.",
         ],
         list: [
-          "What must the decision-maker know before acting?",
-          "Where does that information come from, and how current is it?",
-          "Which signal requires action rather than discussion?",
-          "Who checks whether the action produced the intended result?",
+          "What is true right now, before prediction is added?",
+          "What can I influence in the next hour or day?",
+          "What needs another person, more information, or more time?",
+          "What must I stop carrying as though worry were the same as work?",
         ],
+        sourceUrls: [WHO_STRESS_PLATFORM],
       },
       {
-        id: "values-as-behaviour",
-        title: "Translate values into behaviour and trade-offs",
+        id: "protect-attention-without-avoiding-life",
+        title: "4. Protect your attention without avoiding your life",
         paragraphs: [
-          "Values become structural when they change a decision. ‘Excellence’ is not yet a standard until the team knows what must be checked before work is released. ‘Respect’ is not yet a practice until it shapes response times, disagreement, credit, and the treatment of people with less formal power. ‘Integrity’ becomes real when the organisation is willing to lose an opportunity rather than misrepresent what it can deliver.",
-          "This translation matters most under pressure. When time is short or revenue is uncertain, abstract values compete badly with immediate demands. Behaviour-based standards make the trade-off explicit before the crisis arrives. They also make coaching fairer: feedback can refer to an agreed practice instead of becoming a judgement about personality.",
-          "The strongest cultures do not rely on slogans to produce alignment. They connect purpose, expected behaviour, decision rights, and consequences. People understand not only what the organisation celebrates, but what it will correct and what it will never excuse.",
-        ],
-      },
-      {
-        id: "build-an-operating-rhythm",
-        title: "Create an operating rhythm that separates urgency from importance",
-        paragraphs: [
-          "An organisation needs recurring places for different kinds of thought. Daily coordination should not consume the time intended for learning. A financial review should not become a substitute for a customer conversation. A strategy meeting should not be overtaken by tasks that could have been resolved by one accountable owner.",
-          "A simple rhythm can protect these distinctions: short weekly operating reviews for commitments and obstacles; monthly learning reviews for customers, quality, people, and cash; and quarterly choices about direction, investment, and what the organisation should stop doing. The precise cadence will vary, but each meeting should have a decision purpose, a prepared evidence set, and a named owner for the next action.",
-          "Rhythm is valuable because it makes reality harder to avoid. Assumptions meet evidence at a known time. Problems do not need to become emergencies before they receive attention. Progress becomes visible, and the team can adjust the system instead of repeatedly improvising around the same weakness.",
+          "‘Protect your peace’ is useful advice until it becomes a beautiful name for disappearing. A healthy boundary limits the way pressure enters your life so that you can remain present, honest, and responsible. Avoidance may offer immediate relief, but it often leaves the necessary conversation, decision, or repair waiting in the same place.",
+          "A practical test is to ask whether your boundary has a purpose and, where it is safe, a path back. Turning off notifications during dinner protects attention. Pausing a heated conversation and agreeing to return tomorrow protects the possibility of a better conversation. Refusing an unsafe situation is not avoidance; safety takes priority. But repeatedly withdrawing from ordinary discomfort without explanation can quietly make life smaller.",
+          "Protecting attention also means choosing the rhythm of information. You can care about the world without consuming a continuous stream of it. Decide when you will check the news, which sources deserve trust, and what you will do after learning something important. Information that cannot become understanding or action may need a boundary around its access to you.",
         ],
         image: {
-          src: "/images/ideas/operating-rhythm-learning.webp",
-          alt: "A measured sequence of handmade paper circles and geometric markers linked by graphite arrows",
-          caption: "A useful operating rhythm repeats what works while leaving deliberate room to adjust what does not.",
+          src: "/images/ideas/protect-peace-without-avoidance.webp",
+          alt: "Flat illustration of a Black woman holding an open green gate between a noisy space and a calm path",
+          caption: "A healthy boundary is not always a wall. Often, it is a gate with a purpose, a limit, and a considered way forward.",
           width: 1200,
           height: 900,
         },
-      },
-      {
-        id: "minimum-viable-management-system",
-        title: "Install a minimum viable management system",
-        paragraphs: [
-          "The fear that systems will suffocate entrepreneurial energy is understandable—and often overstated. Stanford researchers studying high-growth companies found that young firms commonly encounter an ‘entrepreneurial crisis’ as they move from a personal to a professional management style, often around 50 to 100 employees. In their research, earlier adoption of management systems was associated with faster growth, larger scale, and lower CEO turnover.",
-          "The answer is not to import the machinery of a large corporation into a small team. It is to build the minimum system the present level of complexity requires. Every process should solve a recurring coordination, quality, risk, or learning problem. If it cannot explain the decision it improves, it should be simplified or removed.",
-          "A minimum viable management system is light enough to use and strong enough to create continuity. It normally includes a clear strategic promise, explicit decision rights, a few operating measures, a planning and review rhythm, basic financial control, an intentional hiring and onboarding method, and a way to document the lessons the organisation cannot afford to relearn.",
+        list: [
+          "Name the limit: what will you do, stop doing, or postpone?",
+          "Name the reason: what value, safety need, or responsibility does it protect?",
+          "Name the return: if a return is safe and appropriate, when and how will you re-engage?",
         ],
-        quote: "Structure earns its place when it makes good judgement easier to repeat.",
+        sourceUrls: [WHO_STRESS_PLATFORM, GOTTMAN_BOUNDARIES],
       },
       {
-        id: "structure-must-learn",
-        title: "Build a structure that can learn, not only comply",
+        id: "choose-a-value-before-an-action",
+        title: "5. Choose a value before choosing an action",
         paragraphs: [
-          "A system can be orderly and still be wrong. This is why structure must include a way for people to challenge assumptions, report errors, and surface weak signals without paying an unnecessary interpersonal price. Harvard professor Amy Edmondson's research on psychological safety links a climate of interpersonal safety with learning behaviours such as asking for help, experimenting, and discussing mistakes.",
-          "Psychological safety is not the absence of standards or accountability. It is the confidence that candour is welcome in service of the work. Leaders create it by responding constructively to unwelcome information, admitting what they do not know, and distinguishing an intelligent experiment from careless repetition.",
-          "As the organisation grows, this learning capacity becomes a form of risk control. Senior leaders will know less about the edge of the work than the people closest to customers, operations, and communities. A structure that moves information upward—and permits the plan to change—can remain coherent without becoming rigid.",
+          "Pressure creates false urgency. It says the fastest reaction is the truest one. Values slow the moment just enough to ask a better question: who do I want to be in the way I handle this?",
+          "Choose one value that the situation needs—courage, kindness, honesty, patience, dignity, stewardship, or justice. Then translate it into behaviour small enough to perform. Honesty may mean correcting an assumption. Kindness may mean changing the tone without changing the truth. Courage may mean asking for help before the problem grows. Dignity may mean leaving a conversation that has become abusive.",
+          "This does not guarantee that the decision will feel peaceful. Some value-aligned choices are costly. The peace comes from coherence: your action belongs to the person you are trying to become, rather than only to the emotion that was loudest for a few minutes.",
+        ],
+        sourceUrls: [WHO_STRESS_GUIDE],
+      },
+      {
+        id: "borrow-steadiness-from-others",
+        title: "6. Borrow steadiness from other people",
+        paragraphs: [
+          "Self-possession does not require self-isolation. Sometimes peace returns in the presence of someone who can listen without escalating the moment, offer practical help, share a meal, pray with you if that is part of your life, or remind you of the facts when fear has made them difficult to hold.",
+          "Ask specifically for the kind of support you need. ‘Can you listen for ten minutes without trying to solve this?’ is easier to answer than ‘I need help.’ So is ‘Can you review this decision with me tomorrow?’ or ‘Can you sit with me while I make the call?’ Specific requests give care a shape.",
+          "The WHO notes that social support can mean emotional validation, practical assistance, connection with a community or service, or simply spending time together without discussing the problem. Steadiness is often relational: another person does not remove the storm, but their presence can help you remember that you are not the storm either.",
+        ],
+        sourceUrls: [WHO_STRESS_PLATFORM],
+      },
+      {
+        id: "practice-before-you-need-it",
+        title: "7. Practise tranquility before you urgently need it",
+        paragraphs: [
+          "No practice becomes dependable only because the emergency has arrived. The smallest daily ritual—a few quiet breaths before opening your phone, a short walk after work, a page of unedited writing, an evening check-in with someone you trust—creates a familiar route back to yourself.",
+          "Consistency matters more than theatre. Ten minutes you can repeat is more useful than an elaborate routine that collapses on a demanding day. Attach the practice to something that already happens: after brushing your teeth, before the first meeting, at the end of lunch, when you close the laptop. Let the cue carry the habit when motivation is absent.",
+          "Mindfulness practices can be useful for some people, but they are not a universal cure and the evidence varies by condition and study quality. The US National Center for Complementary and Integrative Health also notes that a minority of participants in a large review reported negative effects. Begin gently, choose practices that help rather than destabilise you, and seek qualified guidance when needed.",
+        ],
+        quote: "The purpose of a tranquility practice is not to become untroubled. It is to become more able to return.",
+        sourceUrls: [NCCIH_MINDFULNESS, WHO_STRESS_GUIDE],
+      },
+      {
+        id: "five-minute-reset",
+        title: "A five-minute reset when everything feels like too much",
+        paragraphs: [
+          "When you cannot do all seven practices, use this shorter sequence. Treat it as an orientation, not a test. If one step is not suitable in the moment, move to the next.",
         ],
         list: [
-          "Can someone stop work when quality or safety is at risk?",
-          "Can a junior colleague question an assumption without being labelled difficult?",
-          "Are mistakes examined for system causes as well as individual responsibility?",
-          "Does evidence change the plan, or is feedback collected after the decision is already fixed?",
+          "Minute 1 — Arrive: feel the ground or chair and look slowly around the space you are in.",
+          "Minute 2 — Breathe: use a slow, comfortable rhythm without forcing the inhale.",
+          "Minute 3 — Name: say what you are feeling and what you are predicting, as two separate things.",
+          "Minute 4 — Sort: identify what is within your influence before the day ends.",
+          "Minute 5 — Choose: take one action that reflects the value you want to bring to the situation.",
         ],
+        sourceUrls: [WHO_STRESS_GUIDE, SLOW_BREATHING_REVIEW],
+      },
+      {
+        id: "when-self-help-is-not-enough",
+        title: "When is self-help not enough?",
+        paragraphs: [
+          "An article can offer language and practices; it cannot assess your health or replace individual care. If distress is persistent, worsening, affecting your ability to work or manage daily life, or leading you to rely on substances or other harmful coping, speak with a qualified mental-health or medical professional. If you are in immediate danger or may harm yourself or someone else, contact local emergency services or a crisis service now.",
+          "Seeking support is not evidence that you failed to be tranquil. It is an act of attention to reality. The most responsible next step is not always an inward practice; sometimes it is letting another person, clinician, community, or service help carry what has become too heavy to hold alone.",
+        ],
+        sourceUrls: [WHO_STRESS_PLATFORM, NCCIH_MINDFULNESS],
       },
     ],
     conclusion:
-      "The right time to design structure is before growth turns every ambiguity into a recurring cost. Define the promise. Make decisions and escalation paths visible. Build the information that permits responsible delegation. Translate values into behaviour. Establish a rhythm for operating and learning. Then review the system as the work changes. Scale will still bring complexity, but it will no longer be asked to solve problems it can only magnify. It will have something sound to multiply.",
+      "The storms of a life do not always announce when they will end. If peace depends on their permission, it will always feel temporary. Begin closer in: the feet on the floor, the feeling named accurately, the concern placed in its proper column, the boundary with a reason, the value made visible in one action, the person you can call, the practice you repeat tomorrow. This is tranquility as companionship rather than escape—a way of remaining available to your own life while it is still unfinished.",
     references: [
       {
-        title: "Building Sustainable High-Growth Startup Companies: Management Systems as an Accelerator",
-        authors: "Antonio Davila, George Foster, and Ning Jia",
-        publication: "California Management Review / Stanford Graduate School of Business",
-        year: "2010",
-        url: "https://www.gsb.stanford.edu/faculty-research/publications/building-sustainable-high-growth-startup-companies-management-systems",
+        title: "Doing What Matters in Times of Stress",
+        authors: "World Health Organization",
+        publication: "World Health Organization",
+        year: "2020; overview updated 2026",
+        url: WHO_STRESS_GUIDE,
       },
       {
-        title: "Does Management Matter? Evidence from India",
-        authors: "Nicholas Bloom, Benn Eifert, Aprajit Mahajan, David McKenzie, and John Roberts",
-        publication: "NBER Working Paper 16658",
-        year: "2011",
-        url: "https://www.nber.org/papers/w16658",
+        title: "Mental Health and Psychosocial Support: Dealing With Stress",
+        authors: "World Health Organization Regional Office for the Eastern Mediterranean",
+        publication: "World Health Organization",
+        year: "accessed 2026",
+        url: WHO_STRESS_PLATFORM,
       },
       {
-        title: "Management as a Technology?",
-        authors: "Nicholas Bloom, Raffaella Sadun, and John Van Reenen",
-        publication: "NBER Working Paper 22327",
-        year: "2016, revised 2017",
-        url: "https://www.nber.org/papers/w22327",
+        title: "How Breath-Control Can Change Your Life: A Systematic Review on Psycho-Physiological Correlates of Slow Breathing",
+        authors: "Andrea Zaccaro and colleagues",
+        publication: "Frontiers in Human Neuroscience / PubMed",
+        year: "2018",
+        url: SLOW_BREATHING_REVIEW,
       },
       {
-        title: "What Drives Differences in Management?",
-        authors: "Nicholas Bloom, Erik Brynjolfsson, Lucia Foster, Ron S. Jarmin, Megha Patnaik, Itay Saporta-Eksten, and John Van Reenen",
-        publication: "NBER Working Paper 23300",
-        year: "2017",
-        url: "https://www.nber.org/papers/w23300",
+        title: "Meditation and Mindfulness: Effectiveness and Safety",
+        authors: "National Center for Complementary and Integrative Health",
+        publication: "US National Institutes of Health",
+        year: "updated 2022",
+        url: NCCIH_MINDFULNESS,
       },
       {
-        title: "Managing the Risk of Learning: Psychological Safety in Work Teams",
-        authors: "Amy C. Edmondson",
-        publication: "Harvard Business School Working Paper 02-062",
-        year: "2002",
-        url: "https://www.hbs.edu/ris/download.aspx?name=02-062.pdf",
+        title: "Staying Calm in Turbulent Times",
+        authors: "Harvard Health Publishing",
+        publication: "Harvard Medical School",
+        year: "2020",
+        url: HARVARD_CALM,
+      },
+      {
+        title: "Are You Protecting Your Peace or Just Avoiding Hard Situations?",
+        authors: "Alex Spangler",
+        publication: "The Gottman Institute",
+        year: "2026",
+        url: GOTTMAN_BOUNDARIES,
+      },
+    ],
+    internalLinks: [
+      {
+        title: "Read about Tranquility",
+        description: "Explore the book that inspired this essay’s view of serenity as a practice inside the storm.",
+        href: "/books#tranquility",
+      },
+      {
+        title: "Meet Adeseun Oyeneye",
+        description: "Learn about the author’s work across enterprise, media, architecture, publishing, and social impact.",
+        href: "/about",
+      },
+      {
+        title: "Continue the conversation",
+        description: "Send a considered note, publishing enquiry, speaking invitation, or advisory request.",
+        href: "/contact",
       },
     ],
     related: [],

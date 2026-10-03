@@ -327,6 +327,18 @@ function BookDetails({
         </div>
       </div>
 
+      {book.relatedArticle ? (
+        <div className="mt-7 border-t border-line-whisper pt-6">
+          <p className="font-display text-xl font-semibold text-text">Continue with the companion essay</p>
+          <p className="mt-1 text-sm leading-relaxed text-text-subdued">
+            A practical reflection that carries the book’s central idea into everyday life.
+          </p>
+          <MagneticButton href={book.relatedArticle.href} variant="secondary" dense className="mt-4">
+            Read {book.relatedArticle.title}
+          </MagneticButton>
+        </div>
+      ) : null}
+
       <div className="mt-6 flex flex-wrap items-center gap-4">
         <button
           type="button"

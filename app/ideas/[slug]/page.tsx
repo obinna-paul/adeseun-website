@@ -48,6 +48,9 @@ export default async function IdeaPage({ params }: { params: Promise<{ slug: str
     pillar: pillar.label,
     wordCount: articleWordCount(article),
     citations: article.references.map((reference) => reference.url),
+    about: article.inspiredBy
+      ? { name: article.inspiredBy.title, url: article.inspiredBy.href }
+      : undefined,
   });
 
   return (

@@ -220,6 +220,7 @@ type ArticleSchemaInput = ArticleMetadataInput & {
   pillar: string;
   wordCount: number;
   citations?: readonly string[];
+  about?: { name: string; url: string };
 };
 
 export function articleJsonLd(input: ArticleSchemaInput) {
@@ -252,6 +253,16 @@ export function articleJsonLd(input: ArticleSchemaInput) {
         keywords: input.topics.join(", "),
         wordCount: input.wordCount,
         ...(input.citations?.length ? { citation: [...input.citations] } : {}),
+        ...(input.about
+          ? {
+              about: {
+                "@type": "Book",
+                name: input.about.name,
+                url: new URL(input.about.url, SITE_URL).toString(),
+                author: { "@id": PERSON_ID },
+              },
+            }
+          : {}),
         isPartOf: { "@id": WEBSITE_ID },
       },
       {

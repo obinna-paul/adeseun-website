@@ -25,6 +25,11 @@ const nextConfig: NextConfig = {
       { source: "/screening-room", destination: "/media", permanent: true },
       { source: "/study", destination: "/about", permanent: true },
       { source: "/invitation", destination: "/contact", permanent: true },
+      {
+        source: "/ideas/ideas-need-structure",
+        destination: "/ideas/how-to-find-peace-in-chaos",
+        permanent: true,
+      },
     ];
   },
 };
