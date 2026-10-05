@@ -7,7 +7,7 @@
  * live in one place and can't drift between pages.
  */
 
-export const POSITIONING_HEADLINE = "Twenty-six years across media, architecture, and enterprise.";
+export const POSITIONING_HEADLINE = "Across media, architecture, and enterprise.";
 export const POSITIONING_BODY =
   "She has built platforms, designed spaces, published fourteen books, and led at the intersection of business and creativity. This is the short version of a longer story.";
 

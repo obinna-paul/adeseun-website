@@ -5,7 +5,7 @@ import Image from "next/image";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 import { gentleReveal, staggerChildren } from "@/lib/motion";
 import {
-  CAREER_TIMELINE,
+  CAREER_HIGHLIGHTS,
   CREDENTIALS,
   KEY_FACTS,
   PAGE_EYEBROW,
@@ -55,7 +55,7 @@ export function ExecutiveProfileSection() {
             <dl className="mt-10 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-line-whisper pt-8">
               <div>
                 <dt className="font-mono text-xs uppercase tracking-[0.1em] text-text-faint">Experience</dt>
-                <dd className="mt-1 font-display text-lg text-text">{KEY_FACTS.years}</dd>
+                <dd className="mt-1 font-display text-lg text-text">{KEY_FACTS.experience}</dd>
               </div>
               <div>
                 <dt className="font-mono text-xs uppercase tracking-[0.1em] text-text-faint">Governance</dt>
@@ -74,9 +74,9 @@ export function ExecutiveProfileSection() {
         </div>
       </section>
 
-      <section className="bg-surface-sunken px-gutter py-room" aria-label="Career timeline">
+      <section className="bg-surface-sunken px-gutter py-room" aria-label="Career highlights">
         <div className="mx-auto max-w-3xl">
-          <h2 className="font-display text-3xl font-semibold text-text sm:text-4xl">A 26-year career journey.</h2>
+          <h2 className="font-display text-3xl font-semibold text-text sm:text-4xl">Career highlights.</h2>
           <motion.ol
             initial="hidden"
             whileInView="visible"
@@ -84,11 +84,10 @@ export function ExecutiveProfileSection() {
             variants={staggerChildren(90)}
             className="mt-10 flex flex-col gap-8 border-l border-line pl-8"
           >
-            {CAREER_TIMELINE.map((entry) => (
-              <motion.li key={entry.year} variants={gentleReveal} className="relative">
+            {CAREER_HIGHLIGHTS.map((entry) => (
+              <motion.li key={entry.description} variants={gentleReveal} className="relative">
                 <span className="absolute -left-[2.35rem] top-1 h-3 w-3 rounded-full border-2 border-gold bg-surface-sunken" aria-hidden="true" />
-                <span className="font-mono text-sm text-gold-ink">{entry.year}</span>
-                <p className="mt-1 text-lg text-text">{entry.description}</p>
+                <p className="text-lg text-text">{entry.description}</p>
               </motion.li>
             ))}
           </motion.ol>

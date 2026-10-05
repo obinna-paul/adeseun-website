@@ -3,8 +3,8 @@
  * the blueprint calls "Founder & Entrepreneur." Every company name, role,
  * and one-line description below is grounded in her own confirmed
  * executive-profile materials (the same source as study-content.ts's
- * `CREDENTIAL_GROUPS` and the "26 years" / "360Africa Media Group" /
- * "Bounty5 Home" corrections applied there) — nothing invented.
+ * `CREDENTIAL_GROUPS` and the confirmed "360Africa Media Group" /
+ * "Bounty5 Home" details used there) — nothing invented.
  *
  * Per the blueprint's own implementation rule: this page introduces and
  * contextualizes each company, it does not duplicate the full corporate
@@ -21,7 +21,7 @@ export type Venture = {
   imageFit?: "cover" | "contain";
 };
 
-// Dream M12, PluvSeptember 30 Publishing, The Red Chair Talk, and
+// Dream M12, the publishing business, The Red Chair Talk, and
 // 360AfricaTv were removed from this list per direct instruction — no
 // real image exists for any of them yet. Re-add each once a real photo
 // is supplied, rather than showing a placeholder in the meantime.

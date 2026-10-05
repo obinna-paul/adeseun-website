@@ -31,10 +31,7 @@
  * Media" / "Bounty5 Empire" spellings, per direct confirmation against
  * her own current executive-profile materials — those were the best
  * available spelling at the time this file was first researched, not a
- * different, unrelated entity. Same correction for the overall years-of-
- * experience figure: 26, not 24 — this file's `twenty-four years` below
- * was superseded once her current materials confirmed 26 (a 1999–2025
- * career span).
+ * different, unrelated entity.
  *
  * Every `story` line is still original writing in her voice, not a
  * verified account of real events or a quoted statement from her —
@@ -193,7 +190,7 @@ export const HERO_LINE = "Everything you've read about her started at this desk.
 export const BEYOND_EYEBROW = "Beyond the Page";
 export const BEYOND_HEADLINE = "The rest of the working life.";
 export const BEYOND_INTRO =
-  "Entrepreneur, marketing and media executive, life coach — twenty-six years of it. The books are why this page exists; they're not the whole of her. A partial accounting of the rest, real and verified, kept to the margins on purpose.";
+  "Entrepreneur, marketing and media executive, and life coach. The books are why this page exists; they're not the whole of her. A partial accounting of the rest, real and verified, kept to the margins on purpose.";
 
 export type CredentialGroup = { label: string; items: string[] };
 
@@ -203,7 +200,7 @@ export const CREDENTIAL_GROUPS: CredentialGroup[] = [
     items: [
       "Founder, Universal Worship Network — a faith-based TV channel",
       "CEO, Bounty5 Home — home architecture and interior design",
-      "Founder, PluvSeptember 30 Publishing",
+      "Founder of a publishing business",
       "Founder, Dream M12 — fitness and lifestyle",
       "Creative Director, Girlbye Pro — a styling agency",
       "Executive Producer, The Red Chair Talk — a talk show on relationships and community",
