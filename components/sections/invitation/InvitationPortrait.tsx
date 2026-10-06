@@ -31,7 +31,7 @@ export function InvitationPortrait({ y }: { y: MotionValue<number> }) {
     <div className="relative h-[52vh] w-full overflow-hidden lg:sticky lg:top-20 lg:h-[calc(100dvh-5rem)] lg:w-1/2">
       <motion.div className="absolute inset-x-[-4%] bottom-[-4%] top-20 lg:inset-[-4%]" style={{ y }}>
         <Image
-          src="/images/adeseun-invitation.jpg"
+          src="/images/portraits/invitation.jpg"
           alt="Adeseun Oyeneye"
           fill
           sizes="(min-width: 1024px) 50vw, 100vw"

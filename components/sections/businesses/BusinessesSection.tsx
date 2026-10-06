@@ -13,16 +13,15 @@ export function BusinessesSection() {
           <p className="mx-auto mt-4 max-w-xl text-lg text-text-subdued">{PAGE_INTRO}</p>
         </div>
 
-        {/* Her own "Brand Portfolio & Enterprise Footprint" one-pager, used
-            intact — real logos and her own framing, not redrawn. */}
-        <div className="mx-auto mt-12 max-w-2xl overflow-hidden rounded-frame shadow-elevation-card">
+        <div className="mx-auto mt-12 max-w-xl overflow-hidden rounded-frame shadow-elevation-card">
           <Image
-            src="/images/adeseun-brand-portfolio-overview.png"
-            alt="Brand Portfolio & Enterprise Footprint — an overview of her companies"
-            width={650}
-            height={924}
+            src="/images/portraits/atrium-hero.jpg"
+            alt="Portrait of Adeseun Oyeneye"
+            width={2782}
+            height={3480}
             className="h-auto w-full"
-            sizes="(min-width: 1024px) 40vw, 90vw"
+            sizes="(min-width: 1024px) 36rem, 90vw"
+            preload
           />
         </div>
 

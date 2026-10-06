@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "motion/react";
 import { gentleReveal, staggerChildren } from "@/lib/motion";
 import { CREDENTIAL_GROUPS } from "@/components/sections/study/study-content";
@@ -23,6 +24,18 @@ export function AwardsSection() {
         <h1 className="mt-3 text-balance font-display text-4xl font-semibold text-text sm:text-5xl">{PAGE_HEADLINE}</h1>
         <p className="mx-auto mt-4 max-w-md text-lg text-text-subdued">{PAGE_INTRO}</p>
       </div>
+      <figure className="mx-auto mt-12 max-w-xl overflow-hidden rounded-frame shadow-elevation-card">
+        <Image
+          src="/images/portraits/awards.jpg"
+          alt="Portrait of Adeseun Oyeneye"
+          width={2783}
+          height={3480}
+          sizes="(min-width: 1024px) 36rem, 90vw"
+          className="h-auto w-full object-cover"
+          preload
+        />
+      </figure>
+
 
       <motion.ol
         initial="hidden"

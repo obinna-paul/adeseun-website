@@ -85,7 +85,7 @@ export const AUTHOR = {
   name: "Adeseun Oyeneye",
   slug: "adeseun-oyeneye",
   url: "/about",
-  image: "/images/adeseun-portrait-approachable.jpg",
+  image: "/images/portraits/ideas-author.jpg",
   role: "Entrepreneur, media executive, architect, interior designer, author, and corporate adviser",
   bio: "Adeseun Oyeneye works across enterprise, media, architecture, publishing, and social impact. Her writing examines how ideas become institutions, how environments shape people, and how thoughtful communication can create more durable work and relationships.",
 } as const;

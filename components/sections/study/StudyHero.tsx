@@ -7,10 +7,8 @@ import { HERO_LINE } from "./study-content";
 
 /**
  * The Blueprint opens on a portrait, then pulls back — a slow dolly-out,
- * not a cut. Two separate crops, one per breakpoint (adeseun-about-hero.jpg
- * desktop, adeseun-about-hero-mobile.jpg mobile — both AI-generated per
- * direct instruction, same flag as HeroPortrait's own doc comment), for
- * the same reason Home's hero uses two: a landscape crop composed for a
+ * not a cut. Two separate supplied portraits, one per breakpoint, for
+ * the same reason Home's hero uses two: a wide crop composed for a
  * wide frame and a tall portrait composed for a narrow one aren't the
  * same photo cropped differently, they're different source images. Both
  * are dark and moody throughout, not the lighter desk photo this section
@@ -53,20 +51,20 @@ export function StudyHero() {
         transition={{ duration: reduced ? 0 : ZOOM_DURATION, ease: [0.77, 0, 0.175, 1] }}
       >
         <Image
-          src="/images/adeseun-about-hero-mobile.jpg"
+          src="/images/portraits/about-mobile.jpg"
           alt="Adeseun Oyeneye"
           fill
           priority
-          sizes="100vw"
+          sizes="(max-width: 1023px) 100vw, 0px"
           className="object-cover object-[50%_10%] lg:hidden"
         />
         <Image
-          src="/images/adeseun-about-hero.jpg"
+          src="/images/portraits/about-desktop.jpg"
           alt="Adeseun Oyeneye"
           fill
           priority
-          sizes="100vw"
-          className="hidden object-cover object-[62%_15%] lg:block"
+          sizes="(min-width: 1024px) 100vw, 0px"
+          className="hidden object-cover object-[50%_22%] lg:block"
         />
       </motion.div>
 

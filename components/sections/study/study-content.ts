@@ -190,7 +190,7 @@ export const HERO_LINE = "Everything you've read about her started at this desk.
 export const BEYOND_EYEBROW = "Beyond the Page";
 export const BEYOND_HEADLINE = "The rest of the working life.";
 export const BEYOND_INTRO =
-  "Entrepreneur, marketing and media executive, and life coach. The books are why this page exists; they're not the whole of her. A partial accounting of the rest, real and verified, kept to the margins on purpose.";
+  "She is the Vice President of 360Africa Media Group and Founder of 360Africa TV, a faith-based channel for urban culture, music, entertainment, sports, news, and lifestyle. She is also an entrepreneur, author, marketing and media executive, architect, interior designer, and life coach.";
 
 export type CredentialGroup = { label: string; items: string[] };
 

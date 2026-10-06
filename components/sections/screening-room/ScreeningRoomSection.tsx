@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { SCREENING_ROOM_VIDEOS, PAGE_EYEBROW, PAGE_HEADLINE, PAGE_INTRO, MEDIA_COMPANIES_LINE } from "./screening-room-content";
 import { VideoCard } from "./VideoCard";
 
@@ -22,6 +23,18 @@ export function ScreeningRoomSection() {
         <p className="mx-auto mt-4 max-w-xl text-lg text-text-subdued">{PAGE_INTRO}</p>
         <p className="mx-auto mt-3 max-w-xl text-sm text-text-faint">{MEDIA_COMPANIES_LINE}</p>
       </div>
+
+      <figure className="mx-auto mt-12 max-w-xl overflow-hidden rounded-frame shadow-elevation-card">
+        <Image
+          src="/images/portraits/media.jpg"
+          alt="Portrait of Adeseun Oyeneye"
+          width={2782}
+          height={3480}
+          sizes="(min-width: 1024px) 36rem, 90vw"
+          className="h-auto w-full object-cover"
+          preload
+        />
+      </figure>
 
       <div className="mx-auto mt-16 max-w-5xl columns-1 gap-6 sm:columns-2 lg:columns-3">
         {SCREENING_ROOM_VIDEOS.map((video) => (

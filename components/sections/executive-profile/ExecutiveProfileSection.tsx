@@ -37,10 +37,10 @@ export function ExecutiveProfileSection() {
             className="w-full max-w-xs shrink-0 overflow-hidden rounded-frame shadow-elevation-card lg:max-w-sm"
           >
             <Image
-              src="/images/adeseun-portrait-executive.jpg"
+              src="/images/portraits/executive-profile.jpg"
               alt="Adeseun Oyeneye"
-              width={273}
-              height={820}
+              width={2785}
+              height={3480}
               className="h-auto w-full object-cover"
               priority
             />

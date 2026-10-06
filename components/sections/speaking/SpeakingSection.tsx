@@ -23,10 +23,10 @@ export function SpeakingSection() {
           className="w-full max-w-xs shrink-0 overflow-hidden rounded-frame shadow-elevation-card lg:max-w-sm"
         >
           <Image
-            src="/images/adeseun-portrait-speaking.jpg"
-            alt="Adeseun Oyeneye speaking"
-            width={392}
-            height={834}
+            src="/images/portraits/speaking.jpg"
+            alt="Adeseun Oyeneye"
+            width={2783}
+            height={3480}
             className="h-auto w-full object-cover"
             priority
           />

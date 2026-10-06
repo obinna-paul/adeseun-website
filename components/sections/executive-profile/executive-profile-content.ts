@@ -41,7 +41,7 @@ export const PAGE_EYEBROW = "The Boardroom";
 export const PAGE_HEADLINE = "Adeseun Oyeneye.";
 export const PAGE_SUBHEAD = "Vice President, 360Africa Media Group";
 export const PAGE_INTRO =
-  "A multidisciplinary executive whose work intersects media, design, strategy, and human development — recognised for building ideas into institutions and translating vision into tangible impact.";
+  "She is the Vice President of 360Africa Media Group and Founder of 360Africa TV, a faith-based channel for urban culture, music, entertainment, sports, news, and lifestyle. Her wider work spans design, strategy, enterprise, authorship, and human development.";
 
 export const CTA_HEADLINE = "Bring her expertise into the room.";
 export const CTA_BODY = "For advisory work, governance conversations, or a formal introduction.";

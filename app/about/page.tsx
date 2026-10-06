@@ -1,5 +1,5 @@
 import { pageMetadata, profilePageJsonLd } from "@/lib/seo";
-import { StudyHero, StudyTimeline, BehindTheCurtain, BeyondThePage, StudyCTA } from "@/components/sections/study";
+import { StudyHero, StudyTimeline, PortraitPortfolio, BehindTheCurtain, BeyondThePage, StudyCTA } from "@/components/sections/study";
 
 export const metadata = pageMetadata({
   title: "The Blueprint",
@@ -27,6 +27,7 @@ export default function AboutPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <StudyHero />
       <StudyTimeline />
+      <PortraitPortfolio />
       <BehindTheCurtain />
       <BeyondThePage />
       <StudyCTA />

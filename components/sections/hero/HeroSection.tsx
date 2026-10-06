@@ -89,7 +89,7 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
 const HEADLINE_LINES = ["Adeseun", "Oyeneye"];
 
 const POSITIONING_LINE =
-  "Building businesses, shaping spaces, and telling African stories — creating institutions designed to outlive their founder.";
+  "She is the Vice President of 360Africa Media Group and Founder of 360Africa TV, a faith-based channel for urban culture, music, entertainment, sports, news, and lifestyle. She also builds businesses, shapes spaces, and tells African stories.";
 
 export function HeroSection() {
   const reduced = usePrefersReducedMotion();
@@ -102,8 +102,8 @@ export function HeroSection() {
       <div className="absolute inset-x-0 bottom-0 top-20 lg:flex lg:justify-end">
         <div className="relative h-full w-full lg:max-w-[1300px]">
           <HeroPortrait
-            mobileSrc="/images/adeseun-hero-mobile.png"
-            desktopSrc="/images/adeseun-hero-desktop.png"
+            mobileSrc="/images/portraits/home-mobile.jpg"
+            desktopSrc="/images/portraits/home-desktop.jpg"
             alt="Adeseun Oyeneye"
           />
         </div>
