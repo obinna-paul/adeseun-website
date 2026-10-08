@@ -36,6 +36,7 @@ export function CurtainItem({ item, rotate }: { item: CurtainItemType; rotate: n
           caption={item.caption}
           tone={rotate > 0 ? "gold" : "indigo"}
           className={item.tall ? "aspect-[3/4]" : "aspect-[3/2]"}
+          imagePosition={item.imagePosition}
         />
       )}
 

@@ -43,6 +43,7 @@ type LazyImageProps = {
   imageScale?: number;
   imageTransformOrigin?: string;
   shape?: "frame" | "arch";
+  imagePosition?: string;
 };
 
 const PLACEHOLDER_GRADIENTS: Record<"gold" | "indigo", string> = {
@@ -60,6 +61,7 @@ export function LazyImage({
   fit = "cover",
   imageScale,
   imageTransformOrigin,
+  imagePosition,
   shape = "frame",
 }: LazyImageProps) {
   const [loaded, setLoaded] = useState(false);
@@ -105,7 +107,10 @@ export function LazyImage({
             fill
             sizes={sizes}
             className={fit === "contain" ? "object-contain" : "object-cover"}
-            style={imageScale ? { transform: `scale(${imageScale})`, transformOrigin: imageTransformOrigin } : undefined}
+            style={{
+              objectPosition: imagePosition,
+              ...(imageScale ? { transform: `scale(${imageScale})`, transformOrigin: imageTransformOrigin } : {}),
+            }}
             onLoad={() => setLoaded(true)}
           />
         </motion.div>

@@ -54,6 +54,7 @@ export type Milestone = {
    * TimelineCard's placeholder handles anything still unset.
    */
   image?: string;
+  imagePosition?: string;
   /** "cover" (default, right for a photo of her) or "contain" — use
    *  "contain" when `image` is a book cover, not a portrait: a cover has
    *  real title/name text baked in top and bottom that a face-framing
@@ -68,7 +69,7 @@ export const TIMELINE_MILESTONES: Milestone[] = [
     title: "A life spent noticing words",
     story:
       "Long before the first book, she was the person in the room who noticed when a sentence landed wrong — and knew, usually, why.",
-    image: "/images/adeseun-before-the-page.jpg",
+    image: "/images/portraits/home-mobile.jpg",
   },
   {
     id: "think-before-you-speak",
@@ -76,7 +77,7 @@ export const TIMELINE_MILESTONES: Milestone[] = [
     title: "Think Before You Speak",
     story:
       "Her first published book: a case for thoughtful communication as a discipline, not a talent — 197 pages, written to be read in one sitting and returned to for years.",
-    image: "/images/adeseun-think-before-you-speak.jpg",
+    image: "/images/portraits/speaking.jpg",
   },
   {
     id: "beyond-the-mundane",
@@ -84,14 +85,14 @@ export const TIMELINE_MILESTONES: Milestone[] = [
     title: "Beyond the Mundane",
     story:
       "Her second book turned the same attention outward — from the words we choose to the lives we build with them, and what actually makes either one meaningful.",
-    image: "/images/adeseun-beyond-the-mundane.jpg",
+    image: "/images/portraits/invitation.jpg",
   },
   {
     id: "tranquility",
     era: "June 2025",
     title: "Tranquility",
     story: "Her third book, and her quietest: a guide to cultivating calm as a practice, not a place you arrive at once.",
-    image: "/images/adeseun-tranquility.jpg",
+    image: "/images/portraits/about-gallery-01.jpg",
   },
   {
     id: "black-is-beautiful",
@@ -99,7 +100,7 @@ export const TIMELINE_MILESTONES: Milestone[] = [
     title: "Black Is Beautiful",
     story:
       "A fourth book, arriving outside this timeline's neat sequence: a tribute to Black identity, history, and culture — real, published, and just as much hers as the three that came before it.",
-    image: "/images/adeseun-black-is-beautiful.jpg",
+    image: "/images/portraits/about-gallery-02.jpg",
   },
   {
     id: "threesixty",
@@ -107,12 +108,12 @@ export const TIMELINE_MILESTONES: Milestone[] = [
     title: "Vice President, 360Africa Media Group",
     story:
       "The other half of her working life — a media, marketing, and content agency, most recently the official marketing engine behind AFRICAST 2025 and Nigeria House at the Paris 2024 Olympics, and a co-executive producer of The Headies for sixteen years. Not the story this site tells. Just also true.",
-    image: "/images/adeseun-threesixty.jpg",
+    image: "/images/portraits/about-gallery-03.jpg",
   },
 ];
 
 export type CurtainItem =
-  | { kind: "photo"; id: string; caption: string; image?: string; tall?: boolean }
+  | { kind: "photo"; id: string; caption: string; image?: string; imagePosition?: string; tall?: boolean }
   | { kind: "note"; id: string; text: string }
   | { kind: "snippet"; id: string; label: string; text: string };
 
@@ -134,7 +135,7 @@ export type CurtainItem =
  * section's rhythm, not claimed as a real artifact.
  */
 export const CURTAIN_ITEMS: CurtainItem[] = [
-  { kind: "photo", id: "desk-detail", caption: "Between chapters", tall: true, image: "/images/adeseun-curtain.jpg" },
+  { kind: "photo", id: "desk-detail", caption: "A quieter frame", tall: true, image: "/images/portraits/about-gallery-04.jpg" },
   { kind: "note", id: "margin-note-1", text: "This chapter is too polite. Redo it like you mean it." },
   {
     kind: "snippet",
@@ -142,14 +143,14 @@ export const CURTAIN_ITEMS: CurtainItem[] = [
     label: "Research notes, pg. 4",
     text: "Peace isn't the absence of noise. It's what's left once you stop needing to explain yourself.",
   },
-  { kind: "photo", id: "shelf", caption: "Where they live", image: "/images/adeseun-four-books.png" },
+  { kind: "photo", id: "shelf", caption: "In her element", image: "/images/portraits/awards.jpg", imagePosition: "50% 25%" },
   { kind: "note", id: "margin-note-2", text: "Reminder: say the true thing, not the smooth thing." },
   {
     kind: "photo",
     id: "headies-desk",
     caption: "Composed",
     tall: true,
-    image: "/images/adeseun-curtain-portrait.jpg",
+    image: "/images/portraits/media.jpg",
   },
   {
     kind: "snippet",

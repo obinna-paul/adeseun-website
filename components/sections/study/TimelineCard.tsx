@@ -84,6 +84,7 @@ export function TimelineCard({ milestone, side }: { milestone: Milestone; side: 
             className="aspect-[4/5]"
             sizes="(min-width: 1024px) 33vw, 8rem"
             fit={milestone.imageFit}
+            imagePosition={milestone.imagePosition}
             shape={milestone.imageFit === "contain" ? "frame" : "arch"}
           />
         </motion.div>
