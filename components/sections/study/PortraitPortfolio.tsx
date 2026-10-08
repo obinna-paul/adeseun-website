@@ -33,6 +33,22 @@ const PORTRAITS = [
     className: "min-h-[28rem] lg:col-span-4 lg:row-span-2 lg:min-h-0",
     objectPosition: "50% 12%",
   },
+  {
+    src: "/images/portraits/about-mobile.jpg",
+    alt: "Adeseun Oyeneye in traditional attire",
+    width: 2318,
+    height: 3480,
+    className: "min-h-[24rem] lg:col-span-4 lg:row-span-1 lg:min-h-0",
+    objectPosition: "34% 20%",
+  },
+  {
+    src: "/images/portraits/about-desktop.jpg",
+    alt: "Black-and-white portrait of Adeseun Oyeneye",
+    width: 2316,
+    height: 3480,
+    className: "min-h-[24rem] lg:col-span-4 lg:row-span-1 lg:min-h-0",
+    objectPosition: "50% 24%",
+  },
 ] as const;
 
 export function PortraitPortfolio() {

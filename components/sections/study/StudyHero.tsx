@@ -51,20 +51,20 @@ export function StudyHero() {
         transition={{ duration: reduced ? 0 : ZOOM_DURATION, ease: [0.77, 0, 0.175, 1] }}
       >
         <Image
-          src="/images/portraits/about-mobile.jpg"
+          src="/images/portraits/about-mobile-professional.jpg"
           alt="Adeseun Oyeneye"
           fill
           priority
           sizes="(max-width: 1023px) 100vw, 0px"
-          className="object-cover object-[50%_10%] lg:hidden"
+          className="object-cover object-[50%_12%] lg:hidden"
         />
         <Image
-          src="/images/portraits/about-desktop.jpg"
+          src="/images/portraits/about-desktop-executive.png"
           alt="Adeseun Oyeneye"
           fill
           priority
           sizes="(min-width: 1024px) 100vw, 0px"
-          className="hidden object-cover object-[50%_22%] lg:block"
+          className="hidden object-cover object-center lg:block"
         />
       </motion.div>
 
