@@ -31,10 +31,10 @@ type HeroPortraitProps = {
    * image composed for one of those two shapes crops badly in the other.
    * `mobileSrc` falls back to `desktopSrc` if it isn't supplied yet.
    *
-   * `desktopSrc` (adeseun-hero-desktop.png) and `mobileSrc`
-   * (adeseun-hero-mobile.png) are both real photographs of her, supplied
-   * directly — the earlier AI-generated placeholders have been fully
-   * replaced.
+   * `desktopSrc` and `mobileSrc` are breakpoint-specific, identity-
+   * preserving compositions generated from the same supplied portrait,
+   * so the desktop copy field and mobile headroom are intentional rather
+   * than accidental crops of one source.
    */
   desktopSrc?: string;
   mobileSrc?: string;
@@ -101,7 +101,7 @@ export function HeroPortrait({ desktopSrc, mobileSrc, alt }: HeroPortraitProps) 
             fill
             priority
             sizes="100vw"
-            className="object-cover object-[50%_8%] lg:hidden"
+            className="object-cover object-top lg:hidden"
             style={{ filter }}
           />
         )}
@@ -112,7 +112,7 @@ export function HeroPortrait({ desktopSrc, mobileSrc, alt }: HeroPortraitProps) 
             fill
             priority
             sizes="1300px"
-            className="hidden object-cover object-[62%_15%] lg:block"
+            className="hidden object-cover object-center lg:block"
             style={{ filter }}
           />
         )}

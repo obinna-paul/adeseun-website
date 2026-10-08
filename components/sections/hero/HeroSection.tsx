@@ -20,7 +20,8 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
  * the positioning line, not as a second beat worth its own space. The
  * portrait is now two separate crops, one per breakpoint — see
  * HeroPortrait's own doc comment for why one image can't serve both
- * shapes; both crops are now real photographs of her.
+ * shapes; both are identity-preserving compositions derived from the
+ * same supplied professional portrait.
  *
  * ── One layout, every breakpoint ─────────────────────────────────────
  * Mobile and desktop used to be two different compositions (stacked
@@ -40,17 +41,13 @@ import { usePrefersReducedMotion } from "@/lib/use-reduced-motion";
  * longer reading as clipped (desktop) both come from — one fix, not two.
  *
  * ── Taming the zoom on wide screens (real bug, fixed via screenshot) ──
- * The mobile source photo (adeseun-hero-mobile.png, a real photo of her)
- * is a tall, narrow portrait (926×1698). Forcing that to `object-cover` edge-
- * to-edge on an ultra-wide short viewport (2560×1080, or even a
- * maximized 1920-wide laptop window) demands cropping almost all of it
- * away — there's no object-position that fixes that; the geometry itself
- * is the problem. This is exactly why `lg`+ renders a *different* image
- * (adeseun-hero-desktop.png, a real photo of her, 1448×1086) rather than
- * reusing the mobile crop at a larger size — but the width cap below is
- * still worth keeping even with a better-matched desktop source, since
- * it bounds the crop to a known-good range instead of trusting every
- * possible monitor width.
+ * The mobile source is a tall portrait with deliberate headroom and the
+ * desktop source is a wide composition with a copy-safe field on the
+ * left. Reusing either source at the opposite breakpoint would force an
+ * avoidable crop, so `lg`+ renders the dedicated wide image instead. The
+ * width cap below is still worth keeping even with a properly composed
+ * desktop source, since it bounds the crop to a known-good range instead
+ * of trusting every possible monitor width.
  * Past `lg`, the portrait is right-aligned and width-capped
  * (`lg:max-w-[1300px]`) instead of stretching the full section width, so
  * the required crop stays reasonable at any viewport width — typical
@@ -102,8 +99,8 @@ export function HeroSection() {
       <div className="absolute inset-x-0 bottom-0 top-20 lg:flex lg:justify-end">
         <div className="relative h-full w-full lg:max-w-[1300px]">
           <HeroPortrait
-            mobileSrc="/images/adeseun-hero-mobile.png"
-            desktopSrc="/images/adeseun-hero-desktop.png"
+            mobileSrc="/images/home-hero-mustard-mobile.png"
+            desktopSrc="/images/home-hero-mustard-desktop.png"
             alt="Adeseun Oyeneye"
           />
         </div>
