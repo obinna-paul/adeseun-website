@@ -35,7 +35,7 @@ export function InvitationPortrait({ y }: { y: MotionValue<number> }) {
           alt="Adeseun Oyeneye"
           fill
           sizes="(min-width: 1024px) 50vw, 100vw"
-          className="object-cover object-[50%_18%]"
+          className="object-cover object-top"
           priority
         />
       </motion.div>

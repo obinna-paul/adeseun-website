@@ -21,7 +21,7 @@ export function InvitationSection() {
   const ref = useRef<HTMLDivElement>(null);
   const reducedMotion = usePrefersReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const parallaxY = useTransform(scrollYProgress, [0, 1], [-48, 48]);
+  const parallaxY = useTransform(scrollYProgress, [0, 1], [0, 64]);
   const staticY = useMotionValue(0);
 
   return (

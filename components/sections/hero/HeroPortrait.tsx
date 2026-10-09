@@ -112,7 +112,7 @@ export function HeroPortrait({ desktopSrc, mobileSrc, alt }: HeroPortraitProps) 
             fill
             priority
             sizes="1300px"
-            className="hidden object-cover object-center lg:block"
+            className="hidden object-cover object-[50%_8%] lg:block"
             style={{ filter }}
           />
         )}
