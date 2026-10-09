@@ -77,7 +77,8 @@ export const TIMELINE_MILESTONES: Milestone[] = [
     title: "Think Before You Speak",
     story:
       "Her first published book: a case for thoughtful communication as a discipline, not a talent — 197 pages, written to be read in one sitting and returned to for years.",
-    image: "/images/portraits/speaking.jpg",
+    image: "/images/portraits/timeline-think-before-you-speak.jpg",
+    imagePosition: "50% 20%",
   },
   {
     id: "beyond-the-mundane",
