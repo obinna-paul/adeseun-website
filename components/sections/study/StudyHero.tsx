@@ -7,7 +7,8 @@ import { HERO_LINE } from "./study-content";
 
 /**
  * The Blueprint opens on a portrait, then pulls back — a slow dolly-out,
- * not a cut. Two separate supplied portraits, one per breakpoint, for
+ * not a cut. Two separately composed versions of the same supplied
+ * black-and-white portrait, one per breakpoint, for
  * the same reason Home's hero uses two: a wide crop composed for a
  * wide frame and a tall portrait composed for a narrow one aren't the
  * same photo cropped differently, they're different source images. Both
@@ -51,20 +52,20 @@ export function StudyHero() {
         transition={{ duration: reduced ? 0 : ZOOM_DURATION, ease: [0.77, 0, 0.175, 1] }}
       >
         <Image
-          src="/images/portraits/about-mobile-professional.jpg"
+          src="/images/portraits/about-cultural-mobile-v2.png"
           alt="Adeseun Oyeneye"
           fill
           priority
           sizes="(max-width: 1023px) 100vw, 0px"
-          className="object-cover object-[50%_12%] lg:hidden"
+          className="object-cover object-center lg:hidden"
         />
         <Image
-          src="/images/portraits/about-desktop-executive.png"
+          src="/images/portraits/about-cultural-desktop-v2.png"
           alt="Adeseun Oyeneye"
           fill
           priority
           sizes="(min-width: 1024px) 100vw, 0px"
-          className="hidden object-cover object-center lg:block"
+          className="hidden object-cover object-top lg:block"
         />
       </motion.div>
 
