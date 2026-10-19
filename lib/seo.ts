@@ -2,16 +2,11 @@ import type { Metadata } from "next";
 
 export const SITE_NAME = "Adeseun Oyeneye";
 /**
- * Launching on Vercel's free subdomain rather than a custom domain for
- * now (direct instruction) — Vercel defaults an unclaimed project to
- * `<repo-name>.vercel.app`, so this predicts that value ahead of the
- * actual deploy. It's a prediction, not a confirmed value: if the
- * project gets a different name in the Vercel dashboard (or the name is
- * already taken and Vercel appends a suffix), update this to match the
- * real assigned URL once deployed — canonical links, the sitemap, and
- * every OG/Twitter absolute URL all derive from it.
+ * Canonical production origin. Keep this independent of deployment-only
+ * environment variables so canonicals, structured data, sitemap entries,
+ * feeds, and social metadata cannot fall back to a preview hostname.
  */
-export const SITE_URL = "https://adeseun-website.vercel.app";
+export const SITE_URL = "https://www.adeseunoyeneye.com";
 export const PERSON_ID = `${SITE_URL}/#adeseun`;
 export const WEBSITE_ID = `${SITE_URL}/#website`;
 /**
