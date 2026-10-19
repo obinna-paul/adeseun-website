@@ -272,6 +272,10 @@ export const BOOKS: Book[] = [
     price: 25000,
     printSpecs: { pageCount: 197, trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/think-before-you-speak-mockup-transparent.png",
+    relatedArticle: {
+      title: "How to Think Before You Speak",
+      href: "/ideas/how-to-think-before-you-speak",
+    },
   },
   {
     id: "beyond-the-mundane",
@@ -291,6 +295,10 @@ export const BOOKS: Book[] = [
     price: 35000,
     printSpecs: { trimSize: "6 in × 9 in (placeholder)", binding: "Paperback (placeholder)" },
     coverImage: "/images/beyond-the-mundane-mockup-transparent.png",
+    relatedArticle: {
+      title: "What Makes Life Meaningful?",
+      href: "/ideas/what-makes-life-meaningful",
+    },
   },
   {
     id: "tranquility",
